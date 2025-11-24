@@ -1,0 +1,8 @@
+# 强制所有文本文件在提交时转换为 LF，检出时根据系统自动转换
+text=auto eol=lf
+
+# 显式指定文件类型
+*.cpp text eol=lf
+*.py text eol=lf
+*.tex text eol=lf
+*.md text eol=lf

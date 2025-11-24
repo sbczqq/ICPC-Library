@@ -1,0 +1,52 @@
+
+    \documentclass[10pt, landscape, a4paper]{article}
+    \usepackage{multicol}
+    \usepackage{listings} 
+    \usepackage{xcolor}
+    \usepackage{geometry}
+    \usepackage{fancyhdr}
+    \usepackage[utf8]{inputenc} 
+    \usepackage[T1]{fontenc}
+    
+    % 页面边距设置
+    \geometry{top=1cm, bottom=1cm, left=0.5cm, right=0.5cm} 
+    \setlength{\columnsep}{0.5cm}
+    
+    % 页眉设置
+    \pagestyle{fancy}
+    \fancyhf{}
+    \lhead{\textbf{ICPC Template Library}}
+    \rhead{\thepage}
+    
+    % 代码高亮配置 (Listings)
+    \lstset{
+        language=C++,
+        basicstyle=\footnotesize\ttfamily, % 字体大小
+        keywordstyle=\bfseries\color{blue}, % 关键字颜色
+        commentstyle=\itshape\color{teal},  % 注释颜色
+        stringstyle=\color{red},            % 字符串颜色
+        numbers=left,                       % 行号在左侧
+        numberstyle=\tiny\color{gray},      % 行号样式
+        stepnumber=1,                       % 每行都显示行号
+        breaklines=true,                    % 自动换行
+        frame=lines,                        % 代码框上下加线
+        tabsize=2,                          % Tab 宽度
+        showstringspaces=false,             % 不显示字符串中的空格符号
+        breakatwhitespace=false,            
+        escapeinside={(*@}{@*)}             % 允许在代码中写 LaTeX
+    }
+
+    \begin{document}
+    \begin{multicols*}{3} 
+    \tableofcontents
+    \section*{Math}
+\subsection*{fft.cpp}
+\begin{lstlisting}[language=C++]
+#include<iostream>
+using namespace std;
+int main()
+{
+    cout<<"NO"<<endl;
+    return ;
+}\end{lstlisting}
+\end{multicols*} \end{document}
