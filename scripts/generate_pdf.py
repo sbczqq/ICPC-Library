@@ -1,16 +1,71 @@
 import os
 import subprocess
+import re
 
 # 路径配置
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(CURRENT_DIR, "..", "content")
 OUTPUT_TEX = os.path.join(CURRENT_DIR, "notebook.tex")
 
-def generate_latex():
-    print("1. Scanning for code files...")
+def tex_escape(text):
+    """
+    转义 LaTeX 特殊字符，但保留数学公式 ($...$) 和转义符
+    这是一个简化的处理，假设用户在 MD 里写的公式是标准的 $...$
+    """
+    # 暂时只转义最关键的字符，防止编译炸裂
+    # 如果你的 MD 里有大量复杂公式，建议直接在 MD 里写 LaTeX 语法
+    chars = {
+        '&': r'\&',
+        '%': r'\%',
+        '#': r'\#',
+        '_': r'\_',
+        '{': r'\{',
+        '}': r'\}',
+    }
+    # 简单的转义逻辑：如果不在 $...$ 内部，则转义
+    # 这里为了脚本健壮性，我们做一个简单的全局替换
+    # 注意：这可能会破坏 MD 里的复杂 LaTeX 公式，
+    # 如果你是重度数学公式用户，建议 MD 内容直接写 LaTeX
+    for key, value in chars.items():
+        text = text.replace(key, value)
+    return text
+
+def convert_md_to_latex(md_text):
+    """
+    将简单的 Markdown 转换为 LaTeX
+    支持：# 标题, **粗体**, `代码`, 列表
+    """
+    lines = md_text.split('\n')
+    latex_lines = []
     
-    # LaTeX 头部：使用 listings 替代 minted
-    # 定义了 C++ 的高亮样式：蓝色关键字，绿色注释，自动换行
+    for line in lines:
+        line = line.strip()
+        if not line:
+            latex_lines.append("")
+            continue
+            
+        # 处理标题 # -> \subsection*
+        if line.startswith('# '):
+            latex_lines.append(r"\subsection*{" + line[2:] + "}")
+        elif line.startswith('## '):
+            latex_lines.append(r"\subsubsection*{" + line[3:] + "}")
+        # 处理列表 - -> itemize
+        elif line.startswith('- '):
+            latex_lines.append(r"\begin{itemize}\item " + line[2:] + r"\end{itemize}")
+        else:
+            # 处理行内格式
+            # 粗体 **text** -> \textbf{text}
+            line = re.sub(r'\*\*(.*?)\*\*', r'\\textbf{\1}', line)
+            # 行内代码 `text` -> \texttt{text}
+            line = re.sub(r'`(.*?)`', r'\\texttt{\1}', line)
+            
+            latex_lines.append(line + r" \\") # 加上换行符
+            
+    return "\n".join(latex_lines)
+
+def generate_latex():
+    print("1. Scanning for content...")
+    
     latex_content = r"""
     \documentclass[10pt, landscape, a4paper]{article}
     \usepackage{multicol}
@@ -20,34 +75,40 @@ def generate_latex():
     \usepackage{fancyhdr}
     \usepackage[utf8]{inputenc} 
     \usepackage[T1]{fontenc}
+    \usepackage{amsmath}  % 支持数学公式
+    \usepackage{amssymb}
     
-    % 页面边距设置
+    % 页面设置
     \geometry{top=1cm, bottom=1cm, left=0.5cm, right=0.5cm} 
     \setlength{\columnsep}{0.5cm}
     
-    % 页眉设置
+    % 页眉
     \pagestyle{fancy}
     \fancyhf{}
     \lhead{\textbf{ICPC Template Library}}
     \rhead{\thepage}
     
-    % 代码高亮配置 (Listings)
+    % 代码高亮设置
     \lstset{
         language=C++,
-        basicstyle=\footnotesize\ttfamily, % 字体大小
-        keywordstyle=\bfseries\color{blue}, % 关键字颜色
-        commentstyle=\itshape\color{teal},  % 注释颜色
-        stringstyle=\color{red},            % 字符串颜色
-        numbers=left,                       % 行号在左侧
-        numberstyle=\tiny\color{gray},      % 行号样式
-        stepnumber=1,                       % 每行都显示行号
-        breaklines=true,                    % 自动换行
-        frame=lines,                        % 代码框上下加线
-        tabsize=2,                          % Tab 宽度
-        showstringspaces=false,             % 不显示字符串中的空格符号
-        breakatwhitespace=false,            
-        escapeinside={(*@}{@*)}             % 允许在代码中写 LaTeX
+        basicstyle=\footnotesize\ttfamily,
+        keywordstyle=\bfseries\color{blue},
+        commentstyle=\itshape\color{teal},
+        stringstyle=\color{red},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        stepnumber=1,
+        breaklines=true,
+        frame=lines,
+        tabsize=2,
+        showstringspaces=false,
+        breakatwhitespace=false,
+        escapeinside={(*@}{@*)}
     }
+    
+    % 调整列表间距
+    \usepackage{enumitem}
+    \setlist{nosep}
 
     \begin{document}
     \begin{multicols*}{3} 
@@ -58,68 +119,67 @@ def generate_latex():
         print(f"Error: Content directory not found at {CONTENT_DIR}")
         return
 
-    file_count = 0
-    # 遍历 content 目录
-    for dirpath, dirnames, filenames in os.walk(CONTENT_DIR):
-        section_name = os.path.basename(dirpath)
-        # 跳过隐藏文件夹和 content 根目录
-        if section_name == "content" or section_name.startswith("."): 
+    # 遍历一级目录 (Section)
+    for section in sorted(os.listdir(CONTENT_DIR)):
+        section_path = os.path.join(CONTENT_DIR, section)
+        if not os.path.isdir(section_path) or section.startswith('.'):
             continue
-        
-        if not filenames: continue 
 
-        latex_content += f"\\section*{{{section_name.capitalize()}}}\n"
+        latex_content += f"\\section*{{{section.capitalize()}}}\n"
         
-        for filename in sorted(filenames):
-            if filename.endswith((".cpp", ".cc", ".py", ".java", ".sh")):
-                file_count += 1
-                filepath = os.path.join(dirpath, filename)
+        # 获取该目录下所有文件
+        files = sorted(os.listdir(section_path))
+        
+        # 分离 md 和 代码文件
+        md_files = [f for f in files if f.endswith('.md')]
+        code_files = [f for f in files if f.endswith(('.cpp', '.cc', '.py', '.java'))]
+        
+        # 1. 先处理 Markdown (作为文档说明)
+        for filename in md_files:
+            filepath = os.path.join(section_path, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    md_text = f.read()
+                    # 转换 MD 到 LaTeX
+                    latex_text = convert_md_to_latex(md_text)
+                    latex_content += f"\n{latex_text}\n"
+            except Exception as e:
+                print(f"Error parsing MD {filename}: {e}")
+
+        # 2. 后处理代码文件
+        for filename in code_files:
+            filepath = os.path.join(section_path, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    code = f.read()
                 
-                # 读取文件内容
-                try:
-                    with open(filepath, 'r', encoding='utf-8') as f:
-                        code = f.read()
-                except Exception as e:
-                    print(f"Skipping {filename}: {e}")
-                    continue
-                
-                # 处理文件名显示
                 safe_filename = filename.replace("_", "\\_")
+                latex_content += f"\\subsection*{{{safe_filename}}}\n"
                 
-                # 根据扩展名调整语言 (虽然默认是 C++，但对 Python 也能做基本高亮)
                 lang_opt = "language=C++"
                 if filename.endswith(".py"): lang_opt = "language=Python"
-                elif filename.endswith(".java"): lang_opt = "language=Java"
                 
-                latex_content += f"\\subsection*{{{safe_filename}}}\n"
-                # 写入代码块
                 latex_content += f"\\begin{{lstlisting}}[{lang_opt}]\n"
                 latex_content += code
                 latex_content += "\\end{lstlisting}\n"
+            except Exception as e:
+                print(f"Error parsing Code {filename}: {e}")
 
     latex_content += r"\end{multicols*} \end{document}"
 
-    # 写入 tex 文件
     with open(OUTPUT_TEX, "w", encoding='utf-8') as f:
         f.write(latex_content)
     
-    print(f"2. LaTeX generated ({file_count} files). Compiling PDF...")
-
-    # 切换工作目录，避免路径问题
+    print("2. Compiling PDF...")
     os.chdir(CURRENT_DIR)
-    
-    # 编译命令：去掉了 -shell-escape，因为 listings 不需要它
     cmd = ["pdflatex", "-interaction=nonstopmode", "notebook.tex"]
     
     try:
-        # 运行两次以生成目录
         subprocess.run(cmd, check=True)
         subprocess.run(cmd, check=True)
-        print("\n[SUCCESS] 任务完成！PDF 已生成：")
-        print(os.path.join(CURRENT_DIR, "notebook.pdf"))
+        print("\n[SUCCESS] PDF with Markdown generated!")
     except subprocess.CalledProcessError:
-        print("\n[ERROR] 编译失败。")
-        print("请查看 scripts 目录下的 notebook.log 获取详细信息。")
+        print("\n[ERROR] Compilation failed.")
 
 if __name__ == "__main__":
     generate_latex()
