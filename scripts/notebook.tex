@@ -7,39 +7,58 @@
     \usepackage{fancyhdr}
     \usepackage[utf8]{inputenc} 
     \usepackage[T1]{fontenc}
+    \usepackage{amsmath}  % 支持数学公式
+    \usepackage{amssymb}
     
-    % 页面边距设置
+    % 页面设置
     \geometry{top=1cm, bottom=1cm, left=0.5cm, right=0.5cm} 
     \setlength{\columnsep}{0.5cm}
     
-    % 页眉设置
+    % 页眉
     \pagestyle{fancy}
     \fancyhf{}
     \lhead{\textbf{ICPC Template Library}}
     \rhead{\thepage}
     
-    % 代码高亮配置 (Listings)
+    % 代码高亮设置
     \lstset{
         language=C++,
-        basicstyle=\footnotesize\ttfamily, % 字体大小
-        keywordstyle=\bfseries\color{blue}, % 关键字颜色
-        commentstyle=\itshape\color{teal},  % 注释颜色
-        stringstyle=\color{red},            % 字符串颜色
-        numbers=left,                       % 行号在左侧
-        numberstyle=\tiny\color{gray},      % 行号样式
-        stepnumber=1,                       % 每行都显示行号
-        breaklines=true,                    % 自动换行
-        frame=lines,                        % 代码框上下加线
-        tabsize=2,                          % Tab 宽度
-        showstringspaces=false,             % 不显示字符串中的空格符号
-        breakatwhitespace=false,            
-        escapeinside={(*@}{@*)}             % 允许在代码中写 LaTeX
+        basicstyle=\footnotesize\ttfamily,
+        keywordstyle=\bfseries\color{blue},
+        commentstyle=\itshape\color{teal},
+        stringstyle=\color{red},
+        numbers=left,
+        numberstyle=\tiny\color{gray},
+        stepnumber=1,
+        breaklines=true,
+        frame=lines,
+        tabsize=2,
+        showstringspaces=false,
+        breakatwhitespace=false,
+        escapeinside={(*@}{@*)}
     }
+    
+    % 调整列表间距
+    \usepackage{enumitem}
+    \setlist{nosep}
 
     \begin{document}
     \begin{multicols*}{3} 
     \tableofcontents
-    \section*{Math}
+    \section*{Graph}
+\section*{Math}
+
+\subsection*{FFT 算法说明}
+
+快速傅里叶变换用于在 $O(N \log N)$ 时间内计算多项式乘法。 \\
+
+\textbf{注意点：} \\
+\begin{itemize}\item 数组长度 N 必须是 2 的幂次。\end{itemize}
+\begin{itemize}\item 如果 N 不是 2 的幂，需要补 0。\end{itemize}
+
+$$ \\
+A(x) = \sum_{i=0}^{n-1} a_i x^i \\
+$$ \\
 \subsection*{fft.cpp}
 \begin{lstlisting}[language=C++]
 #include<iostream>
