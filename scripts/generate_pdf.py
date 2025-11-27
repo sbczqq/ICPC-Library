@@ -7,33 +7,9 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(CURRENT_DIR, "..", "content")
 OUTPUT_TEX = os.path.join(CURRENT_DIR, "notebook.tex")
 
-def tex_escape(text):
-    """
-    转义 LaTeX 特殊字符，但保留数学公式 ($...$) 和转义符
-    这是一个简化的处理，假设用户在 MD 里写的公式是标准的 $...$
-    """
-    # 暂时只转义最关键的字符，防止编译炸裂
-    # 如果你的 MD 里有大量复杂公式，建议直接在 MD 里写 LaTeX 语法
-    chars = {
-        '&': r'\&',
-        '%': r'\%',
-        '#': r'\#',
-        '_': r'\_',
-        '{': r'\{',
-        '}': r'\}',
-    }
-    # 简单的转义逻辑：如果不在 $...$ 内部，则转义
-    # 这里为了脚本健壮性，我们做一个简单的全局替换
-    # 注意：这可能会破坏 MD 里的复杂 LaTeX 公式，
-    # 如果你是重度数学公式用户，建议 MD 内容直接写 LaTeX
-    for key, value in chars.items():
-        text = text.replace(key, value)
-    return text
-
 def convert_md_to_latex(md_text):
     """
     将简单的 Markdown 转换为 LaTeX
-    支持：# 标题, **粗体**, `代码`, 列表
     """
     lines = md_text.split('\n')
     latex_lines = []
@@ -44,40 +20,38 @@ def convert_md_to_latex(md_text):
             latex_lines.append("")
             continue
             
-        # 处理标题 # -> \subsection*
+        # 处理标题
         if line.startswith('# '):
             latex_lines.append(r"\subsection*{" + line[2:] + "}")
         elif line.startswith('## '):
             latex_lines.append(r"\subsubsection*{" + line[3:] + "}")
-        # 处理列表 - -> itemize
+        # 处理列表
         elif line.startswith('- '):
             latex_lines.append(r"\begin{itemize}\item " + line[2:] + r"\end{itemize}")
         else:
-            # 处理行内格式
-            # 粗体 **text** -> \textbf{text}
+            # 简单处理粗体和行内代码
             line = re.sub(r'\*\*(.*?)\*\*', r'\\textbf{\1}', line)
-            # 行内代码 `text` -> \texttt{text}
             line = re.sub(r'`(.*?)`', r'\\texttt{\1}', line)
-            
-            latex_lines.append(line + r" \\") # 加上换行符
+            latex_lines.append(line + r" \\") 
             
     return "\n".join(latex_lines)
 
 def generate_latex():
     print("1. Scanning for content...")
     
+    # === 修改点 1: 引入 ctex 宏包支持中文，移除 inputenc ===
     latex_content = r"""
     \documentclass[10pt, landscape, a4paper]{article}
+    \usepackage[UTF8]{ctex}  % 关键：中文支持
     \usepackage{multicol}
     \usepackage{listings} 
     \usepackage{xcolor}
     \usepackage{geometry}
     \usepackage{fancyhdr}
-    \usepackage[utf8]{inputenc} 
-    \usepackage[T1]{fontenc}
-    \usepackage{amsmath}  % 支持数学公式
+    \usepackage{amsmath}
     \usepackage{amssymb}
-    
+    \usepackage{enumitem}
+
     % 页面设置
     \geometry{top=1cm, bottom=1cm, left=0.5cm, right=0.5cm} 
     \setlength{\columnsep}{0.5cm}
@@ -93,7 +67,7 @@ def generate_latex():
         language=C++,
         basicstyle=\footnotesize\ttfamily,
         keywordstyle=\bfseries\color{blue},
-        commentstyle=\itshape\color{teal},
+        commentstyle=\itshape\color{teal!80!black}, % 注释颜色调深一点
         stringstyle=\color{red},
         numbers=left,
         numberstyle=\tiny\color{gray},
@@ -105,9 +79,6 @@ def generate_latex():
         breakatwhitespace=false,
         escapeinside={(*@}{@*)}
     }
-    
-    % 调整列表间距
-    \usepackage{enumitem}
     \setlist{nosep}
 
     \begin{document}
@@ -119,7 +90,7 @@ def generate_latex():
         print(f"Error: Content directory not found at {CONTENT_DIR}")
         return
 
-    # 遍历一级目录 (Section)
+    # 遍历一级目录
     for section in sorted(os.listdir(CONTENT_DIR)):
         section_path = os.path.join(CONTENT_DIR, section)
         if not os.path.isdir(section_path) or section.startswith('.'):
@@ -127,59 +98,74 @@ def generate_latex():
 
         latex_content += f"\\section*{{{section.capitalize()}}}\n"
         
-        # 获取该目录下所有文件
-        files = sorted(os.listdir(section_path))
+        # 递归获取文件
+        all_files = []
+        for root, dirs, files in os.walk(section_path):
+            for file in files:
+                rel_dir = os.path.relpath(root, section_path)
+                if rel_dir == ".":
+                    all_files.append((file, os.path.join(root, file)))
+                else:
+                    display_name = os.path.join(rel_dir, file).replace("\\", "/")
+                    all_files.append((display_name, os.path.join(root, file)))
+
+        all_files.sort(key=lambda x: x[0])
+
+        # 分离 md 和 代码
+        md_files = [item for item in all_files if item[0].endswith('.md')]
+        code_files = [item for item in all_files if item[0].endswith(('.cpp', '.cc', '.py', '.java'))]
         
-        # 分离 md 和 代码文件
-        md_files = [f for f in files if f.endswith('.md')]
-        code_files = [f for f in files if f.endswith(('.cpp', '.cc', '.py', '.java'))]
-        
-        # 1. 先处理 Markdown (作为文档说明)
-        for filename in md_files:
-            filepath = os.path.join(section_path, filename)
+        # 处理 Markdown
+        for display_name, filepath in md_files:
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
                     md_text = f.read()
-                    # 转换 MD 到 LaTeX
                     latex_text = convert_md_to_latex(md_text)
                     latex_content += f"\n{latex_text}\n"
             except Exception as e:
-                print(f"Error parsing MD {filename}: {e}")
+                print(f"Error parsing MD {display_name}: {e}")
 
-        # 2. 后处理代码文件
-        for filename in code_files:
-            filepath = os.path.join(section_path, filename)
+        # 处理代码
+        for display_name, filepath in code_files:
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
                     code = f.read()
                 
-                safe_filename = filename.replace("_", "\\_")
+                safe_filename = display_name.replace("_", "\\_")
                 latex_content += f"\\subsection*{{{safe_filename}}}\n"
                 
                 lang_opt = "language=C++"
-                if filename.endswith(".py"): lang_opt = "language=Python"
+                if display_name.endswith(".py"): lang_opt = "language=Python"
                 
                 latex_content += f"\\begin{{lstlisting}}[{lang_opt}]\n"
                 latex_content += code
                 latex_content += "\\end{lstlisting}\n"
             except Exception as e:
-                print(f"Error parsing Code {filename}: {e}")
+                print(f"Error parsing Code {display_name}: {e}")
 
     latex_content += r"\end{multicols*} \end{document}"
 
     with open(OUTPUT_TEX, "w", encoding='utf-8') as f:
         f.write(latex_content)
     
-    print("2. Compiling PDF...")
+    print("2. Compiling PDF using XeLaTeX...")
     os.chdir(CURRENT_DIR)
-    cmd = ["pdflatex", "-interaction=nonstopmode", "notebook.tex"]
+    
+    # === 修改点 2: 使用 xelatex 编译器 ===
+    # xelatex 对 UTF-8 和中文字体的支持远好于 pdflatex
+    cmd = ["xelatex", "-interaction=nonstopmode", "notebook.tex"]
     
     try:
+        # 运行两次以生成目录
         subprocess.run(cmd, check=True)
         subprocess.run(cmd, check=True)
-        print("\n[SUCCESS] PDF with Markdown generated!")
+        print("\n[SUCCESS] PDF generated successfully with Chinese support!")
     except subprocess.CalledProcessError:
         print("\n[ERROR] Compilation failed.")
+        print("请检查是否安装了 texlive-lang-chinese 和 texlive-xetex。")
+    except FileNotFoundError:
+        print("\n[ERROR] 找不到 xelatex 命令。")
+        print("请运行: sudo apt install texlive-xetex")
 
 if __name__ == "__main__":
     generate_latex()
