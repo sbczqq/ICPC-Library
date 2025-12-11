@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2025.11.27)  27 NOV 2025 10:43
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2025.11.27)  11 DEC 2025 10:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -465,7 +465,8 @@ File: lstlang1.sty 2020/03/24 1.8d listings language file
 )
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-) (./notebook.aux)
+)
+No file notebook.aux.
 \openout1 = `notebook.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
@@ -575,7 +576,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-(./notebook.toc)
+No file notebook.toc.
 \tf@toc=\write3
 \openout3 = `notebook.toc'.
 
@@ -627,20 +628,99 @@ LaTeX Font Warning: Font shape `TU/FandolFang-Regular(0)/m/it' undefined
 (Font)              using `TU/FandolFang-Regular(0)/m/n' instead on input line 
 64.
 
+! You can't use `macro parameter character #' in vertical mode.
+l.143 #
+       ## 算法说明 \\
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+! You can't use `macro parameter character #' in vertical mode.
+l.143 ##
+        # 算法说明 \\
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+! You can't use `macro parameter character #' in vertical mode.
+l.143 ###
+          算法说明 \\
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 143--144
+
+ []
+
+LaTeX Font Info:    Trying to load font information for U+msa on input line 145
+.
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 145
+.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Underfull \hbox (badness 10000) in paragraph at lines 145--148
+
+ []
+
 [1
 
-] (./notebook.aux)
+]
+! You can't use `macro parameter character #' in vertical mode.
+l.169 #
+       ## 算法说明 \\
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+! You can't use `macro parameter character #' in vertical mode.
+l.169 ##
+        # 算法说明 \\
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+! You can't use `macro parameter character #' in vertical mode.
+l.169 ###
+          算法说明 \\
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 169--170
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 171--179
+
+ []
+
+[2] (./notebook.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 10503 strings out of 476191
- 245555 string characters out of 5812071
- 1289593 words of memory out of 5000000
- 31119 multiletter control sequences out of 15000+600000
- 471101 words of font info for 55 fonts, out of 8000000 for 9000
+ 10588 strings out of 476191
+ 248020 string characters out of 5812071
+ 1340593 words of memory out of 5000000
+ 31192 multiletter control sequences out of 15000+600000
+ 472816 words of font info for 65 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 89i,11n,97p,372b,1389s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 89i,12n,97p,372b,1933s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on notebook.pdf (1 page).
+Output written on notebook.pdf (2 pages).

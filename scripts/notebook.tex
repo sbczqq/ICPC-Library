@@ -136,4 +136,96 @@ bool Prim() {
  if(Prim()) cout << res << endl;
  else cout << "impossible" << endl;
 */\end{lstlisting}
+\section*{数学}
+
+\subsubsection*{数论 - 线性筛质数 (欧拉筛)}
+
+### 算法说明 \\
+
+* \textbf{用途}：快速筛选出 $1 \sim n$ 范围内的所有质数。 \\
+* \textbf{时间复杂度}：$O(n)$。 \\
+* \textbf{适用场景}：适用于 $n$ 较大（如 $10^7$ 级别）的情况。相比埃氏筛，它保证每个合数只被其\textbf{最小质因子}筛去一次，因此是线性的，效率极高。 \\
+\subsection*{质数筛.cpp}
+\begin{lstlisting}[language=C++]
+const int N = 1e7 + 10;
+int pri[N], cnt;
+bool st[N];
+void getpri(int n)
+{
+    for(int i = 2;i <= n;i++)
+    {
+        if(!st[i])pri[cnt++] = i;
+        for(int j = 0;pri[j] <= n / i;j++)
+        {
+            st[pri[j] * i] = 1;
+            if(i % pri[j] == 0)break;
+        }
+    }
+}\end{lstlisting}
+\section*{数据结构}
+
+\subsubsection*{图论 - 最近公共祖先 (LCA) - 倍增法}
+
+### 算法说明 \\
+
+* \textbf{用途}：在有根树中，快速查询两个节点的最近公共祖先。 \\
+* \textbf{时间复杂度}： \\
+* 预处理：$O(N \log N)$。 \\
+* 单次查询：$O(\log N)$。 \\
+* \textbf{适用场景}：适用于 $N, M$ 较大（如 $10^5 \sim 10^6$）且需要在线查询的情况。 \\
+* \textbf{注意事项}： \\
+1. \texttt{f} 数组第二维的大小由 $N$ 决定，通常 $2^{19} > 5 \times 10^5$，所以开 \texttt{20} 足够。 \\
+2. 利用 \texttt{de[0] = 0} (全局变量默认值) 作为哨兵，防止倍增跳越界。 \\
+
+
+\subsection*{树-LCA倍增算法.cpp}
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 500010;
+
+vector<int> g[N];
+
+int f[N][20];  // f[u][i] 表示 u 的第 2^i 个祖先
+int de[N]; //深度数组，0号点深度为0作为哨兵
+/**
+ * DFS 预处理倍增数组和深度
+ * @param u 当前节点
+ * @param fa 父节点 (根节点调用时 fa 传 0)
+ */
+void dfs(int u, int fa) {
+    de[u] = de[fa] + 1;
+    f[u][0] = fa;
+
+    // 倍增核心逻辑
+    for(int i = 1; i < 20; i++) {
+        f[u][i] = f[f[u][i - 1]][i - 1];
+    }
+    for(int v : g[u])
+    {
+        if(v == fa) continue;
+        dfs(v, u);
+    }
+}
+
+/**
+ * 查询 LCA
+ */
+int lca(int a, int b) {
+    if(de[a] < de[b]) swap(a, b);
+    // 1. 将 a 跳到和 b 同一深度
+    for(int i = 19; i >= 0; i--) {
+        if(de[f[a][i]] >= de[b]) a = f[a][i];
+    }
+    if(a == b) return a;
+    // 2. a 和 b 一起向上跳，直到父亲相同
+    for(int i = 19; i >= 0; i--) {
+        if(f[a][i] != f[b][i]) {
+            a = f[a][i];
+            b = f[b][i];
+        }
+    }
+    return f[a][0]; // 返回父节点
+}\end{lstlisting}
 \end{multicols*} \end{document}
