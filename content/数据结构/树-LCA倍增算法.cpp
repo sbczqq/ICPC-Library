@@ -46,3 +46,7 @@ int lca(int a, int b) {
     }
     return f[a][0]; // 返回父节点
 }
+int main()
+{
+    return 0;
+}
