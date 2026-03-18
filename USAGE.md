@@ -10,7 +10,7 @@
 如果这是一个新领域的算法（例如“快速傅里叶变换”），建议在 `content` 下新建分类文件夹 `math`，然后放入以下文件：
 
 * **文档 (.md)**：例如 `fft_doc.md`。
-    * 用于记录算法原理、公式推导（支持 LaTeX 格式，如 `$O(N \log N)$`）和注意事项。
+    * 用于记录算法原理、公式推导（支持 LaTeX 格式，如 $O(N \log N)$）和注意事项。
     * 生成 PDF 时，文档会自动排版在代码之前。
 * **代码 (.cpp)**：例如 `fft.cpp`。
     * **文件名**：使用全小写 + 下划线。
@@ -79,6 +79,17 @@
 ---
 
 ## ❓ 常见问题 (FAQ)
+
+**Q: `git push` 或 `git pull` 时报错 `schannel: failed to receive handshake, SSL/TLS connection failed` 怎么办？**
+A: 这是 Windows 下 Git 默认加密模块与系统代理软件冲突导致的。可以通过以下三种方法解决：
+* **方法一：直接关闭 SSL 验证（最简单粗暴，推荐用于个人算法库）**
+  在终端运行：`git config --global http.sslVerify false`
+* **方法二：切换 Git 的加密模块为 OpenSSL**
+  在终端运行：`git config --global http.sslBackend openssl`
+* **方法三：为 Git 显式配置本地代理端口（假设你的代理端口为 7890）**
+  在终端运行：
+  `git config --global http.proxy http://127.0.0.1:7890`
+  `git config --global https.proxy http://127.0.0.1:7890`
 
 **Q: 生成 PDF 时报错 `LaTeX Error: File 'listings.sty' not found`?**
 A: 你的 LaTeX 发行版缺少宏包。
