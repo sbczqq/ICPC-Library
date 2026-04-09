@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2025.11.27)  11 DEC 2025 10:57
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2025.11.27)  9 APR 2026 21:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -465,8 +465,7 @@ File: lstlang1.sty 2020/03/24 1.8d listings language file
 )
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-)
-No file notebook.aux.
+) (./notebook.aux)
 \openout1 = `notebook.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
@@ -576,7 +575,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-No file notebook.toc.
+(./notebook.toc)
 \tf@toc=\write3
 \openout3 = `notebook.toc'.
 
@@ -605,6 +604,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 55--56
 
  []
 
+LaTeX Font Info:    Trying to load font information for U+msa on input line 62.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 62.
+
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
 
 Package fontspec Warning: Font "FandolFang-Regular" does not contain requested
 (fontspec)                Script "CJK".
@@ -621,106 +631,130 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 61--68
+
+ []
+
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <8> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 58.
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 70.
 
 LaTeX Font Warning: Font shape `TU/FandolFang-Regular(0)/m/it' undefined
 (Font)              using `TU/FandolFang-Regular(0)/m/n' instead on input line 
-64.
-
-! You can't use `macro parameter character #' in vertical mode.
-l.143 #
-       ## 算法说明 \\
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-! You can't use `macro parameter character #' in vertical mode.
-l.143 ##
-        # 算法说明 \\
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-! You can't use `macro parameter character #' in vertical mode.
-l.143 ###
-          算法说明 \\
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 143--144
-
- []
-
-LaTeX Font Info:    Trying to load font information for U+msa on input line 145
-.
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
-File: umsa.fd 2013/01/14 v3.01 AMS symbols A
-)
-LaTeX Font Info:    Trying to load font information for U+msb on input line 145
-.
-
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
-File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-Underfull \hbox (badness 10000) in paragraph at lines 145--148
-
- []
+74.
 
 [1
 
 ]
-! You can't use `macro parameter character #' in vertical mode.
-l.169 #
-       ## 算法说明 \\
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-! You can't use `macro parameter character #' in vertical mode.
-l.169 ##
-        # 算法说明 \\
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-! You can't use `macro parameter character #' in vertical mode.
-l.169 ###
-          算法说明 \\
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 169--170
+Underfull \hbox (badness 10000) in paragraph at lines 218--221
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 171--179
+Underfull \hbox (badness 10000) in paragraph at lines 226--231
 
  []
 
-[2] (./notebook.aux)
+
+Underfull \hbox (badness 10000) in paragraph at lines 235--238
+
+ []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 335--338
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 342--345
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 350--360
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 365--368
+
+ []
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 373--379
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 384--391
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 395--398
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 402--410
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 417--418
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 423--426
+
+ []
+
+[4] [5] [6] [7]
+Underfull \hbox (badness 10000) in paragraph at lines 828--837
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 842--848
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 853--861
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 868--876
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 881--884
+
+ []
+
+[8] [9] [10]
+LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 1177.
+
+Underfull \hbox (badness 10000) in paragraph at lines 1174--1178
+
+ []
+
+[11] (./notebook.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 10588 strings out of 476191
- 248020 string characters out of 5812071
- 1340593 words of memory out of 5000000
- 31192 multiletter control sequences out of 15000+600000
- 472816 words of font info for 65 fonts, out of 8000000 for 9000
+ 11004 strings out of 476191
+ 262221 string characters out of 5812071
+ 1407593 words of memory out of 5000000
+ 31603 multiletter control sequences out of 15000+600000
+ 472824 words of font info for 66 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 89i,12n,97p,372b,1933s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 89i,12n,97p,372b,2034s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on notebook.pdf (2 pages).
+Output written on notebook.pdf (11 pages).

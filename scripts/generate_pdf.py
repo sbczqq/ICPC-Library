@@ -20,18 +20,33 @@ def convert_md_to_latex(md_text):
             latex_lines.append("")
             continue
             
-        # 处理标题
+        # 处理标题 (加入了对 ### 的支持，并转义标题中的 & 和 #)
         if line.startswith('# '):
-            latex_lines.append(r"\subsection*{" + line[2:] + "}")
+            title = line[2:].replace('&', r'\&').replace('#', r'\#')
+            latex_lines.append(r"\subsection*{" + title + "}")
         elif line.startswith('## '):
-            latex_lines.append(r"\subsubsection*{" + line[3:] + "}")
+            title = line[3:].replace('&', r'\&').replace('#', r'\#')
+            latex_lines.append(r"\subsubsection*{" + title + "}")
+        elif line.startswith('### '):
+            title = line[4:].replace('&', r'\&').replace('#', r'\#')
+            # LaTeX article 默认没有 subsubsubsection，使用 paragraph 替代，显示为加粗标题
+            latex_lines.append(r"\paragraph*{" + title + "}")
+            
         # 处理列表
         elif line.startswith('- '):
-            latex_lines.append(r"\begin{itemize}\item " + line[2:] + r"\end{itemize}")
+            content = line[2:].replace('&', r'\&').replace('#', r'\#')
+            latex_lines.append(r"\begin{itemize}\item " + content + r"\end{itemize}")
+            
         else:
             # 简单处理粗体和行内代码
             line = re.sub(r'\*\*(.*?)\*\*', r'\\textbf{\1}', line)
             line = re.sub(r'`(.*?)`', r'\\texttt{\1}', line)
+            
+            # 转义正文中的 LaTeX 特殊字符 (避免编译报错)
+            line = line.replace('&', r'\&')
+            line = line.replace('#', r'\#')
+            # 注意：这里暂不对 "_" 进行转义，因为这可能会破坏你 Markdown 中写的数学公式 (如 $O(N \log N)$ 等)
+            
             latex_lines.append(line + r" \\") 
             
     return "\n".join(latex_lines)
