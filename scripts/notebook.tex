@@ -1,6 +1,6 @@
 
     \documentclass[10pt, landscape, a4paper]{article}
-    \usepackage[UTF8]{ctex}  % 关键：中文支持
+    \usepackage[UTF8]{ctex}  % 中文支持
     \usepackage{multicol}
     \usepackage{listings} 
     \usepackage{xcolor}
@@ -25,7 +25,7 @@
         language=C++,
         basicstyle=\footnotesize\ttfamily,
         keywordstyle=\bfseries\color{blue},
-        commentstyle=\itshape\color{teal!80!black}, % 注释颜色调深一点
+        commentstyle=\itshape\color{teal!80!black},
         stringstyle=\color{red},
         numbers=left,
         numberstyle=\tiny\color{gray},
@@ -65,7 +65,8 @@
 1. 必须在读入边之前或之后，初始化并查集 \texttt{p[i] = i}。 \\
 2. 如果最终加入的边数不等于 $N-1$，说明图不连通，不存在最小生成树。 \\
 3. 累加的边权总和极易爆 \texttt{int}，务必使用 \texttt{long long} 存储 \texttt{res}。 \\
-\subsection*{最小生成数Kruskal.cpp}
+\vspace{0.2em}
+\noindent\textbf{最小生成数Kruskal.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -127,7 +128,9 @@ void solve()
         cout << res << endl;
     }
 }\end{lstlisting}
-\subsection*{最小生成树prim.cpp}
+\vspace{1.5em}
+\vspace{0.2em}
+\noindent\textbf{最小生成树prim.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -210,14 +213,8 @@ bool Prim() {
  if(Prim()) cout << res << endl;
  else cout << "impossible" << endl;
 */\end{lstlisting}
+\vspace{1.5em}
 \section*{字符串}
-
-\subsubsection*{字符串 - Manacher 算法 (马拉车)}
-
-\paragraph*{算法说明}
-* \textbf{用途}：在 $O(N)$ 时间复杂度内，求出字符串中以每个位置为中心的最长回文子串的半径（从而找到全局最长回文子串）。 \\
-* \textbf{时间复杂度}：$O(N)$。 \\
-* \textbf{核心思想}：利用已经求出的大回文串的对称性，直接将左半边的答案镜像拷贝到右半边，避免重复扩展。 \\
 
 \subsubsection*{字符串-KMP}
 
@@ -228,6 +225,39 @@ bool Prim() {
 * 预处理 \texttt{ne} 数组：$O(M)$，其中 $M$ 为模式串长度。 \\
 * 匹配过程：$O(N)$，其中 $N$ 为主串长度。 \\
 * \textbf{适用场景}：单模式串匹配问题、统计字符串出现频次、求字符串的最小循环节与公共前后缀。 \\
+\vspace{0.2em}
+\noindent\textbf{kmp.cpp}
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+
+void solve()
+{
+    string s,p;
+    cin>>s>>p;
+    int n=s.size(),m=p.size();
+    vector<int>ne(m+1);
+    s=" "+s;
+    p=" "+p;
+    for(int i=2,j=0;i<=m;i++)
+    {
+        while(j&&p[i]!=p[j+1])j=ne[j];
+        if(p[i]==p[j+1])j++;
+        ne[i]=j;
+    }
+    int cn=0;
+    for(int i=1,j=0;i<=n;i++)
+    {
+        while(j&&s[i]!=p[j+1])j=ne[j];
+        if(s[i]==p[j+1])j++;
+        if(j==m)
+        {
+            cn++;
+            j=ne[j];
+        }
+    }
+}\end{lstlisting}
+\vspace{1.5em}
 
 \subsubsection*{字符串 - Z 函数 (扩展 KMP)}
 
@@ -235,7 +265,40 @@ bool Prim() {
 * \textbf{用途}：在 $O(N)$ 时间内求出一个字符串所有后缀与前缀的最长公共前缀长度。 \\
 * \textbf{时间复杂度}：$O(N)$。 \\
 * \textbf{核心思想}：维护一个最靠右的匹配段 (Z-box) $[l, r]$，在该区间内的计算直接“白嫖”前缀 $z[i-l]$ 的值，并卡住边界，超出边界的部分再暴力扩展。 \\
-\subsection*{Manachar.cpp}
+\vspace{0.2em}
+\noindent\textbf{kmpz函数.cpp}
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+void solve()
+{
+    string s;
+    cin>>s;
+    int n=s.size();
+    vector<int>z(n);
+    int l=0,r=0;
+    for(int i=1;i<n;i++)
+    {
+        if(i<=r)z[i]=min(z[i-l],r-i+1);
+        while(i+z[i]<n&&s[z[i]]==s[i+z[i]])z[i]++;
+        if(i+z[i]-1>r)
+        {
+            l=i;
+            r=i+z[i]-1;
+        }
+    }
+
+}\end{lstlisting}
+\vspace{1.5em}
+
+\subsubsection*{字符串 - Manacher 算法 (马拉车)}
+
+\paragraph*{算法说明}
+* \textbf{用途}：在 $O(N)$ 时间复杂度内，求出字符串中以每个位置为中心的最长回文子串的半径（从而找到全局最长回文子串）。 \\
+* \textbf{时间复杂度}：$O(N)$。 \\
+* \textbf{核心思想}：利用已经求出的大回文串的对称性，直接将左半边的答案镜像拷贝到右半边，避免重复扩展。 \\
+\vspace{0.2em}
+\noindent\textbf{Manachar.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -272,60 +335,7 @@ void solve()
     cout<<mxle<<endl;
 
 }\end{lstlisting}
-\subsection*{kmp.cpp}
-\begin{lstlisting}[language=C++]
-#include<bits/stdc++.h>
-using namespace std;
-
-void solve()
-{
-    string s,p;
-    cin>>s>>p;
-    int n=s.size(),m=p.size();
-    vector<int>ne(m+1);
-    s=" "+s;
-    p=" "+p;
-    for(int i=2,j=0;i<=m;i++)
-    {
-        while(j&&p[i]!=p[j+1])j=ne[j];
-        if(p[i]==p[j+1])j++;
-        ne[i]=j;
-    }
-    int cn=0;
-    for(int i=1,j=0;i<=n;i++)
-    {
-        while(j&&s[i]!=p[j+1])j=ne[j];
-        if(s[i]==p[j+1])j++;
-        if(j==m)
-        {
-            cn++;
-            j=ne[j];
-        }
-    }
-}\end{lstlisting}
-\subsection*{kmpz函数.cpp}
-\begin{lstlisting}[language=C++]
-#include<bits/stdc++.h>
-using namespace std;
-void solve()
-{
-    string s;
-    cin>>s;
-    int n=s.size();
-    vector<int>z(n);
-    int l=0,r=0;
-    for(int i=1;i<n;i++)
-    {
-        if(i<=r)z[i]=min(z[i-l],r-i+1);
-        while(i+z[i]<n&&s[z[i]]==s[i+z[i]])z[i]++;
-        if(i+z[i]-1>r)
-        {
-            l=i;
-            r=i+z[i]-1;
-        }
-    }
-
-}\end{lstlisting}
+\vspace{1.5em}
 \section*{数学}
 
 \subsubsection*{数论 - 整除分块 (数论分块)}
@@ -335,95 +345,8 @@ void solve()
 * \textbf{用途}：快速计算形如 $\sum_{i=1}^n \lfloor \frac{k}{i} \rfloor$ 的区间取整求和问题。 \\
 * \textbf{时间复杂度}：$O(\sqrt{n})$。 \\
 * \textbf{适用场景}：适用于 $n$ 极大（如 $10^9$ 级别）导致 $O(n)$ 遍历超时的情况。利用 $\lfloor \frac{k}{i} \rfloor$ 取值成块连续相同的特性，每次直接计算并跳过一整段区间，极大提升效率。常作为莫比乌斯反演、杜教筛的底层组件。 \\
-
-\subsubsection*{矩阵与递推 - 矩阵快速幂}
-\paragraph*{算法说明}
-
-* \textbf{用途}：快速求解线性递推数列的第 $n$ 项（如斐波那契数列、方案数统计等），以及图论中求解定长路径的方案数。 \\
-* \textbf{时间复杂度}：$O(M^3 \log k)$，其中 $M$ 为矩阵的大小（状态维度），$k$ 为递推的项数或幂次。 \\
-* \textbf{适用场景}：适用于递推项数极大（如 $k \ge 10^{18}$）且状态转移呈线性的场景。纯全局数组写法避开了 \texttt{struct} 和运算符重载的开销，结合了极其关键的 \texttt{if(!A[i][k]) continue;} 稀疏矩阵常数剪枝，运行极快。 \\
-
-\subsubsection*{组合数学 - 卡特兰数 (Catalan Number)}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：用于解决“在特定规则下，两种操作数量始终满足偏序关系”的计数问题。 \\
-* \textbf{时间复杂度}：预处理阶乘与逆元 $O(N)$，单次查询 $O(1)$。 \\
-* \textbf{适用场景}：题目模型可转化为两种互相抵消的操作（如 $+1$ 和 $-1$），且限制任意时刻的前缀和必须 $\ge 0$ 时。核心是 \textbf{容斥原理 + 折线法（翻转法）}，推导出公式 $C_n = \binom{2n}{n} - \binom{2n}{n-1} = \frac{1}{n+1} \binom{2n}{n}$。 \\
-* \textbf{常见模型}： \\
-1. \textbf{括号匹配}：$n$ 对括号，合法的括号序列总数。 \\
-2. \textbf{出栈序列}：长度为 $n$ 的序列依次进栈，不同的合法出栈序列总数。 \\
-3. \textbf{网格路径}：从 $(0,0)$ 到 $(n,n)$，只能向右或向上走，且不越过对角线 $y=x$ 的路径总数。 \\
-4. \textbf{二叉树形态}：$n$ 个结点的二叉树，共有多少种不同的形态。 \\
-5. \textbf{多边形剖分}：凸 $n+2$ 边形通过对角线划分为三角形的方案数。 \\
-6. \textbf{找零问题}：$n$ 个人拿 50 元，$n$ 个人拿 100 元排队买票，售票员不会找不开钱的排队方案数。 \\
-
-\subsubsection*{组合数学 - 多重集组合数}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：有 $k$ 种物品，第 $i$ 种最多选 $n_i$ 个，求一共选 $r$ 个的方案数。 \\
-* \textbf{时间复杂度}：$O(2^k \cdot k)$。 \\
-* \textbf{适用场景}：种类 $k$ 极小（$k \le 20$），总数 $r$ 极大（无法用多重背包 DP）时。核心是 \textbf{容斥原理 + 隔板法}。 \\
-
-\subsubsection*{组合数学 - k 部分拆数 (k-Part Integer Partition)}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：求将自然数 $n$ 分拆为恰好 $k$ 个正整数之和的方案数（不考虑顺序）。 \\
-* \textbf{时间复杂度}：全局预处理 $O(n \cdot k)$，单次查询 $O(1)$。 \\
-* \textbf{核心推导}：将分拆方案分为两类： \\
-1. \textbf{至少包含一个 1}：将这个 1 拿走，等价于把 $n-1$ 拆分成 $k-1$ 个部分，方案数为 $p(n-1, k-1)$。 \\
-2. \textbf{所有部分都 $\ge 2$}：将这 $k$ 个部分每个都减去 1（总共减去 $k$），剩下的每个数依然 $\ge 1$，等价于把 $n-k$ 拆分成 $k$ 个部分，方案数为 $p(n-k, k)$。 \\
-* \textbf{状态转移方程}：$p(n, k) = p(n-1, k-1) + p(n-k, k)$ \\
-
-\subsubsection*{组合数学 - 互异分拆数 (Distinct Integer Partition)}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：求将自然数 $n$ 分拆为若干个\textbf{互不相同}的正整数之和的方案数。 \\
-* \textbf{时间复杂度}：利用分拆部分数的上限约为 $\sqrt{2n}$，时间复杂度降至 $O(n \sqrt{n})$。使用滚动数组优化，空间复杂度为 $O(n)$。 \\
-* \textbf{核心推导}：假设把 $n$ 拆成 $k$ 个互不相同的部分，将其从大到小排列 $r_1 > r_2 > \dots > r_k \ge 1$。 \\
-给这 $k$ 个数\textbf{同时减去 1}（总共减去 $k$），它们依然严格递减： \\
-1. 如果原本最小的数 $r_k = 1$，减 1 后变成 0（消失了），剩下 $k-1$ 堆互不相同的数。方案数为 $pd(n-k, k-1)$。 \\
-2. 如果原本最小的数 $r_k \ge 2$，减 1 后 $\ge 1$（没消失），依然是 $k$ 堆互不相同的数。方案数为 $pd(n-k, k)$。 \\
-* \textbf{状态转移方程}：$pd(n, k) = pd(n-k, k-1) + pd(n-k, k)$ \\
-
-\subsubsection*{数学 - 斐波那契快速倍增法 (Fast Doubling)}
-
-\paragraph*{算法说明}
-* \textbf{用途}：在 $O(\log N)$ 时间复杂度内，求出斐波那契数列的第 $N$ 项对特定模数取模的结果，常数极小，全面碾压矩阵快速幂。 \\
-* \textbf{时间复杂度}：$O(\log N)$。 \\
-* \textbf{核心思想}：利用分治思想与恒等式 $F_{2k} = F_k(2F_{k+1} - F_k)$ 和 $F_{2k+1} = F_k^2 + F_{k+1}^2$，每次将所求项的下标减半，递归求解。 \\
-
-\subsubsection*{数学 - 皮萨诺周期 (Pisano Period) 与超大数降维}
-
-\paragraph*{算法说明}
-* \textbf{用途}：当 $N$ 是高精度超大数（如长度达 $10^5$ 的数字串）时，求 $F_N \pmod m$。通过计算模 $m$ 下的周期 $P$，将原问题强行降维为 $F_{N \bmod P} \pmod m$。 \\
-* \textbf{时间复杂度}：求周期 $O(\sqrt{m})$，大数取模 $O(|N|)$，最后倍增求值 $O(\log m)$。 \\
-* \textbf{核心思想 (周期分类查表法则)}： \\
-斐波那契通项公式中包含 $\sqrt{5}$。在模质数 $p$ 的世界里，$\sqrt{5}$ 是否存在（二次剩余）决定了周期的长度。利用二次互反律，我们只需看 $p$ 除以 5 的余数（即个位特征）来查表： \\
-1. \textbf{特例}：$p=2$ 时基数为 $3$；$p=5$ 时基数为 $20$。 \\
-2. \textbf{第一派 ($p \pmod 5 = 1$ 或 $4$)}：即个位为 1 或 9。此时模 $p$ 意义下存在 $\sqrt{5}$，公式正常运转，周期基数取 \textbf{$p-1$}。 \\
-3. \textbf{第二派 ($p \pmod 5 = 2$ 或 $3$)}：即个位为 3 或 7。此时模 $p$ 意义下不存在 $\sqrt{5}$，进入二维扩域，周期基数取 \textbf{$2(p+1)$}。 \\
-将 $m$ 分解质因数后，分别计算上述基数并求最小公倍数 (LCM)，即可得到总周期。 \\
-
-\subsubsection*{组合数学 - 错位排列 (Derangement)}
-
-\paragraph*{算法说明}
-* \textbf{用途}：计算 $n$ 个元素的全错位排列方案数（没有任何一个元素在自己原来的位置上）。 \\
-* \textbf{时间复杂度}：预处理 $O(N)$，单次查询 $O(1)$。 \\
-* \textbf{核心思想}：动态规划/递推。考虑第 $n$ 个元素放在位置 $k$，而第 $k$ 个元素是否放在位置 $n$，可划分为两个子问题。 \\
-* \textbf{核心公式}：$$D_n = (n-1)(D_{n-1} + D_{n-2})$$ \\
-
-\subsubsection*{数论 - 线性筛质数 (欧拉筛)}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：快速筛选出 $1 \sim n$ 范围内的所有质数。 \\
-* \textbf{时间复杂度}：$O(n)$。 \\
-* \textbf{适用场景}：适用于 $n$ 较大（如 $10^7$ 级别）的情况。相比埃氏筛，它保证每个合数只被其\textbf{最小质因子}筛去一次，因此是线性的，效率极高。 \\
-\subsection*{整除分块.cpp}
+\vspace{0.2em}
+\noindent\textbf{整除分块.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -439,7 +362,16 @@ void solve()
         l=r+1;
     }
 }\end{lstlisting}
-\subsection*{矩阵快速幂.cpp}
+\vspace{1.5em}
+
+\subsubsection*{矩阵与递推 - 矩阵快速幂}
+\paragraph*{算法说明}
+
+* \textbf{用途}：快速求解线性递推数列的第 $n$ 项（如斐波那契数列、方案数统计等），以及图论中求解定长路径的方案数。 \\
+* \textbf{时间复杂度}：$O(M^3 \log k)$，其中 $M$ 为矩阵的大小（状态维度），$k$ 为递推的项数或幂次。 \\
+* \textbf{适用场景}：适用于递推项数极大（如 $k \ge 10^{18}$）且状态转移呈线性的场景。纯全局数组写法避开了 \texttt{struct} 和运算符重载的开销，结合了极其关键的 \texttt{if(!A[i][k]) continue;} 稀疏矩阵常数剪枝，运行极快。 \\
+\vspace{0.2em}
+\noindent\textbf{矩阵快速幂.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -489,7 +421,24 @@ int main()
     cout<<res[0][0]<<endl;
     return 0;
 }\end{lstlisting}
-\subsection*{组合数学-卡特兰数.cpp}
+\vspace{1.5em}
+
+\subsubsection*{组合数学 - 卡特兰数 (Catalan Number)}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：用于解决“在特定规则下，两种操作数量始终满足偏序关系”的计数问题。 \\
+* \textbf{时间复杂度}：预处理阶乘与逆元 $O(N)$，单次查询 $O(1)$。 \\
+* \textbf{适用场景}：题目模型可转化为两种互相抵消的操作（如 $+1$ 和 $-1$），且限制任意时刻的前缀和必须 $\ge 0$ 时。核心是 \textbf{容斥原理 + 折线法（翻转法）}，推导出公式 $C_n = \binom{2n}{n} - \binom{2n}{n-1} = \frac{1}{n+1} \binom{2n}{n}$。 \\
+* \textbf{常见模型}： \\
+1. \textbf{括号匹配}：$n$ 对括号，合法的括号序列总数。 \\
+2. \textbf{出栈序列}：长度为 $n$ 的序列依次进栈，不同的合法出栈序列总数。 \\
+3. \textbf{网格路径}：从 $(0,0)$ 到 $(n,n)$，只能向右或向上走，且不越过对角线 $y=x$ 的路径总数。 \\
+4. \textbf{二叉树形态}：$n$ 个结点的二叉树，共有多少种不同的形态。 \\
+5. \textbf{多边形剖分}：凸 $n+2$ 边形通过对角线划分为三角形的方案数。 \\
+6. \textbf{找零问题}：$n$ 个人拿 50 元，$n$ 个人拿 100 元排队买票，售票员不会找不开钱的排队方案数。 \\
+\vspace{0.2em}
+\noindent\textbf{组合数学-卡特兰数.cpp}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 using namespace std;
@@ -553,7 +502,17 @@ signed main(){
     while(t--)solve();
     return 0;
 }\end{lstlisting}
-\subsection*{组合数学-多重组合数.cpp}
+\vspace{1.5em}
+
+\subsubsection*{组合数学 - 多重集组合数}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：有 $k$ 种物品，第 $i$ 种最多选 $n_i$ 个，求一共选 $r$ 个的方案数。 \\
+* \textbf{时间复杂度}：$O(2^k \cdot k)$。 \\
+* \textbf{适用场景}：种类 $k$ 极小（$k \le 20$），总数 $r$ 极大（无法用多重背包 DP）时。核心是 \textbf{容斥原理 + 隔板法}。 \\
+\vspace{0.2em}
+\noindent\textbf{组合数学-多重组合数.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>>
 using namespace std;
@@ -610,7 +569,20 @@ int mulC(int k,int r,vector<int>&cn)
     }
     return ans;
 }\end{lstlisting}
-\subsection*{组合数学-拆分数.cpp}
+\vspace{1.5em}
+
+\subsubsection*{组合数学 - k 部分拆数 (k-Part Integer Partition)}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：求将自然数 $n$ 分拆为恰好 $k$ 个正整数之和的方案数（不考虑顺序）。 \\
+* \textbf{时间复杂度}：全局预处理 $O(n \cdot k)$，单次查询 $O(1)$。 \\
+* \textbf{核心推导}：将分拆方案分为两类： \\
+1. \textbf{至少包含一个 1}：将这个 1 拿走，等价于把 $n-1$ 拆分成 $k-1$ 个部分，方案数为 $p(n-1, k-1)$。 \\
+2. \textbf{所有部分都 $\ge 2$}：将这 $k$ 个部分每个都减去 1（总共减去 $k$），剩下的每个数依然 $\ge 1$，等价于把 $n-k$ 拆分成 $k$ 个部分，方案数为 $p(n-k, k)$。 \\
+* \textbf{状态转移方程}：$p(n, k) = p(n-1, k-1) + p(n-k, k)$ \\
+\vspace{0.2em}
+\noindent\textbf{组合数学-拆分数.cpp}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 #include <cstring>
@@ -650,7 +622,21 @@ void solve(){
         exit(0);
     }
 }\end{lstlisting}
-\subsection*{组合数学-拆分数互异.cpp}
+\vspace{1.5em}
+
+\subsubsection*{组合数学 - 互异分拆数 (Distinct Integer Partition)}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：求将自然数 $n$ 分拆为若干个\textbf{互不相同}的正整数之和的方案数。 \\
+* \textbf{时间复杂度}：利用分拆部分数的上限约为 $\sqrt{2n}$，时间复杂度降至 $O(n \sqrt{n})$。使用滚动数组优化，空间复杂度为 $O(n)$。 \\
+* \textbf{核心推导}：假设把 $n$ 拆成 $k$ 个互不相同的部分，将其从大到小排列 $r_1 > r_2 > \dots > r_k \ge 1$。 \\
+给这 $k$ 个数\textbf{同时减去 1}（总共减去 $k$），它们依然严格递减： \\
+1. 如果原本最小的数 $r_k = 1$，减 1 后变成 0（消失了），剩下 $k-1$ 堆互不相同的数。方案数为 $pd(n-k, k-1)$。 \\
+2. 如果原本最小的数 $r_k \ge 2$，减 1 后 $\ge 1$（没消失），依然是 $k$ 堆互不相同的数。方案数为 $pd(n-k, k)$。 \\
+* \textbf{状态转移方程}：$pd(n, k) = pd(n-k, k-1) + pd(n-k, k)$ \\
+\vspace{0.2em}
+\noindent\textbf{组合数学-拆分数互异.cpp}
 \begin{lstlisting}[language=C++]
 #include <iostream>
 #include <cstring>
@@ -691,7 +677,16 @@ void solve(){
     }
     cout << ans << "\n";
 }\end{lstlisting}
-\subsection*{组合数学-斐波那.cpp}
+\vspace{1.5em}
+
+\subsubsection*{数学 - 斐波那契快速倍增法 (Fast Doubling)}
+
+\paragraph*{算法说明}
+* \textbf{用途}：在 $O(\log N)$ 时间复杂度内，求出斐波那契数列的第 $N$ 项对特定模数取模的结果，常数极小，全面碾压矩阵快速幂。 \\
+* \textbf{时间复杂度}：$O(\log N)$。 \\
+* \textbf{核心思想}：利用分治思想与恒等式 $F_{2k} = F_k(2F_{k+1} - F_k)$ 和 $F_{2k+1} = F_k^2 + F_{k+1}^2$，每次将所求项的下标减半，递归求解。 \\
+\vspace{0.2em}
+\noindent\textbf{组合数学-斐波那.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -710,7 +705,21 @@ PII fib(int n)
     return {c,d};
 }
 //使用 fin(20)代表求第20项\end{lstlisting}
-\subsection*{组合数学-费波纳周期.cpp}
+\vspace{1.5em}
+
+\subsubsection*{数学 - 皮萨诺周期 (Pisano Period) 与超大数降维}
+
+\paragraph*{算法说明}
+* \textbf{用途}：当 $N$ 是高精度超大数（如长度达 $10^5$ 的数字串）时，求 $F_N \pmod m$。通过计算模 $m$ 下的周期 $P$，将原问题强行降维为 $F_{N \bmod P} \pmod m$。 \\
+* \textbf{时间复杂度}：求周期 $O(\sqrt{m})$，大数取模 $O(|N|)$，最后倍增求值 $O(\log m)$。 \\
+* \textbf{核心思想 (周期分类查表法则)}： \\
+斐波那契通项公式中包含 $\sqrt{5}$。在模质数 $p$ 的世界里，$\sqrt{5}$ 是否存在（二次剩余）决定了周期的长度。利用二次互反律，我们只需看 $p$ 除以 5 的余数（即个位特征）来查表： \\
+1. \textbf{特例}：$p=2$ 时基数为 $3$；$p=5$ 时基数为 $20$。 \\
+2. \textbf{第一派 ($p \pmod 5 = 1$ 或 $4$)}：即个位为 1 或 9。此时模 $p$ 意义下存在 $\sqrt{5}$，公式正常运转，周期基数取 \textbf{$p-1$}。 \\
+3. \textbf{第二派 ($p \pmod 5 = 2$ 或 $3$)}：即个位为 3 或 7。此时模 $p$ 意义下不存在 $\sqrt{5}$，进入二维扩域，周期基数取 \textbf{$2(p+1)$}。 \\
+将 $m$ 分解质因数后，分别计算上述基数并求最小公倍数 (LCM)，即可得到总周期。 \\
+\vspace{0.2em}
+\noindent\textbf{组合数学-费波纳周期.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -789,7 +798,17 @@ int n_mod = 0;
 */
 
 \end{lstlisting}
-\subsection*{组合数学-错排.cpp}
+\vspace{1.5em}
+
+\subsubsection*{组合数学 - 错位排列 (Derangement)}
+
+\paragraph*{算法说明}
+* \textbf{用途}：计算 $n$ 个元素的全错位排列方案数（没有任何一个元素在自己原来的位置上）。 \\
+* \textbf{时间复杂度}：预处理 $O(N)$，单次查询 $O(1)$。 \\
+* \textbf{核心思想}：动态规划/递推。考虑第 $n$ 个元素放在位置 $k$，而第 $k$ 个元素是否放在位置 $n$，可划分为两个子问题。 \\
+* \textbf{核心公式}：$$D_n = (n-1)(D_{n-1} + D_{n-2})$$ \\
+\vspace{0.2em}
+\noindent\textbf{组合数学-错排.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -802,7 +821,17 @@ void pre()
     d[1]=0,d[2]=1;
     for(int i=3;i<N;i++)d[i]=(i-1)*(d[i-1]+d[i-2])%MOD;
 }\end{lstlisting}
-\subsection*{质数筛.cpp}
+\vspace{1.5em}
+
+\subsubsection*{数论 - 线性筛质数 (欧拉筛)}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：快速筛选出 $1 \sim n$ 范围内的所有质数。 \\
+* \textbf{时间复杂度}：$O(n)$。 \\
+* \textbf{适用场景}：适用于 $n$ 较大（如 $10^7$ 级别）的情况。相比埃氏筛，它保证每个合数只被其\textbf{最小质因子}筛去一次，因此是线性的，效率极高。 \\
+\vspace{0.2em}
+\noindent\textbf{质数筛.cpp}
 \begin{lstlisting}[language=C++]
 const int N = 1e7 + 10;
 int pri[N], cnt;
@@ -819,6 +848,7 @@ void getpri(int n)
         }
     }
 }\end{lstlisting}
+\vspace{1.5em}
 \section*{数据结构}
 
 \subsubsection*{数据结构 - ST表 (RMQ)}
@@ -834,54 +864,8 @@ void getpri(int n)
 1. \texttt{pre()} 预处理 \texttt{logn} 必须在 \texttt{main} 最开头仅调用一次，严防多测 TLE。 \\
 2. 建表外层倍增循环界限写为 \texttt{(1<<j) <= n} 进行常数级剪枝。 \\
 3. 查询区间 $[L, R]$ 时，步长 $s = \text{logn}[R - L + 1]$，结果由两端覆盖：$\max(f[L][s], f[R - (1 \ll s) + 1][s])$。 \\
-
-\subsubsection*{分块 - 区间加 \& 区间秩查询}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：在 $O(\sqrt{N} \log \sqrt{N})$ 的时间内维护序列的区间增量修改，并支持查询区间内小于特定值 $x$ 的元素个数。 \\
-* \textbf{时间复杂度}： \\
-* 建块：$O(N \log \sqrt{N})$。 \\
-* 区间修改：$O(\sqrt{N} \log \sqrt{N})$。 \\
-* 区间查询：$O(\sqrt{N} \log \sqrt{N})$。 \\
-* \textbf{适用场景}：处理无法直接通过线段树或树状数组维护的非线性区间问题（如区间秩、区间众数、区间第 $k$ 大），常用于处理带区间加法的统计问题。 \\
-
-\subsubsection*{树 - 最近公共祖先 (LCA) - 倍增法}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：在有根树中，快速查询两个节点的最近公共祖先。 \\
-* \textbf{时间复杂度}： \\
-* 预处理：$O(N \log N)$。 \\
-* 单次查询：$O(\log N)$。 \\
-* \textbf{适用场景}：适用于 $N, M$ 较大（如 $10^5 \sim 10^6$）且需要在线查询的情况。 \\
-* \textbf{注意事项}： \\
-1. \texttt{f} 数组第二维的大小由 $N$ 决定，通常 $2^{19} > 5 \times 10^5$，所以开 \texttt{20} 足够。 \\
-2. 利用 \texttt{de[0] = 0} (全局变量默认值) 作为哨兵，防止倍增跳越界。 \\
-
-
-
-\subsubsection*{树 - 笛卡尔树}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：将序列转化为同时满足“二叉搜索树（按下标）”和“堆（按权值）”性质的二叉树。 \\
-* \textbf{时间复杂度}： \\
-* 建树：$O(N)$。 \\
-* \textbf{适用场景}：将序列区间问题转化为树上问题（如 RMQ 转 LCA），或求解直方图最大矩形/子段问题。本质是单调栈的树形化。 \\
-* \textbf{注意事项}： \\
-1. 多组数据时\textbf{务必清空单调栈指针} \texttt{top = 0} 及左右儿子数组 \texttt{ls}, \texttt{rs}。 \\
-2. 单调栈 \texttt{st} 中存储的是数组的\textbf{下标}，比较大小时需代入原数组判定（如 \texttt{ar[st[top]] > ar[i]}）。 \\
-3. 线性建树完毕后，整棵树的根节点固定为栈底元素 \texttt{st[1]}。 \\
-
-\subsubsection*{数据结构 - 懒标记线段树}
-
-\paragraph*{算法说明}
-
-* \textbf{用途}：维护一个长度为 $N$ 的数组，支持单次将区间 $[L, R]$ 内的所有元素加上 $v$，以及查询区间 $[L, R]$ 内的最大值。 \\
-* \textbf{时间复杂度}：建树 $O(N)$，单次区间修改 $O(\log N)$，单次区间查询 $O(\log N)$。 \\
-* \textbf{适用场景}：需要频繁交替进行“区间修改”和“区间查询”时（普通差分数组无法处理边修改边查询的情况）。核心是 \textbf{分治思想 + 延迟更新（Lazy Tag）}。s \\
-\subsection*{st表.cpp}
+\vspace{0.2em}
+\noindent\textbf{st表.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -916,7 +900,20 @@ void solve()
     int s=logn[r-l+1];
     cout<<max(f[l][s],f[r-(1<<s)+1][s])<<endl;
 }\end{lstlisting}
-\subsection*{分块.cpp}
+\vspace{1.5em}
+
+\subsubsection*{分块 - 区间加 \& 区间秩查询}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：在 $O(\sqrt{N} \log \sqrt{N})$ 的时间内维护序列的区间增量修改，并支持查询区间内小于特定值 $x$ 的元素个数。 \\
+* \textbf{时间复杂度}： \\
+* 建块：$O(N \log \sqrt{N})$。 \\
+* 区间修改：$O(\sqrt{N} \log \sqrt{N})$。 \\
+* 区间查询：$O(\sqrt{N} \log \sqrt{N})$。 \\
+* \textbf{适用场景}：处理无法直接通过线段树或树状数组维护的非线性区间问题（如区间秩、区间众数、区间第 $k$ 大），常用于处理带区间加法的统计问题。 \\
+\vspace{0.2em}
+\noindent\textbf{分块.cpp}
 \begin{lstlisting}[language=C++]
 #include <bits/stdc++.h>
 using namespace std;
@@ -1011,7 +1008,24 @@ void solve()
         else cout << query(l, r, x) << endl;
     }
 }\end{lstlisting}
-\subsection*{树-LCA倍增算法.cpp}
+\vspace{1.5em}
+
+\subsubsection*{树 - 最近公共祖先 (LCA) - 倍增法}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：在有根树中，快速查询两个节点的最近公共祖先。 \\
+* \textbf{时间复杂度}： \\
+* 预处理：$O(N \log N)$。 \\
+* 单次查询：$O(\log N)$。 \\
+* \textbf{适用场景}：适用于 $N, M$ 较大（如 $10^5 \sim 10^6$）且需要在线查询的情况。 \\
+* \textbf{注意事项}： \\
+1. \texttt{f} 数组第二维的大小由 $N$ 决定，通常 $2^{19} > 5 \times 10^5$，所以开 \texttt{20} 足够。 \\
+2. 利用 \texttt{de[0] = 0} (全局变量默认值) 作为哨兵，防止倍增跳越界。 \\
+
+
+\vspace{0.2em}
+\noindent\textbf{树-LCA倍增算法.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -1065,7 +1079,22 @@ int main()
 {
     return 0;
 }\end{lstlisting}
-\subsection*{树-笛卡尔树.cpp}
+\vspace{1.5em}
+
+\subsubsection*{树 - 笛卡尔树}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：将序列转化为同时满足“二叉搜索树（按下标）”和“堆（按权值）”性质的二叉树。 \\
+* \textbf{时间复杂度}： \\
+* 建树：$O(N)$。 \\
+* \textbf{适用场景}：将序列区间问题转化为树上问题（如 RMQ 转 LCA），或求解直方图最大矩形/子段问题。本质是单调栈的树形化。 \\
+* \textbf{注意事项}： \\
+1. 多组数据时\textbf{务必清空单调栈指针} \texttt{top = 0} 及左右儿子数组 \texttt{ls}, \texttt{rs}。 \\
+2. 单调栈 \texttt{st} 中存储的是数组的\textbf{下标}，比较大小时需代入原数组判定（如 \texttt{ar[st[top]] > ar[i]}）。 \\
+3. 线性建树完毕后，整棵树的根节点固定为栈底元素 \texttt{st[1]}。 \\
+\vspace{0.2em}
+\noindent\textbf{树-笛卡尔树.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -1092,7 +1121,17 @@ int build(int n)
     }
     return st[1];
 }\end{lstlisting}
-\subsection*{线段树-懒标记线段树.cpp}
+\vspace{1.5em}
+
+\subsubsection*{数据结构 - 懒标记线段树}
+
+\paragraph*{算法说明}
+
+* \textbf{用途}：维护一个长度为 $N$ 的数组，支持单次将区间 $[L, R]$ 内的所有元素加上 $v$，以及查询区间 $[L, R]$ 内的最大值。 \\
+* \textbf{时间复杂度}：建树 $O(N)$，单次区间修改 $O(\log N)$，单次区间查询 $O(\log N)$。 \\
+* \textbf{适用场景}：需要频繁交替进行“区间修改”和“区间查询”时（普通差分数组无法处理边修改边查询的情况）。核心是 \textbf{分治思想 + 延迟更新（Lazy Tag）}。s \\
+\vspace{0.2em}
+\noindent\textbf{线段树-懒标记线段树.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -1165,6 +1204,7 @@ int query(int u,int l,int r,int L,int R)
 // modify(1,1,n,2,4,10);
 // //4区间查询：输出区间 [1,5] 的max
 // cout<<query(1,1,n,1,5)<<endl;\end{lstlisting}
+\vspace{1.5em}
 \section*{杂项}
 
 \subsubsection*{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}
@@ -1176,7 +1216,8 @@ int query(int u,int l,int r,int L,int R)
 * \textbf{核心思想}：利用 \texttt{std::set} 维护一段段值相同的连续区间。核心操作只有两个：\texttt{split}（将一个大区间按指定位置劈开）和 \texttt{assign}（将一段区间内的所有碎块删掉，替换成一整块）。 \\
 * \textbf{避坑铁律}：在执行区间操作时，\textbf{必须先 \texttt{split(r + 1)}，然后再 \texttt{split(l)}}，否则可能会导致右侧的迭代器失效，引发 RE（段错误）。 \\
 
-\subsection*{珂朵莉树.cpp}
+\vspace{0.2em}
+\noindent\textbf{珂朵莉树.cpp}
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -1235,4 +1276,5 @@ long long query(int l, int r) {
     }
     return res;
 }\end{lstlisting}
+\vspace{1.5em}
 \end{multicols*} \end{document}

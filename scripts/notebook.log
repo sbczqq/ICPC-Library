@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2025.11.27)  9 APR 2026 21:25
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2025.11.27)  9 APR 2026 21:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -631,129 +631,39 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 61--68
-
- []
-
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <8> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 70.
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 71.
 
 LaTeX Font Warning: Font shape `TU/FandolFang-Regular(0)/m/it' undefined
 (Font)              using `TU/FandolFang-Regular(0)/m/n' instead on input line 
-74.
+75.
 
 [1
 
-]
-Underfull \hbox (badness 10000) in paragraph at lines 218--221
+] [2] [3] [4] [5] [6] [7] [8]
+Underfull \hbox (badness 10000) in paragraph at lines 1017--1025
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 226--231
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 235--238
-
- []
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 335--338
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 342--345
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 350--360
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 365--368
-
- []
-
-[3]
-Underfull \hbox (badness 10000) in paragraph at lines 373--379
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 384--391
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 395--398
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 402--410
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 417--418
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 423--426
-
- []
-
-[4] [5] [6] [7]
-Underfull \hbox (badness 10000) in paragraph at lines 828--837
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 842--848
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 853--861
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 868--876
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 881--884
-
- []
-
-[8] [9] [10]
+[9]
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 1177.
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 1217.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1174--1178
+Underfull \hbox (badness 10000) in paragraph at lines 1214--1218
 
  []
 
-[11] (./notebook.aux)
+[10] [11] (./notebook.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 11004 strings out of 476191
- 262221 string characters out of 5812071
- 1407593 words of memory out of 5000000
- 31603 multiletter control sequences out of 15000+600000
- 472824 words of font info for 66 fonts, out of 8000000 for 9000
+ 10997 strings out of 476191
+ 262018 string characters out of 5812071
+ 1416593 words of memory out of 5000000
+ 31599 multiletter control sequences out of 15000+600000
+ 472800 words of font info for 63 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  89i,12n,97p,372b,2034s stack positions out of 5000i,500n,10000p,200000b,80000s
 
