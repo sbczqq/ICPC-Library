@@ -20,18 +20,32 @@ def convert_md_to_latex(md_text):
             latex_lines.append("")
             continue
             
-        # 处理标题
+        # 处理标题 (加入了对 ### 的支持，并转义标题中的 & 和 #)
         if line.startswith('# '):
-            latex_lines.append(r"\subsection*{" + line[2:] + "}")
+            title = line[2:].replace('&', r'\&').replace('#', r'\#')
+            latex_lines.append(r"\subsection*{" + title + "}")
         elif line.startswith('## '):
-            latex_lines.append(r"\subsubsection*{" + line[3:] + "}")
+            title = line[3:].replace('&', r'\&').replace('#', r'\#')
+            latex_lines.append(r"\subsubsection*{" + title + "}")
+        elif line.startswith('### '):
+            title = line[4:].replace('&', r'\&').replace('#', r'\#')
+            # LaTeX article 默认没有 subsubsubsection，使用 paragraph 替代，显示为加粗标题
+            latex_lines.append(r"\paragraph*{" + title + "}")
+            
         # 处理列表
         elif line.startswith('- '):
-            latex_lines.append(r"\begin{itemize}\item " + line[2:] + r"\end{itemize}")
+            content = line[2:].replace('&', r'\&').replace('#', r'\#')
+            latex_lines.append(r"\begin{itemize}\item " + content + r"\end{itemize}")
+            
         else:
             # 简单处理粗体和行内代码
             line = re.sub(r'\*\*(.*?)\*\*', r'\\textbf{\1}', line)
             line = re.sub(r'`(.*?)`', r'\\texttt{\1}', line)
+            
+            # 转义正文中的 LaTeX 特殊字符 (避免编译报错)
+            line = line.replace('&', r'\&')
+            line = line.replace('#', r'\#')
+            
             latex_lines.append(line + r" \\") 
             
     return "\n".join(latex_lines)
@@ -39,10 +53,9 @@ def convert_md_to_latex(md_text):
 def generate_latex():
     print("1. Scanning for content...")
     
-    # === 修改点 1: 引入 ctex 宏包支持中文，移除 inputenc ===
     latex_content = r"""
     \documentclass[10pt, landscape, a4paper]{article}
-    \usepackage[UTF8]{ctex}  % 关键：中文支持
+    \usepackage[UTF8]{ctex}  % 中文支持
     \usepackage{multicol}
     \usepackage{listings} 
     \usepackage{xcolor}
@@ -67,7 +80,7 @@ def generate_latex():
         language=C++,
         basicstyle=\footnotesize\ttfamily,
         keywordstyle=\bfseries\color{blue},
-        commentstyle=\itshape\color{teal!80!black}, % 注释颜色调深一点
+        commentstyle=\itshape\color{teal!80!black},
         stringstyle=\color{red},
         numbers=left,
         numberstyle=\tiny\color{gray},
@@ -98,50 +111,75 @@ def generate_latex():
 
         latex_content += f"\\section*{{{section.capitalize()}}}\n"
         
-        # 递归获取文件
+        # 获取该分类下所有文件
         all_files = []
         for root, dirs, files in os.walk(section_path):
             for file in files:
+                if file.startswith('.'): continue
                 rel_dir = os.path.relpath(root, section_path)
                 if rel_dir == ".":
-                    all_files.append((file, os.path.join(root, file)))
+                    display_name = file
                 else:
                     display_name = os.path.join(rel_dir, file).replace("\\", "/")
-                    all_files.append((display_name, os.path.join(root, file)))
+                all_files.append((display_name, os.path.join(root, file)))
 
-        all_files.sort(key=lambda x: x[0])
+        # ================= 核心优化点：智能排序规则 =================
+        def custom_sort(item):
+            display_name = item[0]
+            base, ext = os.path.splitext(display_name)
+            ext = ext.lower()
+            
+            clean_base = base
+            if ext == '.md':
+                # 智能去除常见的 Markdown 后缀，以便与代码文件同名对齐
+                for suf in ['_doc', '-doc', '文档', '说明', 'doc']:
+                    if clean_base.lower().endswith(suf):
+                        clean_base = clean_base[:-len(suf)]
+                        break
+                clean_base = clean_base.strip()
+            
+            # 同名情况下，强制 .md 的优先级最高 (0)，其他代码文件排在后面 (1)
+            priority = 0 if ext == '.md' else 1
+            return (clean_base.lower(), priority, ext)
 
-        # 分离 md 和 代码
-        md_files = [item for item in all_files if item[0].endswith('.md')]
-        code_files = [item for item in all_files if item[0].endswith(('.cpp', '.cc', '.py', '.java'))]
-        
-        # 处理 Markdown
-        for display_name, filepath in md_files:
-            try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    md_text = f.read()
-                    latex_text = convert_md_to_latex(md_text)
-                    latex_content += f"\n{latex_text}\n"
-            except Exception as e:
-                print(f"Error parsing MD {display_name}: {e}")
+        # 按照自定义规则排序
+        all_files.sort(key=custom_sort)
 
-        # 处理代码
-        for display_name, filepath in code_files:
-            try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    code = f.read()
-                
-                safe_filename = display_name.replace("_", "\\_")
-                latex_content += f"\\subsection*{{{safe_filename}}}\n"
-                
-                lang_opt = "language=C++"
-                if display_name.endswith(".py"): lang_opt = "language=Python"
-                
-                latex_content += f"\\begin{{lstlisting}}[{lang_opt}]\n"
-                latex_content += code
-                latex_content += "\\end{lstlisting}\n"
-            except Exception as e:
-                print(f"Error parsing Code {display_name}: {e}")
+        # 顺序渲染到 LaTeX
+        for display_name, filepath in all_files:
+            base, ext = os.path.splitext(display_name)
+            ext = ext.lower()
+
+            if ext == '.md':
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        md_text = f.read()
+                        latex_text = convert_md_to_latex(md_text)
+                        latex_content += f"\n{latex_text}\n"
+                except Exception as e:
+                    print(f"Error parsing MD {display_name}: {e}")
+                    
+            elif ext in ['.cpp', '.cc', '.py', '.java']:
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        code = f.read()
+                    
+                    safe_filename = display_name.replace("_", "\\_")
+                    # 加上一个小标题，标明代码文件名
+                    latex_content += f"\\vspace{{0.2em}}\n\\noindent\\textbf{{{safe_filename}}}\n"
+                    
+                    lang_opt = "language=C++"
+                    if ext == ".py": lang_opt = "language=Python"
+                    elif ext == ".java": lang_opt = "language=Java"
+                    
+                    latex_content += f"\\begin{{lstlisting}}[{lang_opt}]\n"
+                    latex_content += code
+                    latex_content += "\\end{lstlisting}\n"
+                    
+                    # 每一个代码块结束时，增加物理留白，防止和下一个算法挤在一起
+                    latex_content += "\\vspace{1.5em}\n"
+                except Exception as e:
+                    print(f"Error parsing Code {display_name}: {e}")
 
     latex_content += r"\end{multicols*} \end{document}"
 
@@ -151,8 +189,6 @@ def generate_latex():
     print("2. Compiling PDF using XeLaTeX...")
     os.chdir(CURRENT_DIR)
     
-    # === 修改点 2: 使用 xelatex 编译器 ===
-    # xelatex 对 UTF-8 和中文字体的支持远好于 pdflatex
     cmd = ["xelatex", "-interaction=nonstopmode", "notebook.tex"]
     
     try:
