@@ -1,4 +1,4 @@
-    ## 组合数学 - 卡特兰数 (Catalan Number)
+## 组合数学 - 卡特兰数 (Catalan Number)
 
 ### 算法说明
 
