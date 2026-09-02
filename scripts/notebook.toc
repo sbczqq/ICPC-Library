@@ -1,0 +1,64 @@
+\contentsline {section}{Graph}{4}{}%
+\contentsline {section}{图论}{4}{}%
+\contentsline {subsection}{图论 - Kruskal 重构树 (瓶颈路问题)}{4}{}%
+\contentsline {subsection}{图论 - 匈牙利算法 (二分图最大匹配)}{5}{}%
+\contentsline {subsection}{最小·生成树prim}{5}{}%
+\contentsline {subsection}{图论 - 最小生成树 (MST) - Kruskal算法}{6}{}%
+\contentsline {subsection}{最小生成树prim}{6}{}%
+\contentsline {subsection}{图论与树 - DFS序 (DFN)}{7}{}%
+\contentsline {subsection}{数据结构/图论 - 树上启发式合并 (Dsu on Tree)}{8}{}%
+\contentsline {subsection}{数据结构/图论 - 重链剖分 (树链剖分 / HLD)}{9}{}%
+\contentsline {subsection}{图论 - 欧拉路径与欧拉回路 (Eulerian Path/Circuit)}{11}{}%
+\contentsline {subsection}{图论 - Tarjan 强连通分量 (SCC) 与缩点}{12}{}%
+\contentsline {subsection}{图论 - 割点与割边 (桥) (Articulation Points \& Bridges)}{13}{}%
+\contentsline {section}{字符串}{14}{}%
+\contentsline {subsection}{字符串 - AC自动机 (Aho-Corasick Automaton)}{14}{}%
+\contentsline {subsection}{字符串-KMP}{15}{}%
+\contentsline {subsection}{字符串 - Z 函数 (扩展 KMP)}{16}{}%
+\contentsline {subsection}{字符串 - Manacher 算法 (马拉车)}{16}{}%
+\contentsline {subsection}{字符串 - 字典树 (Trie)}{16}{}%
+\contentsline {section}{数学}{17}{}%
+\contentsline {subsection}{博弈论 - SG 函数与 Sprague-Grundy 定理}{17}{}%
+\contentsline {subsection}{数学 - 任意模数多项式乘法 (MTT / 三模数 NTT)}{19}{}%
+\contentsline {subsection}{数学 - 卢卡斯定理与扩展卢卡斯定理 (Lucas \& exLucas)}{20}{}%
+\contentsline {subsection}{数论 - 中国剩余定理与扩展 (CRT \& EXCRT)}{22}{}%
+\contentsline {subsection}{数论 - 欧拉函数 \& 扩展欧拉定理}{23}{}%
+\contentsline {subsection}{数论 - 整除分块 (数论分块)}{24}{}%
+\contentsline {subsection}{数学 - 矩阵运算全家桶 (无重载 N*M 版)}{25}{}%
+\contentsline {subsection}{矩阵与递推 - 矩阵快速幂}{26}{}%
+\contentsline {subsection}{数据结构 - 异或线性基 (XOR Linear Basis)}{26}{}%
+\contentsline {subsection}{组合数学 - 卡特兰数 (Catalan Number)}{27}{}%
+\contentsline {subsection}{组合数学 - 多重集组合数}{28}{}%
+\contentsline {subsection}{组合数学 - k 部分拆数 (k-Part Integer Partition)}{29}{}%
+\contentsline {subsection}{组合数学 - 互异分拆数 (Distinct Integer Partition)}{29}{}%
+\contentsline {subsection}{数学 - 斐波那契快速倍增法 (Fast Doubling)}{30}{}%
+\contentsline {subsection}{组合数学 - 斯特林数 (Stirling Number)}{30}{}%
+\contentsline {subsection}{数学 - 范德蒙德卷积 (Vandermonde's Convolution)}{31}{}%
+\contentsline {subsection}{数学 - 皮萨诺周期 (Pisano Period) 与超大数降维}{33}{}%
+\contentsline {subsection}{组合数学 - 错位排列 (Derangement)}{34}{}%
+\contentsline {subsection}{数论 - 莫比乌斯反演计算 gcd(x,y)=k}{34}{}%
+\contentsline {subsection}{数论 - 线性筛质数 (欧拉筛)}{35}{}%
+\contentsline {subsection}{数学 - 高斯消元 (高斯-若尔当消元法)}{35}{}%
+\contentsline {section}{数据结构}{36}{}%
+\contentsline {subsection}{数据结构 - ST表 (RMQ)}{36}{}%
+\contentsline {subsection}{分块 - 区间加 \& 区间秩查询}{37}{}%
+\contentsline {subsection}{数据结构 - 可持久化线段树 (主席树) + 离散化}{38}{}%
+\contentsline {subsection}{数据结构 - 带删除并查集}{39}{}%
+\contentsline {subsection}{数据结构 - 带权并查集 (Weighted DSU)}{39}{}%
+\contentsline {subsection}{数据结构/图论 - LCA 转 RMQ (欧拉序/DFN + ST表)}{40}{}%
+\contentsline {subsection}{树 - 最近公共祖先 (LCA) - 倍增法}{41}{}%
+\contentsline {subsection}{树 - 笛卡尔树}{42}{}%
+\contentsline {subsection}{数据结构 - 离散化权值树状数组 (支持查排名/第k小/前驱/后继)}{42}{}%
+\contentsline {subsection}{数据结构 - 懒标记线段树}{43}{}%
+\contentsline {section}{杂项}{44}{}%
+\contentsline {subsection}{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}{44}{}%
+\contentsline {section}{算法基础}{45}{}%
+\contentsline {subsection}{算法 - 三分查找 (二分斜率/导数逼近)}{45}{}%
+\contentsline {subsection}{基础算法 - 高精度运算 (BigInt)}{46}{}%
+\contentsline {section}{计算几何}{47}{}%
+\contentsline {subsection}{计算几何 - 二维点与向量基础 (2D Geometry)}{47}{}%
+\contentsline {subsection}{计算几何 - 凸包 Graham 扫描法 (Convex Hull - Graham Scan)}{47}{}%
+\contentsline {subsection}{计算几何 - 圆的交点与切线全家桶 (无重载运算符纯净版)}{48}{}%
+\contentsline {subsection}{数据结构 - 扫描线求矩形面积并}{50}{}%
+\contentsline {subsection}{计算几何 - 线段与射线交点全家桶 (无重载运算符纯净版)}{51}{}%
+\contentsline {subsection}{计算几何 - 简单多边形面积 (Polygon Area)}{53}{}%
