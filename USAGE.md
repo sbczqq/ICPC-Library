@@ -23,20 +23,51 @@
 
 由于我们配置了 `.gitattributes`，你不需要担心 Windows (CRLF) 和 Linux (LF) 的换行符冲突问题。
 
-### 在 Windows 上写完代码/文档后：
-1.  打开 VS Code 终端。
-2.  提交更改：
-    ```bash
-    git add .
-    git commit -m "Add: 增加了 FFT 算法及其原理解析"
-    git push
-    ```
+仓库的主分支是 `master`。Windows 和 Linux 都可以使用以下两种流程更新主分支。
+
+### 方式 A：将 main 的更新合并到 master
+
+在 `main` 分支上写完代码或文档后，先提交并推送到 `main`：
+
+```bash
+git add .
+git commit -m "Add: 增加了 FFT 算法及其原理解析"
+git push origin main
+```
+
+将远端 `main` 的更新合并到 `master`，再推送主分支：
+
+```bash
+git fetch origin
+git switch master
+git pull origin master
+git merge origin/main
+git push origin master
+```
+
+### 方式 B：直接在 master 提交
+
+开始修改前，切换到 `master` 并拉取最新代码：
+
+```bash
+git switch master
+git pull origin master
+```
+
+写完代码或文档后，直接提交并推送到 `master`：
+
+```bash
+git add .
+git commit -m "Add: 增加了 FFT 算法及其原理解析"
+git push origin master
+```
 
 ### 在 Linux 设备上开始训练前：
 1.  打开终端，进入项目目录。
 2.  拉取最新代码：
     ```bash
-    git pull
+    git switch master
+    git pull origin master
     ```
     *此时，你的 Linux 本地文件已经是最新的，且换行符已被自动转换为 Linux 标准的 LF。*
 
