@@ -7,17 +7,26 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONTENT_DIR = os.path.join(CURRENT_DIR, "..", "content")
 OUTPUT_TEX = os.path.join(CURRENT_DIR, "notebook.tex")
 
+# Keep complete inline and display math untouched while escaping surrounding text.
+# The old ``\$.*?\$`` expression split ``$$...$$`` into two empty math blocks,
+# so characters such as ``^``, ``_`` and ``{}`` inside display formulae were
+# escaped as ordinary text and rendered incorrectly.
+MATH_PATTERN = re.compile(
+    r'(?<!\\)(\$\$.*?(?<!\\)\$\$|\$.*?(?<!\\)\$)',
+    re.DOTALL,
+)
+
 def sanitize_latex(text):
     """移除 Emoji 并转义 LaTeX 保留字符，同时保护数学公式"""
     # 移除 LaTeX 无法处理的 Emoji [cite: 5340, 5421]
     text = re.sub(r'[^\u0000-\u05C0\u2100-\u214F\u4E00-\u9FFF\u3000-\u303F\uff00-\uffef]', '', text)
     
-    # 保护已有的数学公式 $...$ [cite: 5412]
+    # 同时保护行内公式 $...$ 和块级公式 $$...$$
     math_blocks = []
     def save_math(m):
         math_blocks.append(m.group(0))
         return f"MATHPH{len(math_blocks)-1}PH"
-    text = re.sub(r'\$.*?\$', save_math, text)
+    text = MATH_PATTERN.sub(save_math, text)
 
     # 转义 LaTeX 保留字符：解决日志中的 ^ 和 _ 报错 [cite: 5341, 5422]
     chars = {
@@ -86,13 +95,19 @@ def generate_latex():
 \documentclass[10pt, landscape, a4paper]{article}
 \usepackage[UTF8, scheme=chinese]{ctex}
 \usepackage{multicol, listings, xcolor, geometry, fancyhdr, amsmath, amssymb, enumitem}
-\geometry{top=1cm, bottom=1cm, left=0.8cm, right=0.8cm} 
+\geometry{top=1cm, bottom=1cm, left=0.8cm, right=0.8cm}
+\setlength{\footskip}{0.45cm}
 \setlength{\columnsep}{0.6cm}
 \setcounter{tocdepth}{2}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\textbf{ICPC Template Library}}
-\rhead{\thepage}
+\fancyhead[L]{\textbf{ICPC Template Library}}
+\fancyfoot[C]{\thepage}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyhead[L]{\textbf{ICPC Template Library}}
+    \fancyfoot[C]{\thepage}
+}
 \lstset{
     language=C++, basicstyle=\small\ttfamily, keywordstyle=\bfseries\color{blue},
     commentstyle=\itshape\color{teal!80!black}, stringstyle=\color{red},

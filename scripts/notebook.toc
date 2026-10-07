@@ -40,25 +40,26 @@
 \contentsline {subsection}{数论 - 线性筛质数 (欧拉筛)}{35}{}%
 \contentsline {subsection}{数学 - 高斯消元 (高斯-若尔当消元法)}{35}{}%
 \contentsline {section}{数据结构}{36}{}%
-\contentsline {subsection}{数据结构 - ST表 (RMQ)}{36}{}%
-\contentsline {subsection}{分块 - 区间加 \& 区间秩查询}{37}{}%
-\contentsline {subsection}{数据结构 - 可持久化线段树 (主席树) + 离散化}{38}{}%
-\contentsline {subsection}{数据结构 - 带删除并查集}{39}{}%
-\contentsline {subsection}{数据结构 - 带权并查集 (Weighted DSU)}{39}{}%
-\contentsline {subsection}{数据结构/图论 - LCA 转 RMQ (欧拉序/DFN + ST表)}{40}{}%
-\contentsline {subsection}{树 - 最近公共祖先 (LCA) - 倍增法}{41}{}%
-\contentsline {subsection}{树 - 笛卡尔树}{42}{}%
-\contentsline {subsection}{数据结构 - 离散化权值树状数组 (支持查排名/第k小/前驱/后继)}{42}{}%
-\contentsline {subsection}{数据结构 - 懒标记线段树}{43}{}%
-\contentsline {section}{杂项}{44}{}%
-\contentsline {subsection}{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}{44}{}%
-\contentsline {section}{算法基础}{45}{}%
-\contentsline {subsection}{算法 - 三分查找 (二分斜率/导数逼近)}{45}{}%
-\contentsline {subsection}{基础算法 - 高精度运算 (BigInt)}{46}{}%
-\contentsline {section}{计算几何}{47}{}%
-\contentsline {subsection}{计算几何 - 二维点与向量基础 (2D Geometry)}{47}{}%
-\contentsline {subsection}{计算几何 - 凸包 Graham 扫描法 (Convex Hull - Graham Scan)}{47}{}%
-\contentsline {subsection}{计算几何 - 圆的交点与切线全家桶 (无重载运算符纯净版)}{48}{}%
-\contentsline {subsection}{数据结构 - 扫描线求矩形面积并}{50}{}%
-\contentsline {subsection}{计算几何 - 线段与射线交点全家桶 (无重载运算符纯净版)}{51}{}%
-\contentsline {subsection}{计算几何 - 简单多边形面积 (Polygon Area)}{53}{}%
+\contentsline {subsection}{数据结构 - CDQ 分治 (三维偏序)}{36}{}%
+\contentsline {subsection}{数据结构 - ST表 (RMQ)}{38}{}%
+\contentsline {subsection}{分块 - 区间加 \& 区间秩查询}{39}{}%
+\contentsline {subsection}{数据结构 - 可持久化线段树 (主席树) + 离散化}{40}{}%
+\contentsline {subsection}{数据结构 - 带删除并查集}{41}{}%
+\contentsline {subsection}{数据结构 - 带权并查集 (Weighted DSU)}{41}{}%
+\contentsline {subsection}{数据结构/图论 - LCA 转 RMQ (欧拉序/DFN + ST表)}{42}{}%
+\contentsline {subsection}{树 - 最近公共祖先 (LCA) - 倍增法}{43}{}%
+\contentsline {subsection}{树 - 笛卡尔树}{44}{}%
+\contentsline {subsection}{数据结构 - 离散化权值树状数组 (支持查排名/第k小/前驱/后继)}{44}{}%
+\contentsline {subsection}{数据结构 - 懒标记线段树}{45}{}%
+\contentsline {section}{杂项}{46}{}%
+\contentsline {subsection}{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}{46}{}%
+\contentsline {section}{算法基础}{47}{}%
+\contentsline {subsection}{算法 - 三分查找 (二分斜率/导数逼近)}{47}{}%
+\contentsline {subsection}{基础算法 - 高精度运算 (BigInt)}{48}{}%
+\contentsline {section}{计算几何}{49}{}%
+\contentsline {subsection}{计算几何 - 二维点与向量基础 (2D Geometry)}{49}{}%
+\contentsline {subsection}{计算几何 - 凸包 Graham 扫描法 (Convex Hull - Graham Scan)}{49}{}%
+\contentsline {subsection}{计算几何 - 圆的交点与切线全家桶 (无重载运算符纯净版)}{50}{}%
+\contentsline {subsection}{数据结构 - 扫描线求矩形面积并}{52}{}%
+\contentsline {subsection}{计算几何 - 线段与射线交点全家桶 (无重载运算符纯净版)}{53}{}%
+\contentsline {subsection}{计算几何 - 简单多边形面积 (Polygon Area)}{55}{}%
