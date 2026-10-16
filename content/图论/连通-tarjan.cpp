@@ -1,88 +1,52 @@
 #include<bits/stdc++.h>
 using namespace std;
-
 #define int long long
 #define endl '\n'
 
-const int MAXN=1e5+10;
+const int N=2e5+10;
+vector<int>e[N],ne[N]; // 原有向图、缩点后的有向无环图
+int dfn[N],low[N],tim; // DFS访问顺序、能够追溯到的最早访问顺序、时间戳
+int stk[N],top,id[N],cnt; // 尚未归属分量的点栈、栈顶、所属分量编号、分量数量
+bool st[N]; // st[u]表示u是否仍在栈中
 
-vector<int> e[MAXN], ne[MAXN]; // e: 原图, ne: 缩点后的新图 (DAG)
-int val[MAXN];     // 原图中每个点的权值
-
-// --- Tarjan 核心数组 ---
-int dfn[MAXN], low[MAXN], timestamp;
-int stk[MAXN], top;
-bool in_stk[MAXN];
-
-// --- 缩点后新图信息 ---
-int id[MAXN];      // id[u]: 原节点 u 属于第几个超级大点
-int sum[MAXN];     // sum[i]: 第 i 个超级大点的权值和
-int scc_cnt;       // 超级大点总数
-
-// ================= 1. Tarjan 找 SCC =================
-void tarjan(int u)
+void tarjan(int u) // 求有向图的强连通分量
 {
-    dfn[u] = low[u] = ++timestamp;
-    stk[++top] = u;
-    in_stk[u] = true;
-    
-    for(int v : e[u])
+    dfn[u]=low[u]=++tim; // 首次访问u，初始化访问顺序和追溯值
+    stk[++top]=u; // 将u放入栈中，等待确定所属分量
+    st[u]=1;
+    for(auto v:e[u]) // 遍历u的所有出边
     {
-        if(!dfn[v])
+        if(!dfn[v]) // v尚未访问，沿DFS树继续搜索
         {
             tarjan(v);
-            low[u] = min(low[u], low[v]);
+            low[u]=min(low[u],low[v]); // 用子节点能够追溯到的位置更新u
         }
-        else if(in_stk[v]) // 遇到还在栈中的点，说明成环
-        {
-            low[u] = min(low[u], dfn[v]);
-        }
+        else if(st[v]) // v仍在栈中，可以参与当前尚未划分完的分量
+            low[u]=min(low[u],dfn[v]); // 已访问的点用dfn更新，已出栈的点不再考虑
     }
-    
-    // 发现 SCC 的最高点，开始弹栈打包
-    if(dfn[u] == low[u])
+    if(dfn[u]==low[u]) // u是一个强连通分量在DFS树中的根
     {
-        ++scc_cnt;
-        int y;
-        do {
-            y = stk[top--];
-            in_stk[y] = false;
-            id[y] = scc_cnt;
-            sum[scc_cnt] += val[y]; // 权值累加给超级大点
-        } while(y != u);
+        cnt++;
+        int v;
+        do
+        {
+            v=stk[top--]; // 从栈顶弹出当前分量的点
+            st[v]=0; // 已经确定所属分量，不再留在栈中
+            id[v]=cnt; // 同一次弹出的点属于同一个强连通分量
+        }while(v!=u); // 弹到u时，这个强连通分量恰好全部取出
     }
 }
 
-void solve()
+void scc(int n) // e[1..n]提前建好，其余状态初始为零
 {
-    /* 实战调用示例
-    int n, m; cin >> n >> m;
-    for(int i = 1; i <= n; i++) cin >> val[i];
-    
-    for(int i = 1; i <= m; i++)
+    for(int i=1;i<=n;i++)
+        if(!dfn[i])tarjan(i); // 图可能不连通，每个未访问的点都要搜索
+    for(int u=1;u<=n;u++)
     {
-        int u, v; cin >> u >> v;
-        e[u].push_back(v);
-    }
-    
-    // 1. 图可能不连通，必须遍历每个点跑 Tarjan
-    for(int i = 1; i <= n; i++)
-        if(!dfn[i]) tarjan(i);
-        
-    // 2. 核心：遍历原图所有边，建立 DAG 新图
-    for(int u = 1; u <= n; u++)
-    {
-        for(int v : e[u])
+        for(auto v:e[u])
         {
-            int a = id[u], b = id[v];
-            if(a != b) // 不在同一个 SCC 内，才连边
-            {
-                ne[a].push_back(b);
-                // in_degree[b]++; // 若需拓扑排序，顺手统计入度
-            }
+            int a=id[u],b=id[v]; // 将原边的两个端点映射为分量编号
+            if(a!=b)ne[a].push_back(b); // 只保留分量之间的边，平行边不去重
         }
     }
-    
-    // 3. 在 ne 图(DAG)上跑 DP 或 拓扑排序...
-    */
 }
