@@ -1,56 +1,129 @@
-
-\documentclass[10pt, landscape, a4paper]{article}
-\usepackage[UTF8, scheme=chinese]{ctex}
-\usepackage{multicol, listings, xcolor, geometry, fancyhdr, amsmath, amssymb, enumitem}
-\geometry{top=1cm, bottom=1cm, left=0.8cm, right=0.8cm}
+\documentclass[10pt,landscape,a4paper]{article}
+\usepackage[UTF8,scheme=chinese,fontset=none]{ctex}
+\usepackage{multicol,listings,xcolor,geometry,fancyhdr,amsmath,amssymb,enumitem,graphicx}
+\IfFontExistsTF{Consolas}{\setmonofont{Consolas}}{}
+\IfFontExistsTF{SimSun}{
+  \setCJKmainfont[AutoFakeBold=2,AutoFakeSlant=0.2]{SimSun}
+  \setCJKmonofont[AutoFakeBold=2,AutoFakeSlant=0.2]{SimSun}
+  \setCJKsansfont{Microsoft YaHei}
+}{
+  \setCJKmainfont[AutoFakeBold=2,AutoFakeSlant=0.2]{FandolSong-Regular}
+  \setCJKmonofont[AutoFakeBold=2,AutoFakeSlant=0.2]{FandolSong-Regular}
+  \setCJKsansfont{FandolHei-Regular}
+}
+\geometry{top=0.55cm,bottom=1cm,left=1cm,right=0.8cm,includehead,headheight=14pt,headsep=5pt}
 \setlength{\footskip}{0.45cm}
 \setlength{\columnsep}{0.6cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35ex plus 0.1ex}
+\setlength{\emergencystretch}{2em}
 \setcounter{tocdepth}{2}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\textbf{ICPC Template Library}}
+\fancyhead[L]{\small\textbf{ICPC Template Library}}
 \fancyfoot[C]{\thepage}
 \fancypagestyle{plain}{
-    \fancyhf{}
-    \fancyhead[L]{\textbf{ICPC Template Library}}
-    \fancyfoot[C]{\thepage}
+  \fancyhf{}
+  \fancyhead[L]{\small\textbf{ICPC Template Library}}
+  \fancyfoot[C]{\thepage}
 }
 \lstset{
-    language=C++, basicstyle=\small\ttfamily, keywordstyle=\bfseries\color{blue},
-    commentstyle=\itshape\color{teal!80!black}, stringstyle=\color{red},
-    numbers=left, numberstyle=\tiny\color{gray}, breaklines=true,
-    frame=single, tabsize=2, extendedchars=false, columns=flexible, keepspaces=true,
-    showstringspaces=false
+  language=C++,basicstyle=\small\ttfamily,keywordstyle=\bfseries\color{blue},
+  commentstyle=\color{teal!80!black},stringstyle=\color{red},
+  numbers=left,numberstyle=\tiny\color{gray},numbersep=4pt,
+  breaklines=true,breakatwhitespace=false,breakautoindent=true,
+  frame=single,tabsize=2,extendedchars=false,columns=fullflexible,keepspaces=true,
+  xleftmargin=1em,framexleftmargin=0.2em,showstringspaces=false,
+  literate={→}{{$\to$}}1 {←}{{$\leftarrow$}}1 {≤}{{$\le$}}1 {≥}{{$\ge$}}1
+           {≠}{{$\ne$}}1 {×}{{$\times$}}1 {∞}{{$\infty$}}1
 }
-\setlist{nosep}
+\setlist{nosep,leftmargin=1.15em,labelsep=0.3em,topsep=0.3ex}
+\newsavebox{\NotebookMathBox}
+\newcommand{\NotebookMath}[1]{%
+  \par\begingroup
+  \sbox{\NotebookMathBox}{$\displaystyle #1$}%
+  \noindent\makebox[\linewidth][c]{%
+    \ifdim\wd\NotebookMathBox>\linewidth
+      \resizebox{\linewidth}{!}{\usebox{\NotebookMathBox}}%
+    \else\usebox{\NotebookMathBox}\fi}%
+  \par\endgroup}
 \begin{document}
-\tableofcontents \newpage
-\begin{multicols*}{3} 
-\section*{Graph}
-\addcontentsline{toc}{section}{Graph}
+\tableofcontents
+\clearpage
+\begin{multicols*}{3}
+\raggedcolumns
+\section*{动态规划}
+\addcontentsline{toc}{section}{动态规划}
+\subsection*{动态规划 - SOS DP (高维前缀和)}
+\addcontentsline{toc}{subsection}{动态规划 - SOS DP (高维前缀和)}
+% Source: 动态规划/sosdp_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求每个集合的所有子集权值之和，即 $w[k]=\sum_{s\subseteq k}a[s]$，其中 $a$ 为原始权值。
+\item \textbf{核心思想}：外层枚举位 \texttt{j}，内层枚举状态 \texttt{k}。若第 \texttt{j} 位为 $1$，执行 \texttt{w\allowbreak{}[\allowbreak{}k\allowbreak{}]\allowbreak{}+\allowbreak{}=\allowbreak{}w\allowbreak{}[\allowbreak{}k\allowbreak{}\textasciicircum{}\allowbreak{}(\allowbreak{}1\allowbreak{}L\allowbreak{}L\allowbreak{}\textless{}\allowbreak{}\textless{}\allowbreak{}j\allowbreak{})\allowbreak{}]}，加入删除这一位后的贡献。
+\item \textbf{使用方法}：将原始权值填入 \texttt{w\allowbreak{}[\allowbreak{}0\allowbreak{}.\allowbreak{}.\allowbreak{}(\allowbreak{}1\allowbreak{}L\allowbreak{}L\allowbreak{}\textless{}\allowbreak{}\textless{}\allowbreak{}m\allowbreak{})\allowbreak{}-\allowbreak{}1\allowbreak{}]}，转移后 \texttt{w\allowbreak{}[\allowbreak{}k\allowbreak{}]} 即为答案，包含空集和自身。
+\item \textbf{时间复杂度}：$O(m2^m)$。
+\item \textbf{空间复杂度}：$O(2^m)$，固定数组实际按最大位数 \texttt{M} 分配 $O(2^M)$ 空间。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: sosdp.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+const int M=20;
+int w[1LL<<M]; // 开始存原始数值，结束存每个下标的所有子集之和
+void solve()
+{
+    int m;
+    cin>>m; // 二进制位数，一共有2^m个下标，m<=M
+    for(int k=0;k<(1LL<<m);k++)cin>>w[k]; // 初始时，每个位置只有自己的数值
+    for(int j=0;j<m;j++) // 逐位处理：本轮允许删掉第j位的1
+    {
+        for(int k=(1LL<<m)-1;k>=0;k--) // 遍历所有下标，完成这一轮更新
+        {
+            if((k&(1LL<<j))!=0) // 第j位是1，才有保留和删除两种情况
+            {
+                w[k]+=w[k^(1LL<<j)]; // w[k]已有保留这一位的情况，再加入删除这一位的情况
+            }
+        }
+    }
+    for(int k=0;k<(1LL<<m);k++)cout<<w[k]<<" "; // 所有位处理完，输出每个下标的子集和
+    cout<<endl;
+}
+signed main()
+{
+    cin.tie(0);
+    ios::sync_with_stdio(0);
+    solve();
+    return 0;
+}
+\end{lstlisting}
 \section*{图论}
 \addcontentsline{toc}{section}{图论}
 \subsection*{图论 - Kruskal 重构树 (瓶颈路问题)}
 \addcontentsline{toc}{subsection}{图论 - Kruskal 重构树 (瓶颈路问题)}
-\noindent\textbf{图论 - Kruskal 重构树 (瓶颈路问题)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：求无向图中两点间所有路径的\textbf{最大边权最小}（或\textbf{最小边权最大}）的瓶颈值。 \\
-* \textbf{核心性质}： \\
-1. \textbf{建树方式}：Kruskal 连边时，新建虚拟节点作为两连通块根的父节点，点权赋为该边权。 \\
-2. \textbf{树的形态}：二叉树（原图不连通时为森林）。节点总数 $2N-1$（叶子为原图点，内部节点为原图边）。 \\
-3. \textbf{堆性质}：最大（小）生成树对应的重构树是小（大）根堆。 \\
-4. \textbf{关键结论}：两点间路径的瓶颈最值，等于它们在重构树上 \textbf{LCA 的点权}。 \\
-* \textbf{时间复杂度}：预处理 $O(M \log M)$，单次查询 $O(\log N)$。 \\
-* \textbf{注意事项（避坑指南）}： \\
-1. \textbf{空间翻倍}：所有点相关数组（并查集、邻接表、深度、倍增等）必须开到 \textbf{$2N$}。 \\
-2. \textbf{不连通处理}：原图可能是森林，建树后需遍历 $1 \sim id$，对所有 \texttt{find(i) == i} 的根节点做 DFS。 \\
-3. \textbf{查询前提}：查 LCA 前必须判断 \texttt{find(u) == find(v)}，不连通则无解。 \\
-\noindent\texttt{\scriptsize File: Kruskal 重构树.cpp}
-\begin{lstlisting}
+% Source: 图论/Kruskal 重构树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求无向图中两点间所有路径的\textbf{最大边权最小}（或\textbf{最小边权最大}）的瓶颈值。
+\item \textbf{核心性质}：
+\begin{enumerate}[start=1]
+\item \textbf{建树方式}：Kruskal 连边时，新建虚拟节点作为两连通块根的父节点，点权赋为该边权。
+\item \textbf{树的形态}：二叉树（原图不连通时为森林）。节点总数 $2N-1$（叶子为原图点，内部节点为原图边）。
+\item \textbf{堆性质}：最大（小）生成树对应的重构树是小（大）根堆。
+\item \textbf{关键结论}：两点间路径的瓶颈最值，等于它们在重构树上 \textbf{LCA 的点权}。
+\end{enumerate}
+\item \textbf{时间复杂度}：预处理 $O(M \log M)$，单次查询 $O(\log N)$。
+\item \textbf{注意事项（避坑指南）}：
+\begin{enumerate}[start=1]
+\item \textbf{空间翻倍}：所有点相关数组（并查集、邻接表、深度、倍增等）必须开到 \textbf{$2N$}。
+\item \textbf{不连通处理}：原图可能是森林，建树后需遍历 $1 \sim id$，对所有 \texttt{f\allowbreak{}i\allowbreak{}n\allowbreak{}d\allowbreak{}(\allowbreak{}i\allowbreak{})\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}i} 的根节点做 DFS。
+\item \textbf{查询前提}：查 LCA 前必须判断 \texttt{f\allowbreak{}i\allowbreak{}n\allowbreak{}d\allowbreak{}(\allowbreak{}u\allowbreak{})\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}f\allowbreak{}i\allowbreak{}n\allowbreak{}d\allowbreak{}(\allowbreak{}v\allowbreak{})}，不连通则无解。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: Kruskal 重构树.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -142,26 +215,22 @@ void solve() {
 \end{lstlisting}
 \subsection*{图论 - 匈牙利算法 (二分图最大匹配)}
 \addcontentsline{toc}{subsection}{图论 - 匈牙利算法 (二分图最大匹配)}
-\noindent\textbf{图论 - 匈牙利算法 (二分图最大匹配)} \\
-
-
-\noindent\textbf{何时使用} \\
-解决经典的分配/配对问题（如：男女相亲、工人分配任务）。图\textbf{必须是二分图}，核心特征是求\textbf{最大匹配数}。 \\
-
-
-\noindent\textbf{ 复杂度} \\
-*   \textbf{时间复杂度}：$O(V \times E)$。其中 $V$ 是左侧集合的点数，$E$ 是总边数。由于很难跑满最坏情况，实际运行速度往往远快于理论上界。 \\
-*   \textbf{空间复杂度}：$O(V + E)$（使用 \texttt{vector} 邻接表存图）。 \\
-
-
-\noindent\textbf{核心步骤} \\
-1. \textbf{单向建图}：只需要从左侧集合连向右侧集合。 \\
-2. \textbf{\texttt{find(u)} 寻找增广路}：遍历左侧节点 $u$ 看中的右侧节点 $v$。如果 $v$ 还没被访问，标记访问。如果 $v$ 没对象，或者 $v$ 的现任对象 \texttt{match[v]} 能\textbf{腾出位置（递归寻找）}，则牵手成功，\texttt{match[v]=u}。 \\
-3. \textbf{清空 \texttt{vis}}：每次给新的左侧节点找对象前，\textbf{必须清空} \texttt{vis} 数组。 \\
-
-
-\noindent\texttt{\scriptsize File: 二分图最大权匹配.cpp}
-\begin{lstlisting}
+% Source: 图论/二分图最大权匹配_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{何时使用}\par\nobreak
+解决经典的“分配/配对”问题（如：男女相亲、工人分配任务）。图\textbf{必须是二分图}，核心特征是求\textbf{最大匹配数}。\par
+\par\addvspace{0.7ex}\noindent\textbf{复杂度}\par\nobreak
+\begin{itemize}
+\item \textbf{时间复杂度}：$O(V \times E)$。其中 $V$ 是左侧集合的点数，$E$ 是总边数。由于很难跑满最坏情况，实际运行速度往往远快于理论上界。
+\item \textbf{空间复杂度}：$O(V + E)$（使用 \texttt{v\allowbreak{}e\allowbreak{}c\allowbreak{}t\allowbreak{}o\allowbreak{}r} 邻接表存图）。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
+\begin{enumerate}[start=1]
+\item \textbf{单向建图}：只需要从左侧集合连向右侧集合。
+\item \textbf{\texttt{f\allowbreak{}i\allowbreak{}n\allowbreak{}d\allowbreak{}(\allowbreak{}u\allowbreak{})} 寻找增广路}：遍历左侧节点 $u$ 看中的右侧节点 $v$。如果 $v$ 还没被访问，标记访问。如果 $v$ 没对象，或者 $v$ 的现任对象 \texttt{m\allowbreak{}a\allowbreak{}t\allowbreak{}c\allowbreak{}h\allowbreak{}[\allowbreak{}v\allowbreak{}]} 能\textbf{腾出位置（递归寻找）}，则牵手成功，\texttt{m\allowbreak{}a\allowbreak{}t\allowbreak{}c\allowbreak{}h\allowbreak{}[\allowbreak{}v\allowbreak{}]\allowbreak{}=\allowbreak{}u}。
+\item \textbf{清空 \texttt{v\allowbreak{}i\allowbreak{}s}}：每次给新的左侧节点找对象前，\textbf{必须清空} \texttt{v\allowbreak{}i\allowbreak{}s} 数组。
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 二分图最大权匹配.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -222,38 +291,23 @@ signed main()
     return 0;
 }
 \end{lstlisting}
-\subsection*{最小·生成树prim}
-\addcontentsline{toc}{subsection}{最小·生成树prim}
-最小生成树 - Prim 算法 (堆优化版) \\
-
-
-算法说明 \\
-
-
-用途：求无向图的最小生成树 (MST) 的权值之和。 \\
-
-
-时间复杂度：O(ElogE) 或 O(ElogV)。 \\
-
-
-适用场景：适合稠密图。对于稀疏图，Kruskal 算法通常代码更短，但堆优化的 Prim 性能也十分优秀。 \\
 \subsection*{图论 - 最小生成树 (MST) - Kruskal算法}
 \addcontentsline{toc}{subsection}{图论 - 最小生成树 (MST) - Kruskal算法}
-\noindent\textbf{图论 - 最小生成树 (MST) - Kruskal算法} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：在无向连通图中寻找一棵包含所有顶点且边权之和最小的树。 \\
-* \textbf{时间复杂度}：$O(M \log M)$（$M$ 为边数，瓶颈在边排序）。 \\
-* \textbf{适用场景}：稀疏图（边数较少）。基于贪心思想，配合并查集，代码极简，是比赛中最常用的求 MST 算法。 \\
-* \textbf{注意事项}： \\
-1. 必须在读入边之前或之后，初始化并查集 \texttt{p[i] = i}。 \\
-2. 如果最终加入的边数不等于 $N-1$，说明图不连通，不存在最小生成树。 \\
-3. 累加的边权总和极易爆 \texttt{int}，务必使用 \texttt{long long} 存储 \texttt{res}。 \\
-\noindent\texttt{\scriptsize File: 最小生成数Kruskal.cpp}
-\begin{lstlisting}
+% Source: 图论/最小生成数Kruskal_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在无向连通图中寻找一棵包含所有顶点且边权之和最小的树。
+\item \textbf{时间复杂度}：$O(M \log M)$（$M$ 为边数，瓶颈在边排序）。
+\item \textbf{适用场景}：稀疏图（边数较少）。基于贪心思想，配合并查集，代码极简，是比赛中最常用的求 MST 算法。
+\item \textbf{注意事项}：
+\begin{enumerate}[start=1]
+\item 必须在读入边之前或之后，初始化并查集 \texttt{p\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{} \allowbreak{}=\allowbreak{} \allowbreak{}i}。
+\item 如果最终加入的边数不等于 $N-1$，说明图不连通，不存在最小生成树。
+\item 累加的边权总和极易爆 \texttt{i\allowbreak{}n\allowbreak{}t}，务必使用 \texttt{l\allowbreak{}o\allowbreak{}n\allowbreak{}g\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}n\allowbreak{}g} 存储 \texttt{r\allowbreak{}e\allowbreak{}s}。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 最小生成数Kruskal.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -315,10 +369,15 @@ void solve()
     }
 }
 \end{lstlisting}
-\subsection*{最小生成树prim}
-\addcontentsline{toc}{subsection}{最小生成树prim}
-\noindent\texttt{\scriptsize File: 最小生成树prim.cpp}
-\begin{lstlisting}
+\subsection*{最小生成树 - Prim 算法 (堆优化版)}
+\addcontentsline{toc}{subsection}{最小生成树 - Prim 算法 (堆优化版)}
+% Source: 图论/最小·生成树prim_doc.md
+算法说明\par
+用途：求无向图的最小生成树 (MST) 的权值之和。\par
+时间复杂度：O(ElogE) 或 O(ElogV)。\par
+适用场景：适合稠密图。对于稀疏图，Kruskal 算法通常代码更短，但堆优化的 Prim 性能也十分优秀。\par
+\par\noindent{\scriptsize\texttt{File: 最小生成树prim.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -403,19 +462,21 @@ bool Prim() {
 \end{lstlisting}
 \subsection*{图论与树 - DFS序 (DFN)}
 \addcontentsline{toc}{subsection}{图论与树 - DFS序 (DFN)}
-\noindent\textbf{图论与树 - DFS序 (DFN)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：将树结构拍扁为一维线性数组，把子树操作完全转化为连续数组区间操作，无缝衔接线段树或树状数组。 \\
-* \textbf{时间复杂度}：预处理 $O(N)$，获取子树区间及祖孙判定 $O(1)$。 \\
-* \textbf{核心思想}：DFS遍历时分配递增时间戳。节点 $u$ 及其整棵子树分配到的 DFN 必定是连续闭区间：\textbf{\texttt{[dfn[u], dfn[u]+sz[u]-1]}}。 \\
-* \textbf{常见场景}： \\
-1. 子树权值批量更新/求和。 \\
-2. $O(1)$ 判断祖孙关系（$v$ 在 $u$ 的管辖区间内，则 $u$ 是 $v$ 的祖先）。 \\
-3. 树上启发式合并 / 树上莫队。 \\
-\noindent\texttt{\scriptsize File: 树-dfn.cpp}
-\begin{lstlisting}
+% Source: 图论/树-dfn_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：将树结构“拍扁”为一维线性数组，把“子树操作”完全转化为“连续数组区间操作”，无缝衔接线段树或树状数组。
+\item \textbf{时间复杂度}：预处理 $O(N)$，获取子树区间及祖孙判定 $O(1)$。
+\item \textbf{核心思想}：DFS遍历时分配递增时间戳。节点 $u$ 及其整棵子树分配到的 DFN 必定是连续闭区间：\textbf{\texttt{[\allowbreak{}d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{},\allowbreak{} \allowbreak{}d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}+\allowbreak{}s\allowbreak{}z\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}-\allowbreak{}1\allowbreak{}]}}。
+\item \textbf{常见场景}：
+\begin{enumerate}[start=1]
+\item 子树权值批量更新/求和。
+\item $O(1)$ 判断祖孙关系（$v$ 在 $u$ 的管辖区间内，则 $u$ 是 $v$ 的祖先）。
+\item 树上启发式合并 / 树上莫队。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 树-dfn.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -450,23 +511,25 @@ void dfs(int u,int p)
 \end{lstlisting}
 \subsection*{数据结构/图论 - 树上启发式合并 (Dsu on Tree)}
 \addcontentsline{toc}{subsection}{数据结构/图论 - 树上启发式合并 (Dsu on Tree)}
-\noindent\textbf{数据结构/图论 - 树上启发式合并 (Dsu on Tree)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：用于离线解决\textbf{无修改的子树查询问题}（如：求每个子树内出现次数最多的颜色之和、子树内某种特征的节点数量等）。 \\
-* \textbf{时间复杂度}：$O(N \log N)$。直接暴力统计是 $O(N^2)$ 的，而 Dsu on Tree 利用了重链剖分的思想，把复杂度降到了极限。 \\
-* \textbf{核心思想}：\textbf{轻儿子查完就删，重儿子查完保留}。 \\
-1. 跑一遍 DFS 求出每个节点的重儿子（子树节点数最多的儿子）。 \\
-2. 再跑一遍 DFS 回答询问： \\
+% Source: 图论/树上启发式合并_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
 \begin{itemize}
-\item 先遍历所有的轻儿子，统计完答案后**立刻清除**它们对全局数组（如计数桶）的贡献。
-\item 最后遍历重儿子，统计完答案后**保留**它的贡献。
+\item \textbf{用途}：用于离线解决\textbf{无修改的子树查询问题}（如：求每个子树内出现次数最多的颜色之和、子树内某种特征的节点数量等）。
+\item \textbf{时间复杂度}：$O(N \log N)$。直接暴力统计是 $O(N^2)$ 的，而 Dsu on Tree 利用了“重链剖分”的思想，把复杂度降到了极限。
+\item \textbf{核心思想}：\textbf{“轻儿子查完就删，重儿子查完保留”}。
+\begin{enumerate}[start=1]
+\item 跑一遍 DFS 求出每个节点的重儿子（子树节点数最多的儿子）。
+\item 再跑一遍 DFS 回答询问：
+\begin{itemize}
+\item 先遍历所有的轻儿子，统计完答案后\textbf{立刻清除}它们对全局数组（如计数桶）的贡献。
+\item 最后遍历重儿子，统计完答案后\textbf{保留}它的贡献。
 \item 此时全局数组里已经有了重儿子的信息，我们再把当前节点和所有轻儿子重新暴力加进全局数组中，就能得到整棵子树的完整信息，记录答案。
 \item 如果当前节点是它父亲的轻儿子，就把整棵树的贡献统统清除（为下一个兄弟节点腾出干净的全局数组）。
 \end{itemize}
-\noindent\texttt{\scriptsize File: 树上启发式合并.cpp}
-\begin{lstlisting}
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 树上启发式合并.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -587,20 +650,18 @@ void solve()
 \end{lstlisting}
 \subsection*{数据结构/图论 - 重链剖分 (树链剖分 / HLD)}
 \addcontentsline{toc}{subsection}{数据结构/图论 - 重链剖分 (树链剖分 / HLD)}
-\noindent\textbf{数据结构/图论 - 重链剖分 (树链剖分 / HLD)} \\
-
-
-\noindent\textbf{何时使用} \\
-树上\textbf{带修改}的路径/子树操作（如：$u$ 到 $v$ 路径集体加 $k$、求子树权值和）。 \\
-
-
-\noindent\textbf{核心步骤} \\
-1. \textbf{\texttt{dfs1}}：求深度 \texttt{dep}、父亲 \texttt{fa}、子树大小 \texttt{sz}，并选出重儿子 \texttt{son}。 \\
-2. \textbf{\texttt{dfs2}}：连重链，求顶点 \texttt{topf}，分配连续的 DFS 序 \texttt{dfn}（\textbf{必须优先走重儿子}）。 \\
-3. \textbf{\texttt{build}}：用映射后的 \texttt{dfn} 数组建立线段树。 \\
-4. \textbf{路径操作}：比较两点所在重链顶点 \texttt{topf} 的深度，\textbf{深者先往上跳}，边跳边用线段树处理该段重链区间。 \\
-\noindent\texttt{\scriptsize File: 树链剖分.cpp}
-\begin{lstlisting}
+% Source: 图论/树链剖分_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{何时使用}\par\nobreak
+树上\textbf{带修改}的路径/子树操作（如：$u$ 到 $v$ 路径集体加 $k$、求子树权值和）。\par
+\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
+\begin{enumerate}[start=1]
+\item \textbf{\texttt{d\allowbreak{}f\allowbreak{}s\allowbreak{}1}}：求深度 \texttt{d\allowbreak{}e\allowbreak{}p}、父亲 \texttt{f\allowbreak{}a}、子树大小 \texttt{s\allowbreak{}z}，并选出重儿子 \texttt{s\allowbreak{}o\allowbreak{}n}。
+\item \textbf{\texttt{d\allowbreak{}f\allowbreak{}s\allowbreak{}2}}：连重链，求顶点 \texttt{t\allowbreak{}o\allowbreak{}p\allowbreak{}f}，分配连续的 DFS 序 \texttt{d\allowbreak{}f\allowbreak{}n}（\textbf{必须优先走重儿子}）。
+\item \textbf{\texttt{b\allowbreak{}u\allowbreak{}i\allowbreak{}l\allowbreak{}d}}：用映射后的 \texttt{d\allowbreak{}f\allowbreak{}n} 数组建立线段树。
+\item \textbf{路径操作}：比较两点所在重链顶点 \texttt{t\allowbreak{}o\allowbreak{}p\allowbreak{}f} 的深度，\textbf{深者先往上跳}，边跳边用线段树处理该段重链区间。
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 树链剖分.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -764,18 +825,20 @@ signed main()
 \end{lstlisting}
 \subsection*{图论 - 欧拉路径与欧拉回路 (Eulerian Path/Circuit)}
 \addcontentsline{toc}{subsection}{图论 - 欧拉路径与欧拉回路 (Eulerian Path/Circuit)}
-\noindent\textbf{图论 - 欧拉路径与欧拉回路 (Eulerian Path/Circuit)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：求解一笔画问题，即寻找一条恰好经过图中每条边一次的路径/回路。常用于扫雪路线规划、单词接龙、密码爆破（De Bruijn序列）等。 \\
-* \textbf{时间复杂度}：$O(V + E)$。 \\
-* \textbf{核心思想 (Hierholzer 算法)}： \\
-1. \textbf{存在性判定}：欧拉回路要求所有点入度等于出度；欧拉路径要求仅有两个异常点（起点出度比入度大1，终点入度比出度大1）。 \\
-2. \textbf{边走边删}：从起点 DFS，只要有未走过的边就往下走，走完立刻物理删除该边（使用当前弧优化 \texttt{cur} 数组防止超时）。 \\
-3. \textbf{死胡同压栈}：当一个点无边可走时压入答案栈，最终将栈\textbf{逆序输出}即为正确路径。 \\
-\noindent\texttt{\scriptsize File: 欧拉图和欧拉路径.cpp}
-\begin{lstlisting}
+% Source: 图论/欧拉图和欧拉路径_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求解“一笔画”问题，即寻找一条恰好经过图中每条边一次的路径/回路。常用于扫雪路线规划、单词接龙、密码爆破（De Bruijn序列）等。
+\item \textbf{时间复杂度}：$O(V + E)$。
+\item \textbf{核心思想 (Hierholzer 算法)}：
+\begin{enumerate}[start=1]
+\item \textbf{存在性判定}：欧拉回路要求所有点入度等于出度；欧拉路径要求仅有两个异常点（起点出度比入度大1，终点入度比出度大1）。
+\item \textbf{边走边删}：从起点 DFS，只要有未走过的边就往下走，走完立刻物理“删除”该边（使用当前弧优化 \texttt{c\allowbreak{}u\allowbreak{}r} 数组防止超时）。
+\item \textbf{死胡同压栈}：当一个点无边可走时压入答案栈，最终将栈\textbf{逆序输出}即为正确路径。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 欧拉图和欧拉路径.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include <bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -879,259 +942,575 @@ void solve()
     }
 }
 \end{lstlisting}
-\subsection*{图论 - Tarjan 强连通分量 (SCC) 与缩点}
-\addcontentsline{toc}{subsection}{图论 - Tarjan 强连通分量 (SCC) 与缩点}
-\noindent\textbf{图论 - Tarjan 强连通分量 (SCC) 与缩点} \\
-
-
-\noindent\textbf{何时使用} \\
-有向图中寻找\textbf{死循环圈（强连通分量）}，或者需要消除环，将图转化为\textbf{有向无环图 (DAG)} 以便跑 DP / 最长路 / 拓扑排序时（即缩点）。 \\
-
-
-\noindent\textbf{核心步骤} \\
-1. \textbf{\texttt{tarjan(u)}}：打时间戳 \texttt{dfn} 和追溯值 \texttt{low}，点入栈。 \\
-2. \textbf{遍历出边}：若未访问，深搜并用子节点 \texttt{low} 更新自己；若已在栈中（发现后向边成环），用其 \texttt{dfn} 更新自己 \texttt{low}。 \\
-3. \textbf{出栈成团}：当 \texttt{dfn[u] == low[u]}，说明 \texttt{u} 是该环的最高点，不断弹栈直到弹出 \texttt{u}，打包成一个新的超级大点。 \\
-4. \textbf{重建新图}：遍历原图边，若两端点归属不同超级大点，则在新图间连有向边。 \\
-\noindent\texttt{\scriptsize File: 连通-tarjan.cpp}
-\begin{lstlisting}
+\subsection*{网络流 - 最小费用流 (SPFA增广)}
+\addcontentsline{toc}{subsection}{网络流 - 最小费用流 (SPFA增广)}
+% Source: 图论/网络流-最小费用流_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求最大流，并使最大流的总费用最小；允许负费用边，初始网络无负费用环。
+\item \textbf{核心思想}：用SPFA寻找最小费用增广路，按路径最小剩余容量增广，反向边用于撤回并调整已有流量。
+\item \textbf{使用方法}：调用 \texttt{a\allowbreak{}d\allowbreak{}d\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{},\allowbreak{}c\allowbreak{}a\allowbreak{}p\allowbreak{},\allowbreak{}c\allowbreak{}o\allowbreak{}s\allowbreak{}t\allowbreak{})} 建图，再调用 \texttt{m\allowbreak{}c\allowbreak{}m\allowbreak{}f\allowbreak{}(\allowbreak{}n\allowbreak{},\allowbreak{}s\allowbreak{},\allowbreak{}t\allowbreak{})}，返回 \texttt{\{\allowbreak{}最\allowbreak{}大\allowbreak{}流\allowbreak{},\allowbreak{}最\allowbreak{}小\allowbreak{}费\allowbreak{}用\allowbreak{}\}}。点编号为 \texttt{1\allowbreak{}.\allowbreak{}.\allowbreak{}n}，源汇不同。
+\item \textbf{时间复杂度}：$O((A+1)nm)$，$A$ 为增广次数，$m$ 为原图边数。
+\item \textbf{空间复杂度}：模板为 $O(N+m)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 网络流-最小费用流.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
-
 #define int long long
 #define endl '\n'
 
-const int MAXN=1e5+10;
+const int N=2e5+10,INF=1LL<<60;
 
-vector<int> e[MAXN], ne[MAXN]; // e: 原图, ne: 缩点后的新图 (DAG)
-int val[MAXN];     // 原图中每个点的权值
-
-// --- Tarjan 核心数组 ---
-int dfn[MAXN], low[MAXN], timestamp;
-int stk[MAXN], top;
-bool in_stk[MAXN];
-
-// --- 缩点后新图信息 ---
-int id[MAXN];      // id[u]: 原节点 u 属于第几个超级大点
-int sum[MAXN];     // sum[i]: 第 i 个超级大点的权值和
-int scc_cnt;       // 超级大点总数
-
-// ================= 1. Tarjan 找 SCC =================
-void tarjan(int u)
+struct E
 {
-    dfn[u] = low[u] = ++timestamp;
-    stk[++top] = u;
-    in_stk[u] = true;
-    
-    for(int v : e[u])
-    {
-        if(!dfn[v])
-        {
-            tarjan(v);
-            low[u] = min(low[u], low[v]);
-        }
-        else if(in_stk[v]) // 遇到还在栈中的点，说明成环
-        {
-            low[u] = min(low[u], dfn[v]);
-        }
-    }
-    
-    // 发现 SCC 的最高点，开始弹栈打包
-    if(dfn[u] == low[u])
-    {
-        ++scc_cnt;
-        int y;
-        do {
-            y = stk[top--];
-            in_stk[y] = false;
-            id[y] = scc_cnt;
-            sum[scc_cnt] += val[y]; // 权值累加给超级大点
-        } while(y != u);
-    }
+    int v,cap,cost; // 终点、剩余容量、单位流量费用
+};
+
+vector<E>e; // 正反向边成对存储，反向边编号为id^1
+vector<int>g[N]; // g[u]存从u出发的边编号
+int dis[N],pre[N]; // 源点到各点的最小费用、最短路上进入各点的边编号
+bool st[N]; // 点是否在SPFA队列中
+
+void add(int u,int v,int cap,int cost) // 添加容量为cap、单位费用为cost的有向边
+{
+    int id=e.size();
+    e.push_back({v,cap,cost}); // 正向边用于发送流量
+    e.push_back({u,0,-cost}); // 反向边用于退回流量，同时退回对应费用
+    g[u].push_back(id);
+    g[v].push_back(id^1);
 }
 
-void solve()
+bool spfa(int n,int s,int t) // 在残量网络中寻找单位费用最小的增广路
 {
-    /* 实战调用示例
-    int n, m; cin >> n >> m;
-    for(int i = 1; i <= n; i++) cin >> val[i];
-    
-    for(int i = 1; i <= m; i++)
+    fill(dis+1,dis+n+1,INF);
+    fill(st+1,st+n+1,0);
+    queue<int>q;
+    dis[s]=0;
+    q.push(s);
+    st[s]=1;
+
+    while(!q.empty())
     {
-        int u, v; cin >> u >> v;
-        e[u].push_back(v);
-    }
-    
-    // 1. 图可能不连通，必须遍历每个点跑 Tarjan
-    for(int i = 1; i <= n; i++)
-        if(!dfn[i]) tarjan(i);
-        
-    // 2. 核心：遍历原图所有边，建立 DAG 新图
-    for(int u = 1; u <= n; u++)
-    {
-        for(int v : e[u])
+        int u=q.front();
+        q.pop();
+        st[u]=0; // 出队后，距离再次变小时可以重新入队
+
+        for(auto id:g[u])
         {
-            int a = id[u], b = id[v];
-            if(a != b) // 不在同一个 SCC 内，才连边
+            int v=e[id].v;
+            if(e[id].cap==0)continue; // 没有剩余容量，不能继续发送流量
+            if(dis[v]>dis[u]+e[id].cost)
             {
-                ne[a].push_back(b);
-                // in_degree[b]++; // 若需拓扑排序，顺手统计入度
+                dis[v]=dis[u]+e[id].cost; // 找到到达v的更小费用
+                pre[v]=id; // 记录进入v的边，之后沿路径回溯
+                if(!st[v])
+                {
+                    q.push(v);
+                    st[v]=1; // 已在队列中的点不重复加入
+                }
             }
         }
     }
-    
-    // 3. 在 ne 图(DAG)上跑 DP 或 拓扑排序...
-    */
+    return dis[t]!=INF; // 汇点可达，说明还能继续增广
+}
+
+pair<int,int>mcmf(int n,int s,int t) // 点编号1..n，源汇不同，初始残量网络无负费用环
+{
+    int flo=0,cost=0; // 累计流量、累计费用
+    while(spfa(n,s,t))
+    {
+        int f=INF; // 本次增广量为路径上的最小剩余容量
+        for(int u=t;u!=s;u=e[pre[u]^1].v) // 反向边的终点就是路径上的前一个点
+            f=min(f,e[pre[u]].cap);
+
+        for(int u=t;u!=s;u=e[pre[u]^1].v)
+        {
+            int id=pre[u];
+            e[id].cap-=f; // 正向边消耗容量
+            e[id^1].cap+=f; // 反向边增加容量，允许后续调整已有流量
+        }
+
+        flo+=f;
+        cost+=f*dis[t]; // 本次费用=增广量×路径单位费用
+    }
+    return {flo,cost}; // 无法继续增广时，得到最大流及其最小费用
+}
+\end{lstlisting}
+\subsection*{图论 - 网络流 Dinic (最大流)}
+\addcontentsline{toc}{subsection}{图论 - 网络流 Dinic (最大流)}
+% Source: 图论/网路流-dinic_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{itemize}
+\item \textbf{初始化}：用 \texttt{D\allowbreak{}i\allowbreak{}n\allowbreak{}i\allowbreak{}c\allowbreak{} \allowbreak{}d\allowbreak{}i\allowbreak{}n\allowbreak{}i\allowbreak{}c\allowbreak{}(\allowbreak{}n\allowbreak{})} 建立一张有 $n$ 个点的网络，点编号为 $1 \sim n$；指定源点 \texttt{s} 和汇点 \texttt{t}。
+\item \textbf{加边}：对原图的每条有向边调用 \texttt{d\allowbreak{}i\allowbreak{}n\allowbreak{}i\allowbreak{}c\allowbreak{}.\allowbreak{}a\allowbreak{}d\allowbreak{}d\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{},\allowbreak{}c\allowbreak{}a\allowbreak{})}，表示从 \texttt{u} 到 \texttt{v} 最多通过 \texttt{c\allowbreak{}a} 单位流量。函数会自动添加初始容量为 $0$ 的反向边，用于在增广时调整已有流量。
+\item \textbf{求最大流}：建图后调用 \texttt{d\allowbreak{}i\allowbreak{}n\allowbreak{}i\allowbreak{}c\allowbreak{}.\allowbreak{}m\allowbreak{}a\allowbreak{}x\allowbreak{}f\allowbreak{}l\allowbreak{}o\allowbreak{}(\allowbreak{}s\allowbreak{},\allowbreak{}t\allowbreak{})}，返回从源点到汇点的最大流。容量和流量使用 \texttt{l\allowbreak{}o\allowbreak{}n\allowbreak{}g\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}n\allowbreak{}g}。
+\item \textbf{残量网络}：计算过程中，\texttt{e\allowbreak{}[\allowbreak{}i\allowbreak{}d\allowbreak{}]\allowbreak{}.\allowbreak{}c\allowbreak{}a\allowbreak{}p} 保存该边的剩余容量；正向边和反向边的编号互为 \texttt{i\allowbreak{}d\allowbreak{} \allowbreak{}\textasciicircum{}\allowbreak{} \allowbreak{}1}。再次调用 \texttt{m\allowbreak{}a\allowbreak{}x\allowbreak{}f\allowbreak{}l\allowbreak{}o\allowbreak{}(\allowbreak{}s\allowbreak{},\allowbreak{}t\allowbreak{})} 会从当前残量网络继续增广，返回本次新增的流量。
+\end{itemize}
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+Dinic dinic(n); // 初始化 n 个点
+dinic.add(u,v,ca); // 对原图的每条有向边执行一次
+int ans=dinic.maxflo(s,t); // 得到 s 到 t 的最大流
+\end{lstlisting}
+
+\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
+\begin{enumerate}[start=1]
+\item \textbf{BFS 分层}：通过剩余容量大于 $0$ 的边计算 \texttt{d\allowbreak{}e\allowbreak{}p}，得到源点到各点的层数。
+\item \textbf{DFS 增广}：只沿层数增加 $1$ 的边发送流量，同时减少正向边容量、增加反向边容量；\texttt{c\allowbreak{}u\allowbreak{}r} 记录当前搜索位置，减少重复扫描。
+\item \textbf{重复分层}：当前分层图无法继续发送流量后重新 BFS，直到汇点不可达。
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{复杂度}\par\nobreak
+\begin{itemize}
+\item \textbf{时间复杂度}：一般网络为 $O(V^2E)$，其中 $V$ 为点数，$E$ 为原图边数。
+\item \textbf{空间复杂度}：$O(V+E)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 网路流-dinic.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+const int INF=1LL<<60;
+
+struct Dinic
+{
+    struct E
+    {
+        int v,cap; // 终点、剩余容量
+    };
+    vector<E>e; // 正向边与反向边成对存储，编号互为 id^1
+    vector<vector<int>>g; // g[u] 存储从 u 出发的边编号
+    vector<int>dep,cur; // BFS 层数、DFS 当前搜索到的邻接表位置
+    Dinic(int n)
+    {
+        g.resize(n+1); // 点编号为 1~n
+        dep.resize(n+1);
+        cur.resize(n+1);
+    }
+    void add(int u,int v,int ca) // 添加容量为 ca 的有向边 u->v
+    {
+        int id=e.size();
+        e.push_back({v,ca}); // 正向边初始剩余容量为 ca
+        e.push_back({u,0}); // 反向边用于退回已发送的流量
+        g[u].push_back(id);
+        g[v].push_back(id^1);
+    }
+    bool bfs(int s,int t) // 在残量网络上建立分层图
+    {
+        fill(dep.begin(),dep.end(),-1); // -1 表示尚未到达
+        queue<int>Q;
+        dep[s]=0;
+        Q.push(s);
+        while(Q.size())
+        {
+            int u=Q.front();
+            Q.pop();
+            for(auto id:g[u])
+            {
+                int v=e[id].v;
+                if(e[id].cap==0||dep[v]!=-1)continue; // 只沿有剩余容量的边访问新点
+                dep[v]=dep[u]+1;
+                Q.push(v);
+            }
+        }
+        return dep[t]!=-1; // 汇点可达时继续增广
+    }
+    int dfs(int u,int t,int f) // 从 u 向汇点最多发送 f 单位流量
+    {
+        if(u==t)return f;
+        int us=0; // 本次实际发送的流量
+        for(int &i=cur[u];i<(int)g[u].size();i++) // 当前弧优化，记录已搜索到的位置
+        {
+            int id=g[u][i];
+            int v=e[id].v;
+            if(e[id].cap==0||dep[u]+1!=dep[v])continue; // 只沿分层图的下一层前进
+            int re=dfs(v,t,min(f-us,e[id].cap)); // 发送量受剩余需求和边容量限制
+            if(re==0)continue;
+            e[id].cap-=re; // 消耗正向边的剩余容量
+            e[id^1].cap+=re; // 增加反向边的剩余容量
+            us+=re; // 累计本次发送量
+            if(us==f)break; // 已发送完 f，保留当前弧位置供下次使用
+        }
+        return us;
+    }
+    int maxflo(int s,int t) // 求源点 s 到汇点 t 的最大流
+    {
+        if(s==t)return 0;
+        int an=0;
+        while(bfs(s,t)) // 每轮重新建立分层图
+        {
+            fill(cur.begin(),cur.end(),0); // 新的分层图从头搜索邻接表
+            while(1)
+            {
+                int re=dfs(s,t,INF);
+                if(re==0)break; // 当前分层图的阻塞流已求完
+                an+=re;
+            }
+        }
+        return an;
+    }
+};
+\end{lstlisting}
+\subsection*{连通 - Kosaraju (强连通分量与缩点)}
+\addcontentsline{toc}{subsection}{连通 - Kosaraju (强连通分量与缩点)}
+% Source: 图论/连通-Kosaraju_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求有向图的强连通分量，并缩点得到有向无环图。
+\item \textbf{核心思想}：第一遍在原图上DFS，记录完成顺序；第二遍按完成顺序的逆序，在反图上DFS，每次划分一个分量。
+\item \textbf{使用方法}：调用 \texttt{a\allowbreak{}d\allowbreak{}d\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{})} 添加有向边，再调用 \texttt{s\allowbreak{}c\allowbreak{}c\allowbreak{}(\allowbreak{}n\allowbreak{})}。\texttt{i\allowbreak{}d\allowbreak{}[\allowbreak{}u\allowbreak{}]} 为所属分量，\texttt{c\allowbreak{}n\allowbreak{}t} 为分量总数，\texttt{n\allowbreak{}e} 为缩点图，平行边不去重。
+\item \textbf{时间复杂度}：$O(n+m)$。
+\item \textbf{空间复杂度}：$O(n+m)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 连通-Kosaraju.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10;
+vector<int>e[N],re[N],ne[N]; // 原有向图、反图、缩点后的有向无环图
+int stk[N],top,id[N],cnt; // 按DFS完成顺序存点、记录数量、所属分量编号、分量数量
+bool st[N]; // 第一遍DFS中，点是否已经访问
+
+void add(int u,int v) // 添加有向边u->v，同时建立反图
+{
+    e[u].push_back(v);
+    re[v].push_back(u); // 反图将原图的边方向全部反转
+}
+
+void dfs1(int u) // 第一遍在原图上搜索，记录DFS完成顺序
+{
+    st[u]=1;
+    for(auto v:e[u])
+        if(!st[v])dfs1(v); // 先处理所有尚未访问的后继
+    stk[++top]=u; // 所有出边处理完后记录u，得到后序顺序
+}
+
+void dfs2(int u) // 第二遍在反图上搜索，划分当前强连通分量
+{
+    id[u]=cnt; // 标记所属分量，同时表示第二遍已经访问
+    for(auto v:re[u])
+        if(!id[v])dfs2(v); // 沿反图搜索，未归属的可达点属于当前分量
+}
+
+void scc(int n) // 用add提前建图，其余状态初始为零
+{
+    for(int i=1;i<=n;i++)
+        if(!st[i])dfs1(i); // 原图可能不连通，每个未访问的点都要搜索
+
+    for(int i=top;i>=1;i--) // 按第一遍DFS完成顺序的逆序处理
+    {
+        int u=stk[i];
+        if(!id[u]) // 尚未归属任何分量，从u开始划分新分量
+        {
+            cnt++;
+            dfs2(u); // 本次在反图中访问到的点构成一个强连通分量
+        }
+    }
+
+    for(int u=1;u<=n;u++) // 遍历原图的边，建立缩点后的新图
+    {
+        for(auto v:e[u])
+        {
+            int a=id[u],b=id[v]; // 将原点映射为所属分量
+            if(a!=b)ne[a].push_back(b); // 只保留分量之间的边，平行边不去重
+        }
+    }
+}
+\end{lstlisting}
+\subsection*{图论 - Tarjan 强连通分量 (SCC) 与缩点}
+\addcontentsline{toc}{subsection}{图论 - Tarjan 强连通分量 (SCC) 与缩点}
+% Source: 图论/连通-tarjan_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{何时使用}\par\nobreak
+有向图中寻找\textbf{死循环圈（强连通分量）}，或者需要消除环，将图转化为\textbf{有向无环图 (DAG)} 以便跑 DP / 最长路 / 拓扑排序时（即缩点）。\par
+\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
+\begin{enumerate}[start=1]
+\item \textbf{\texttt{t\allowbreak{}a\allowbreak{}r\allowbreak{}j\allowbreak{}a\allowbreak{}n\allowbreak{}(\allowbreak{}u\allowbreak{})}}：打时间戳 \texttt{d\allowbreak{}f\allowbreak{}n} 和追溯值 \texttt{l\allowbreak{}o\allowbreak{}w}，点入栈。
+\item \textbf{遍历出边}：若未访问，深搜并用子节点 \texttt{l\allowbreak{}o\allowbreak{}w} 更新自己；若已在栈中（发现后向边成环），用其 \texttt{d\allowbreak{}f\allowbreak{}n} 更新自己 \texttt{l\allowbreak{}o\allowbreak{}w}。
+\item \textbf{出栈成团}：当 \texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}u\allowbreak{}]}，说明 \texttt{u} 是该环的最高点，不断弹栈直到弹出 \texttt{u}，打包成一个新的超级大点。
+\item \textbf{重建新图}：遍历原图边，若两端点归属不同超级大点，则在新图间连有向边。
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 连通-tarjan.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10;
+vector<int>e[N],ne[N]; // 原有向图、缩点后的有向无环图
+int dfn[N],low[N],tim; // DFS访问顺序、能够追溯到的最早访问顺序、时间戳
+int stk[N],top,id[N],cnt; // 尚未归属分量的点栈、栈顶、所属分量编号、分量数量
+bool st[N]; // st[u]表示u是否仍在栈中
+
+void tarjan(int u) // 求有向图的强连通分量
+{
+    dfn[u]=low[u]=++tim; // 首次访问u，初始化访问顺序和追溯值
+    stk[++top]=u; // 将u放入栈中，等待确定所属分量
+    st[u]=1;
+    for(auto v:e[u]) // 遍历u的所有出边
+    {
+        if(!dfn[v]) // v尚未访问，沿DFS树继续搜索
+        {
+            tarjan(v);
+            low[u]=min(low[u],low[v]); // 用子节点能够追溯到的位置更新u
+        }
+        else if(st[v]) // v仍在栈中，可以参与当前尚未划分完的分量
+            low[u]=min(low[u],dfn[v]); // 已访问的点用dfn更新，已出栈的点不再考虑
+    }
+    if(dfn[u]==low[u]) // u是一个强连通分量在DFS树中的根
+    {
+        cnt++;
+        int v;
+        do
+        {
+            v=stk[top--]; // 从栈顶弹出当前分量的点
+            st[v]=0; // 已经确定所属分量，不再留在栈中
+            id[v]=cnt; // 同一次弹出的点属于同一个强连通分量
+        }while(v!=u); // 弹到u时，这个强连通分量恰好全部取出
+    }
+}
+
+void scc(int n) // e[1..n]提前建好，其余状态初始为零
+{
+    for(int i=1;i<=n;i++)
+        if(!dfn[i])tarjan(i); // 图可能不连通，每个未访问的点都要搜索
+    for(int u=1;u<=n;u++)
+    {
+        for(auto v:e[u])
+        {
+            int a=id[u],b=id[v]; // 将原边的两个端点映射为分量编号
+            if(a!=b)ne[a].push_back(b); // 只保留分量之间的边，平行边不去重
+        }
+    }
 }
 \end{lstlisting}
 \subsection*{图论 - 割点与割边 (桥) (Articulation Points \& Bridges)}
 \addcontentsline{toc}{subsection}{图论 - 割点与割边 (桥) (Articulation Points \& Bridges)}
-\noindent\textbf{图论 - 割点与割边 (桥) (Articulation Points \& Bridges)} \\
-
-
-\noindent\textbf{何时使用} \\
-在\textbf{无向图}中寻找脆弱点/脆弱边。 \\
-*   \textbf{割点}：如果删除该节点（及其相连的边），图的连通块数量会增加。 \\
-*   \textbf{割边 (桥)}：如果删除该边，图的连通块数量会增加。 \\
-
-
-\noindent\textbf{核心步骤} \\
-1. \textbf{链式前向星建图}：边编号计数器 \texttt{tot} \textbf{必须初始化为 1}！这样第 2 条和第 3 条边是一对双向边，利用 \texttt{i \textasciicircum{} 1} 可以瞬间找到反向边。这是无向图防重边、防死循环的绝对核心。 \\
-2. \textbf{\texttt{tarjan(u, in\_edge)}}：记录 \texttt{dfn}（时间戳）和 \texttt{low}（能回溯到的最早时间）。 \\
-3. \textbf{判定割边}：若在 DFS 树中发现 \texttt{dfn[u] < low[v]}，说明 $v$ 的子树根本无法回到 $u$ 或更早的节点，此时连接它们的边必然是割边。 \\
-4. \textbf{判定割点}： \\
-* \textbf{非根节点}：只要存在一个子节点满足 \texttt{dfn[u] <= low[v]}，说明子节点离不开 $u$，断开 $u$ 必定断层。 \\
-* \textbf{根节点}：特判，如果在 DFS 树中有 $\ge 2$ 个分支（子节点），那根节点必是割点。 \\
-\noindent\texttt{\scriptsize File: 连通-割点桥.cpp}
-\begin{lstlisting}
+% Source: 图论/连通-割点桥_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{何时使用}\par\nobreak
+在\textbf{无向图}中寻找“脆弱点/脆弱边”。\par
+\begin{itemize}
+\item \textbf{割点}：如果删除该节点（及其相连的边），图的连通块数量会增加。
+\item \textbf{割边 (桥)}：如果删除该边，图的连通块数量会增加。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
+\begin{enumerate}[start=1]
+\item \textbf{建图}：每条无向边调用一次 \texttt{a\allowbreak{}d\allowbreak{}d\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{})}，两个方向共用一个边编号。DFS只跳过进入边的编号，保留其他重边；\texttt{c\allowbreak{}u\allowbreak{}t\allowbreak{}[\allowbreak{}u\allowbreak{}]} 标记割点，\texttt{b\allowbreak{}r\allowbreak{}i\allowbreak{}d\allowbreak{}g\allowbreak{}e\allowbreak{}[\allowbreak{}i\allowbreak{}d\allowbreak{}]} 标记第 \texttt{i\allowbreak{}d} 次加入的边是否为桥。
+\item \textbf{\texttt{t\allowbreak{}a\allowbreak{}r\allowbreak{}j\allowbreak{}a\allowbreak{}n\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}f\allowbreak{}r\allowbreak{}o\allowbreak{}m\allowbreak{})}}：记录 \texttt{d\allowbreak{}f\allowbreak{}n}（时间戳）和 \texttt{l\allowbreak{}o\allowbreak{}w}（能回溯到的最早时间）。可调用 \texttt{c\allowbreak{}u\allowbreak{}t\allowbreak{}\_\allowbreak{}b\allowbreak{}r\allowbreak{}i\allowbreak{}d\allowbreak{}g\allowbreak{}e\allowbreak{}(\allowbreak{}n\allowbreak{})} 统一处理所有连通块。
+\item \textbf{判定割边}：若在 DFS 树中发现 \texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{} \allowbreak{}\textless{}\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]}，说明 $v$ 的子树根本无法回到 $u$ 或更早的节点，此时连接它们的边必然是割边。
+\item \textbf{判定割点}：
+\begin{itemize}
+\item \textbf{非根节点}：只要存在一个子节点满足 \texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{} \allowbreak{}\textless{}\allowbreak{}=\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]}，说明子节点离不开 $u$，断开 $u$ 必定断层。
+\item \textbf{根节点}：特判，如果在 DFS 树中有 $\ge 2$ 个分支（子节点），那根节点必是割点。
+\end{itemize}
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 连通-割点桥.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
-
 #define int long long
 #define endl '\n'
 
-const int MAXN=1e5+10;
-const int MAXM=6e5+10; // 无向图双向建边，开两倍
+const int N=2e5+10,M=2e5+10;
+vector<pair<int,int>>e[N]; // 每条邻接记录存{终点,无向边编号}
+int dfn[N],low[N],tim,tot; // DFS访问顺序、最早追溯顺序、时间戳、无向边数量
+bool cut[N],bridge[M]; // 点是否为割点、无向边是否为桥
 
-// --- 链式前向星 ---
-// 【核心避坑】：tot 必须从 1 开始！这样成对的边编号分别是 2/3, 4/5, 偶数^1=奇数，奇数^1=偶数
-int head[MAXN], to[MAXM], nxt[MAXM], tot = 1; 
-
-void add(int u, int v)
+void add(int u,int v) // 添加一条无向边，两个方向使用同一个边编号
 {
-    to[++tot] = v;
-    nxt[tot] = head[u];
-    head[u] = tot;
+    tot++;
+    e[u].push_back({v,tot});
+    e[v].push_back({u,tot}); // bridge[tot]对应本次加入的无向边
 }
 
-// --- Tarjan 核心数组 ---
-int dfn[MAXN], low[MAXN], timestamp;
-bool is_cut_vertex[MAXN]; // 记录每个点是否是割点
-bool is_bridge[MAXM];     // 记录每条边是否是割边 (用边编号索引)
-
-// in_edge 是进入节点 u 的那条边的编号
-void tarjan(int u, int in_edge)
+void tarjan(int u,int from) // from为进入u的无向边编号，DFS根节点传0
 {
-    dfn[u] = low[u] = ++timestamp;
-    int child_cnt = 0; // 记录在 DFS 树上的实际子节点数量，专为根节点特判准备
-    
-    for(int i = head[u]; i; i = nxt[i])
+    dfn[u]=low[u]=++tim; // 首次访问u，初始化访问顺序和追溯值
+    int cnt=0; // u在DFS树中的子节点数量，用于判断根节点是否为割点
+    for(auto [v,id]:e[u])
     {
-        int v = to[i];
-        
-        // 遇到刚刚过来的那条边 (父节点直接走过来的边)，直接跳过，防止无向图死循环死磕
-        if(i == (in_edge ^ 1)) continue;
-        
+        if(id==from)continue; // 只跳过进入边，其他通向父节点的重边仍要处理
+        if(!dfn[v]) // v尚未访问，这条边成为DFS树边
+        {
+            cnt++;
+            tarjan(v,id);
+            low[u]=min(low[u],low[v]); // 将v子树能够追溯到的位置合并到u
+            if(low[v]>dfn[u])bridge[id]=1; // v子树无法绕过这条边回到u或u的祖先，说明它是桥
+            if(from&&low[v]>=dfn[u])cut[u]=1; // 非根节点：v子树无法绕过u到达u的祖先
+        }
+        else
+            low[u]=min(low[u],dfn[v]); // 非树边用邻点的dfn更新，重边和自环均可处理
+    }
+    if(!from&&cnt>=2)cut[u]=1; // 根节点至少有两个DFS子树时才是割点
+}
+
+void cut_bridge(int n) // 用add提前建图，其余状态初始为零
+{
+    for(int i=1;i<=n;i++)
+        if(!dfn[i])tarjan(i,0); // 分别处理每个连通块，根节点没有进入边
+}
+\end{lstlisting}
+\subsection*{连通 - 圆方树 (关闭路口后的连通性)}
+\addcontentsline{toc}{subsection}{连通 - 圆方树 (关闭路口后的连通性)}
+% Source: 图论/连通-圆方树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：无向图中，每次独立关闭一个点，判断另外两个点是否仍然连通。
+\item \textbf{圆方点}：原图点 \texttt{1\allowbreak{}.\allowbreak{}.\allowbreak{}n} 为圆点，每个点双新建一个方点，连接其中的所有圆点；\texttt{n\allowbreak{}e} 存圆方树，原图不连通时得到森林。
+\item \textbf{核心判断}：圆点 \texttt{x} 在树上 \texttt{u\allowbreak{}\ensuremath{\to}\allowbreak{}v} 的路径中，当且仅当 \texttt{d\allowbreak{}i\allowbreak{}s\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}x\allowbreak{})\allowbreak{}+\allowbreak{}d\allowbreak{}i\allowbreak{}s\allowbreak{}(\allowbreak{}x\allowbreak{},\allowbreak{}v\allowbreak{})\allowbreak{}=\allowbreak{}=\allowbreak{}d\allowbreak{}i\allowbreak{}s\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{})}。此时 \texttt{x} 是必经点，关闭后不连通；关闭端点、原本不连通等情况由 \texttt{c\allowbreak{}h\allowbreak{}e\allowbreak{}c\allowbreak{}k} 单独处理。
+\item \textbf{使用方法}：输入 \texttt{n\allowbreak{},\allowbreak{}m\allowbreak{},\allowbreak{}q}，接着输入 \texttt{m} 条双向道路，再输入 \texttt{q} 组 \texttt{u\allowbreak{},\allowbreak{}v\allowbreak{},\allowbreak{}x}。\texttt{b\allowbreak{}u\allowbreak{}i\allowbreak{}l\allowbreak{}d\allowbreak{}(\allowbreak{}n\allowbreak{})} 预处理，\texttt{c\allowbreak{}h\allowbreak{}e\allowbreak{}c\allowbreak{}k\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{},\allowbreak{}x\allowbreak{})} 判断关闭 \texttt{x} 后是否连通，输出 \texttt{Y\allowbreak{}E\allowbreak{}S\allowbreak{}/\allowbreak{}N\allowbreak{}O}；各次关闭互不累积。
+\item \textbf{时间复杂度}：预处理 $O(n+m+n\log n)$，单次查询 $O(\log n)$。
+\item \textbf{空间复杂度}：$O(m+n\log n)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 连通-圆方树.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10,L=20;
+vector<pair<int,int>>e[N]; // 原无向图，存{终点,边编号}
+vector<int>ne[N*2]; // 圆方树，1..n为圆点，n+1..tot为方点
+int dfn[N],low[N],tim,stk[N],top,tot,ec; // Tarjan访问顺序、追溯值、时间戳、点栈、栈顶、总点数、边数
+int fa[N*2][L],dep[N*2],bel[N*2]; // 倍增祖先、深度、所在圆方树的根编号
+
+void add(int u,int v) // 添加无向边，两个方向共用边编号
+{
+    ec++;
+    e[u].push_back({v,ec});
+    e[v].push_back({u,ec});
+}
+
+void tarjan(int u,int from) // 划分点双连通分量，同时建立圆方树
+{
+    dfn[u]=low[u]=++tim;
+    stk[++top]=u;
+    for(auto [v,id]:e[u])
+    {
+        if(id==from)continue; // 只跳过进入边，保留其他重边
         if(!dfn[v])
         {
-            child_cnt++;
-            tarjan(v, i);
-            low[u] = min(low[u], low[v]); // 用子节点的 low 更新自己
-            
-            // ================== 1. 判定割边 ==================
-            // 如果 v 及其子树，不经过 (u, v) 这条边，连 u 都回不到 (更别提 u 的祖先)
-            // 那么 (u, v) 就是割边
-            if(dfn[u] < low[v])
+            tarjan(v,id);
+            low[u]=min(low[u],low[v]);
+            if(low[v]>=dfn[u]) // 一个点双在u处划分完成
             {
-                is_bridge[i] = is_bridge[i ^ 1] = true;
-            }
-            
-            // ================== 2. 判定割点 ==================
-            // 非根节点特判：只要有一个子树 v 无法越过 u 回到 u 的祖先，u 就是割点
-            if(in_edge != 0 && dfn[u] <= low[v])
-            {
-                is_cut_vertex[u] = true;
+                tot++; // 新建方点，表示这个点双
+                int x;
+                do
+                {
+                    x=stk[top--];
+                    ne[tot].push_back(x);
+                    ne[x].push_back(tot); // 点双内的圆点连接到对应方点
+                }while(x!=v);
+                ne[tot].push_back(u);
+                ne[u].push_back(tot); // u也属于这个点双，但暂时留在栈中
             }
         }
-        else 
-        {
-            // 遇到返祖边，更新 low (注意：这里用的是 dfn[v] 而不是 low[v])
-            low[u] = min(low[u], dfn[v]);
-        }
+        else low[u]=min(low[u],dfn[v]);
     }
-    
-    // 根节点特判：如果 u 是当前连通块 DFS 搜索树的根，且至少有两个互不相通的子分支
-    if(in_edge == 0 && child_cnt >= 2)
+}
+
+void dfs(int u,int from,int root) // 预处理圆方树的深度、祖先和所属连通块
+{
+    bel[u]=root;
+    dep[u]=dep[from]+1;
+    fa[u][0]=from;
+    for(int j=1;j<L;j++)fa[u][j]=fa[fa[u][j-1]][j-1]; // 计算向上跳2^j步到达的祖先
+    for(auto v:ne[u])
+        if(v!=from)dfs(v,u,root);
+}
+
+void build(int n)
+{
+    tot=n; // 保留原图点编号，方点从n+1开始编号
+    for(int i=1;i<=n;i++)
     {
-        is_cut_vertex[u] = true;
+        if(!dfn[i])
+        {
+            tarjan(i,0);
+            top--; // 当前连通块只剩DFS根节点留在栈中，将它移除
+        }
     }
+    for(int i=1;i<=n;i++)
+        if(!bel[i])dfs(i,0,i); // 原图可能不连通，分别预处理每棵圆方树
+}
+
+int lca(int u,int v) // 查询同一棵树中两个点的最近公共祖先
+{
+    if(dep[u]<dep[v])swap(u,v);
+    int d=dep[u]-dep[v];
+    for(int j=L-1;j>=0;j--)
+        if(d&(1LL<<j))u=fa[u][j]; // 先将较深的点提升到同一深度
+    if(u==v)return u;
+    for(int j=L-1;j>=0;j--)
+    {
+        if(fa[u][j]!=fa[v][j]) // 两点同时向上跳，保持在公共祖先的下方
+        {
+            u=fa[u][j];
+            v=fa[v][j];
+        }
+    }
+    return fa[u][0];
+}
+
+int dis(int u,int v) // 圆方树上两点之间的边数
+{
+    return dep[u]+dep[v]-2*dep[lca(u,v)];
+}
+
+bool check(int u,int v,int x) // 关闭原图路口x后，u和v是否仍能互相到达
+{
+    if(u==x||v==x)return 0; // 起点或终点已经关闭
+    if(bel[u]!=bel[v])return 0; // 两个地点原本就不连通
+    if(bel[x]!=bel[u])return 1; // 关闭其他连通块的路口，不影响这两个地点
+    return dis(u,x)+dis(x,v)!=dis(u,v); // x在树上路径中才是必经点，关闭后才会断开
 }
 
 void solve()
 {
-    /* 实战调用示例
-    int n, m; cin >> n >> m;
-    
-    // 初始化链式前向星
-    tot = 1;
-    for(int i = 1; i <= n; i++) head[i] = 0;
-    
-    for(int i = 1; i <= m; i++)
+    int n,m,q;
+    cin>>n>>m>>q; // 路口数、双向道路数、询问数
+    for(int i=1;i<=m;i++)
     {
-        int u, v; cin >> u >> v;
-        if(u == v) continue; // 屏蔽自环
-        add(u, v);
-        add(v, u);
+        int u,v;
+        cin>>u>>v;
+        add(u,v);
     }
-    
-    // 图可能不连通，遍历所有未访问的点作为 DFS 根节点
-    for(int i = 1; i <= n; i++)
+    build(n); // 一次建树，之后每个询问互相独立
+    while(q--)
     {
-        if(!dfn[i]) tarjan(i, 0); // 根节点没有 in_edge，传 0
+        int u,v,x;
+        cin>>u>>v>>x; // 判断关闭路口x后，地点u和v是否仍然连通
+        cout<<(check(u,v,x)?"YES":"NO")<<endl;
     }
-    
-    // 输出割点
-    int cut_v_cnt = 0;
-    for(int i = 1; i <= n; i++) if(is_cut_vertex[i]) cut_v_cnt++;
-    cout << "割点数量: " << cut_v_cnt << endl;
-    
-    // 输出割边 (注意一对双向边在数组中占两个位置，输出时要避免重复)
-    // 可以通过遍历所有正向边 (i = 2, 4, 6...) 来输出
-    for(int i = 2; i <= tot; i += 2)
-    {
-        if(is_bridge[i])
-        {
-            // to[i^1] 存的是边的起点，to[i] 存的是边的终点
-            cout << "割边: " << to[i ^ 1] << " - " << to[i] << endl;
-        }
-    }
-    */
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    solve();
+    return 0;
 }
 \end{lstlisting}
 \section*{字符串}
 \addcontentsline{toc}{section}{字符串}
 \subsection*{字符串 - AC自动机 (Aho-Corasick Automaton)}
 \addcontentsline{toc}{subsection}{字符串 - AC自动机 (Aho-Corasick Automaton)}
-\noindent\textbf{字符串 - AC自动机 (Aho-Corasick Automaton)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：多模式串匹配。用于在长文本中高效查找、统计多个短关键词的存在情况。 \\
-* \textbf{时间复杂度}：构建 $O(\sum |P| + |\Sigma|)$，查询 $O(|T|)$。 \\
-* \textbf{核心思想}：\textbf{Trie 树 + KMP (fail 指针) + Trie图优化}。失配时跳 \texttt{fail} 指针找最长公共前后缀；利用 \texttt{tr[u][i] = tr[fail[u]][i]} 路径压缩，实现 $O(1)$ 状态转移。 \\
-* \textbf{多组数据避坑}：\textbf{严禁 \texttt{memset} 清空全局数组}，必超时！需精确遍历 \texttt{0} 到 \texttt{idx} 进行清空。 \\
-\noindent\texttt{\scriptsize File: ac自动机.cpp}
-\begin{lstlisting}
+% Source: 字符串/ac自动机_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：多模式串匹配。用于在长文本中高效查找、统计多个短关键词的存在情况。
+\item \textbf{时间复杂度}：构建 $O(\sum |P| + |\Sigma|)$，查询 $O(|T|)$。
+\item \textbf{核心思想}：\textbf{Trie 树 + KMP (fail 指针) + Trie图优化}。失配时跳 \texttt{f\allowbreak{}a\allowbreak{}i\allowbreak{}l} 指针找最长公共前后缀；利用 \texttt{t\allowbreak{}r\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{} \allowbreak{}=\allowbreak{} \allowbreak{}t\allowbreak{}r\allowbreak{}[\allowbreak{}f\allowbreak{}a\allowbreak{}i\allowbreak{}l\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}]\allowbreak{}[\allowbreak{}i\allowbreak{}]} 路径压缩，实现 $O(1)$ 状态转移。
+\item \textbf{多组数据避坑}：\textbf{严禁 \texttt{m\allowbreak{}e\allowbreak{}m\allowbreak{}s\allowbreak{}e\allowbreak{}t} 清空全局数组}，必超时！需精确遍历 \texttt{0} 到 \texttt{i\allowbreak{}d\allowbreak{}x} 进行清空。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: ac自动机.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -1219,23 +1598,22 @@ int query(string s)
  * idx = 0;
  * }
  */
-```
 \end{lstlisting}
 \subsection*{字符串-KMP}
 \addcontentsline{toc}{subsection}{字符串-KMP}
-\noindent\textbf{字符串-KMP} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：在 $O(N+M)$ 的时间复杂度内，高效统计模式串 $P$ 在主串 $S$ 中出现的次数（或查找所有出现的位置）。 \\
-* \textbf{时间复杂度}： \\
-* 预处理 \texttt{ne} 数组：$O(M)$，其中 $M$ 为模式串长度。 \\
-* 匹配过程：$O(N)$，其中 $N$ 为主串长度。 \\
-* \textbf{适用场景}：单模式串匹配问题、统计字符串出现频次、求字符串的最小循环节与公共前后缀。 \\
-\noindent\texttt{\scriptsize File: kmp.cpp}
-\begin{lstlisting}
+% Source: 字符串/kmp_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在 $O(N+M)$ 的时间复杂度内，高效统计模式串 $P$ 在主串 $S$ 中出现的次数（或查找所有出现的位置）。
+\item \textbf{时间复杂度}：
+\begin{itemize}
+\item 预处理 \texttt{n\allowbreak{}e} 数组：$O(M)$，其中 $M$ 为模式串长度。
+\item 匹配过程：$O(N)$，其中 $N$ 为主串长度。
+\end{itemize}
+\item \textbf{适用场景}：单模式串匹配问题、统计字符串出现频次、求字符串的最小循环节与公共前后缀。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: kmp.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -1268,15 +1646,15 @@ void solve()
 \end{lstlisting}
 \subsection*{字符串 - Z 函数 (扩展 KMP)}
 \addcontentsline{toc}{subsection}{字符串 - Z 函数 (扩展 KMP)}
-\noindent\textbf{字符串 - Z 函数 (扩展 KMP)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：在 $O(N)$ 时间内求出一个字符串所有后缀与前缀的最长公共前缀长度。 \\
-* \textbf{时间复杂度}：$O(N)$。 \\
-* \textbf{核心思想}：维护一个最靠右的匹配段 (Z-box) $[l, r]$，在该区间内的计算直接白嫖前缀 $z[i-l]$ 的值，并卡住边界，超出边界的部分再暴力扩展。 \\
-\noindent\texttt{\scriptsize File: kmpz函数.cpp}
-\begin{lstlisting}
+% Source: 字符串/kmpz函数_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在 $O(N)$ 时间内求出一个字符串所有后缀与前缀的最长公共前缀长度。
+\item \textbf{时间复杂度}：$O(N)$。
+\item \textbf{核心思想}：维护一个最靠右的匹配段 (Z-box) $[l, r]$，在该区间内的计算直接“白嫖”前缀 $z[i-l]$ 的值，并卡住边界，超出边界的部分再暴力扩展。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: kmpz函数.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 void solve()
@@ -1301,15 +1679,15 @@ void solve()
 \end{lstlisting}
 \subsection*{字符串 - Manacher 算法 (马拉车)}
 \addcontentsline{toc}{subsection}{字符串 - Manacher 算法 (马拉车)}
-\noindent\textbf{字符串 - Manacher 算法 (马拉车)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：在 $O(N)$ 时间复杂度内，求出字符串中以每个位置为中心的最长回文子串的半径（从而找到全局最长回文子串）。 \\
-* \textbf{时间复杂度}：$O(N)$。 \\
-* \textbf{核心思想}：利用已经求出的大回文串的对称性，直接将左半边的答案镜像拷贝到右半边，避免重复扩展。 \\
-\noindent\texttt{\scriptsize File: Manachar.cpp}
-\begin{lstlisting}
+% Source: 字符串/Manachar_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在 $O(N)$ 时间复杂度内，求出字符串中以每个位置为中心的最长回文子串的半径（从而找到全局最长回文子串）。
+\item \textbf{时间复杂度}：$O(N)$。
+\item \textbf{核心思想}：利用已经求出的大回文串的对称性，直接将左半边的答案镜像拷贝到右半边，避免重复扩展。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: Manachar.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 using PII = pair<int,int>;
@@ -1346,22 +1724,287 @@ void solve()
 
 }
 \end{lstlisting}
+\subsection*{字符串 - 后缀数组 (倍增与计数排序)}
+\addcontentsline{toc}{subsection}{字符串 - 后缀数组 (倍增与计数排序)}
+% Source: 字符串/后缀数组_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：将所有后缀按字典序排序。例如 \texttt{b\allowbreak{}a\allowbreak{}n\allowbreak{}a\allowbreak{}n\allowbreak{}a} 排序后为 \texttt{a\allowbreak{}、\allowbreak{}a\allowbreak{}n\allowbreak{}a\allowbreak{}、\allowbreak{}a\allowbreak{}n\allowbreak{}a\allowbreak{}n\allowbreak{}a\allowbreak{}、\allowbreak{}b\allowbreak{}a\allowbreak{}n\allowbreak{}a\allowbreak{}n\allowbreak{}a\allowbreak{}、\allowbreak{}n\allowbreak{}a\allowbreak{}、\allowbreak{}n\allowbreak{}a\allowbreak{}n\allowbreak{}a}。
+\item \textbf{\texttt{s\allowbreak{}a\allowbreak{}[\allowbreak{}i\allowbreak{}]}}：第 \texttt{i} 名后缀的起点，如 \texttt{s\allowbreak{}a\allowbreak{}[\allowbreak{}2\allowbreak{}]\allowbreak{}=\allowbreak{}4}，对应 \texttt{a\allowbreak{}n\allowbreak{}a}。
+\item \textbf{\texttt{r\allowbreak{}k\allowbreak{}[\allowbreak{}i\allowbreak{}]}}：从位置 \texttt{i} 开始的后缀排名，满足 \texttt{r\allowbreak{}k\allowbreak{}[\allowbreak{}s\allowbreak{}a\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{}]\allowbreak{}=\allowbreak{}i}。
+\item \textbf{\texttt{h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t\allowbreak{}[\allowbreak{}i\allowbreak{}]}}：第 \texttt{i} 名与第 \texttt{i\allowbreak{}-\allowbreak{}1} 名后缀的最长公共前缀长度，规定 \texttt{h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t\allowbreak{}[\allowbreak{}1\allowbreak{}]\allowbreak{}=\allowbreak{}0}。它按排名索引，不按原串位置索引。
+\item \textbf{复杂度}：构建 $O(n\log n)$，计算 \texttt{h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t} 为 $O(n)$，工作空间 $O(n)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{核心过程}\par\nobreak
+每轮把比较长度从 \texttt{k} 扩展到 \texttt{2\allowbreak{}k}，用 \texttt{(\allowbreak{}r\allowbreak{}k\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{},\allowbreak{}r\allowbreak{}k\allowbreak{}[\allowbreak{}i\allowbreak{}+\allowbreak{}k\allowbreak{}]\allowbreak{})} 作为两个关键字，越界排名为0。\texttt{y} 先排好第二关键字，再用 \texttt{c\allowbreak{}n\allowbreak{}t} 稳定排序第一关键字，最后用 \texttt{t\allowbreak{}m\allowbreak{}p} 重新编号。\par
+计算 \texttt{h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t} 时，按起点顺序比较当前后缀与其字典序前驱；起点右移一位后，复用上次公共前缀长度减1，再继续向后比较。\par
+\par\addvspace{0.7ex}\noindent\textbf{使用与例子}\par\nobreak
+调用 \texttt{s\allowbreak{}u\allowbreak{}f\allowbreak{}f\allowbreak{}i\allowbreak{}x\allowbreak{}\_\allowbreak{}a\allowbreak{}r\allowbreak{}r\allowbreak{}a\allowbreak{}y\allowbreak{}(\allowbreak{}s\allowbreak{})}，使用 \texttt{s\allowbreak{}a\allowbreak{}[\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}n\allowbreak{}]}、\texttt{r\allowbreak{}k\allowbreak{}[\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}n\allowbreak{}]}、\texttt{h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t\allowbreak{}[\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}n\allowbreak{}]}。模板支持长度不超过20万的非空串，按字节处理字符。\par
+CPP输入 \texttt{b\allowbreak{}a\allowbreak{}n\allowbreak{}a\allowbreak{}n\allowbreak{}a}，输出三行，依次为 \texttt{s\allowbreak{}a}、\texttt{r\allowbreak{}k}、\texttt{h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t}：\par
+\begin{lstlisting}[language={},numbers=none,basicstyle=\footnotesize\ttfamily]
+6 4 2 1 5 3
+4 3 6 2 5 1
+0 1 3 0 0 2
+\end{lstlisting}
+
+\par\addvspace{0.7ex}\noindent\textbf{常用结论}\par\nobreak
+\begin{itemize}
+\item \textbf{最长重复子串长度}：\texttt{m\allowbreak{}a\allowbreak{}x\allowbreak{}(\allowbreak{}h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t\allowbreak{})}，上例为3，对应 \texttt{a\allowbreak{}n\allowbreak{}a}。
+\item \textbf{不同子串数量}：$n(n+1)/2-\sum height[i]$，上例为15。
+\item \textbf{两个不同后缀的LCP}：若排名 \texttt{a\allowbreak{}\textless{}\allowbreak{}b}，答案为 \texttt{h\allowbreak{}e\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t\allowbreak{}[\allowbreak{}a\allowbreak{}+\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}b\allowbreak{}]} 的最小值，可配合ST表。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 后缀数组.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10;
+int sa[N],rk[N],height[N]; // 排名第i的后缀起点、起点为i的后缀排名、相邻排名后缀的最长公共前缀长度
+int y[N],tmp[N],cnt[N]; // 按第二关键字排好的起点、新排名、计数排序的桶
+
+void suffix_array(const string &s) // 构建非空字符串的后缀数组，结果下标从1开始
+{
+    int n=s.size(),m=256; // 字符串长度、当前排名的最大值
+    fill(cnt+1,cnt+m+1,0);
+    for(int i=1;i<=n;i++)cnt[rk[i]=(unsigned char)s[i-1]+1]++; // 初始按单个字符排名，0留给越界部分
+    for(int i=1;i<=m;i++)cnt[i]+=cnt[i-1]; // 桶的前缀和，确定每种排名的结束位置
+    for(int i=n;i>=1;i--)sa[cnt[rk[i]]--]=i; // 按第一字符进行计数排序
+
+    for(int k=1;k<n;k<<=1) // 已按前k个字符排序，本轮扩展到前2k个字符
+    {
+        int p=0;
+        for(int i=n-k+1;i<=n;i++)y[++p]=i; // 第二段越界，第二关键字为0，排在最前面
+        for(int i=1;i<=n;i++)
+            if(sa[i]>k)y[++p]=sa[i]-k; // 利用原sa顺序，得到按第二关键字排好的起点
+
+        fill(cnt+1,cnt+m+1,0);
+        for(int i=1;i<=n;i++)cnt[rk[y[i]]]++;
+        for(int i=1;i<=m;i++)cnt[i]+=cnt[i-1];
+        for(int i=n;i>=1;i--)sa[cnt[rk[y[i]]]--]=y[i]; // 稳定排序第一关键字，得到两关键字的顺序
+
+        p=1;
+        tmp[sa[1]]=1;
+        for(int i=2;i<=n;i++)
+        {
+            int a=sa[i-1],b=sa[i]; // 比较排序后相邻的两个起点
+            int u=a+k<=n?rk[a+k]:0,v=b+k<=n?rk[b+k]:0; // 两个起点的第二关键字
+            if(rk[a]!=rk[b]||u!=v)p++; // 任一关键字不同，就划分一个新排名
+            tmp[b]=p;
+        }
+        for(int i=1;i<=n;i++)rk[i]=tmp[i]; // 用新排名替换旧排名
+        if(p==n)break; // 所有后缀已经区分，排序完成
+        m=p; // 下一轮计数排序只需处理当前排名范围
+    }
+
+    for(int i=1;i<=n;i++)rk[sa[i]]=i; // 最终排名为1..n，兼容只有一个字符的情况
+    int h=0;
+    height[1]=0; // 排名第一的后缀没有前驱
+    for(int i=1;i<=n;i++) // 按起点顺序，线性计算height
+    {
+        if(rk[i]==1)
+        {
+            h=0;
+            continue;
+        }
+        if(h)h--; // 起点右移一位，可保留至少h-1个相同字符
+        int j=sa[rk[i]-1]; // 当前后缀在字典序中的前一个后缀
+        while(i+h<=n&&j+h<=n&&s[i+h-1]==s[j+h-1])h++; // 从已知公共前缀后继续比较
+        height[rk[i]]=h;
+    }
+}
+
+void solve()
+{
+    string s;
+    cin>>s; // 输入一个非空字符串，示例为banana
+    suffix_array(s);
+    int n=s.size();
+    for(int i=1;i<=n;i++)cout<<sa[i]<<" "; // 第一行：按字典序排列后的后缀起点
+    cout<<endl;
+    for(int i=1;i<=n;i++)cout<<rk[i]<<" "; // 第二行：每个起点对应的后缀排名
+    cout<<endl;
+    for(int i=1;i<=n;i++)cout<<height[i]<<" "; // 第三行：相邻排名后缀的最长公共前缀长度
+    cout<<endl;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    solve();
+    return 0;
+}
+\end{lstlisting}
+\subsection*{字符串 - 后缀自动机 (SAM)}
+\addcontentsline{toc}{subsection}{字符串 - 后缀自动机 (SAM)}
+% Source: 字符串/后缀自动机_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：维护一个串的所有子串，支持统计不同子串数量、查询子串出现次数。
+\item \textbf{状态含义}：结束位置集合相同的子串合并为一个状态。例如 \texttt{a\allowbreak{}b\allowbreak{}a\allowbreak{}b\allowbreak{}a} 中，\texttt{b} 和 \texttt{a\allowbreak{}b} 都在位置2、4结束，所以共用状态。
+\item \textbf{复杂度}：固定26个小写字母时，构建 $O(n)$，查询长度为 $m$ 的串为 $O(m)$，转移表空间 $O(26n)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{关键字段}\par\nobreak
+\begin{itemize}
+\item \textbf{\texttt{c\allowbreak{}h\allowbreak{}[\allowbreak{}c\allowbreak{}]}}：追加字符 \texttt{c} 后到达的状态，0表示不存在。
+\item \textbf{\texttt{l\allowbreak{}e\allowbreak{}n}}：当前状态代表的最长子串长度。
+\item \textbf{\texttt{l\allowbreak{}i\allowbreak{}n\allowbreak{}k}}：指向最长的、属于另一个状态的真后缀所在状态。
+\item \textbf{\texttt{o\allowbreak{}c\allowbreak{}c}}：完成次数传播后，当前状态中每个子串的出现次数。
+\end{itemize}
+1为根，\texttt{l\allowbreak{}a\allowbreak{}s\allowbreak{}t} 为整个当前字符串对应的状态。非根状态 \texttt{p} 代表长度在 \texttt{l\allowbreak{}e\allowbreak{}n\allowbreak{}[\allowbreak{}l\allowbreak{}i\allowbreak{}n\allowbreak{}k\allowbreak{}[\allowbreak{}p\allowbreak{}]\allowbreak{}]\allowbreak{}+\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}l\allowbreak{}e\allowbreak{}n\allowbreak{}[\allowbreak{}p\allowbreak{}]} 之间的子串，每个长度恰好一个。\par
+\par\addvspace{0.7ex}\noindent\textbf{核心过程}\par\nobreak
+\begin{enumerate}[start=1]
+\item 添加字符时建立新状态 \texttt{c\allowbreak{}u\allowbreak{}r}，令 \texttt{l\allowbreak{}e\allowbreak{}n} 加1、\texttt{o\allowbreak{}c\allowbreak{}c\allowbreak{}=\allowbreak{}1}，沿后缀链接补齐缺失转移。
+\item 遇到已有转移 \texttt{p\allowbreak{}\ensuremath{\to}\allowbreak{}q}：若 \texttt{l\allowbreak{}e\allowbreak{}n\allowbreak{}[\allowbreak{}p\allowbreak{}]\allowbreak{}+\allowbreak{}1\allowbreak{}=\allowbreak{}=\allowbreak{}l\allowbreak{}e\allowbreak{}n\allowbreak{}[\allowbreak{}q\allowbreak{}]}，直接连接；否则克隆 \texttt{q}，缩短克隆的 \texttt{l\allowbreak{}e\allowbreak{}n}，调整转移和后缀链接。
+\item 克隆的 \texttt{o\allowbreak{}c\allowbreak{}c\allowbreak{}=\allowbreak{}0}，因为它只拆分状态，没有新增结束位置。构建后按 \texttt{l\allowbreak{}e\allowbreak{}n} 从长到短执行 \texttt{o\allowbreak{}c\allowbreak{}c\allowbreak{}[\allowbreak{}l\allowbreak{}i\allowbreak{}n\allowbreak{}k\allowbreak{}[\allowbreak{}p\allowbreak{}]\allowbreak{}]\allowbreak{}+\allowbreak{}=\allowbreak{}o\allowbreak{}c\allowbreak{}c\allowbreak{}[\allowbreak{}p\allowbreak{}]}，统计真实出现次数。
+\end{enumerate}
+\textbf{克隆例子}：\texttt{a\allowbreak{}b} 中的 \texttt{b\allowbreak{}、\allowbreak{}a\allowbreak{}b} 都只在位置2结束；追加 \texttt{b} 后，\texttt{b} 在位置2、3结束，\texttt{a\allowbreak{}b} 仍只在位置2结束，因此要拆成不同状态。\par
+\par\addvspace{0.7ex}\noindent\textbf{使用与例子}\par\nobreak
+模板处理长度不超过20万的非空小写字母串，查询串也须非空且为小写字母。\par
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+build("ababa"); // 构建并完成次数统计
+cout<<distinct()<<endl; // 9种不同的非空子串
+cout<<query("aba")<<endl; // 出现2次，重叠也计算
+cout<<query("c")<<endl; // 没有出现，输出0
+\end{lstlisting}
+
+CPP输入原串、询问数和各查询串；先输出不同子串数量，再逐行输出各串的出现次数。\par
+\par\addvspace{0.7ex}\noindent\textbf{常用结论}\par\nobreak
+\begin{itemize}
+\item \textbf{不同子串数量}：对非根状态累加 \texttt{l\allowbreak{}e\allowbreak{}n\allowbreak{}[\allowbreak{}p\allowbreak{}]\allowbreak{}-\allowbreak{}l\allowbreak{}e\allowbreak{}n\allowbreak{}[\allowbreak{}l\allowbreak{}i\allowbreak{}n\allowbreak{}k\allowbreak{}[\allowbreak{}p\allowbreak{}]\allowbreak{}]}。
+\item \textbf{最长重复子串长度}：在 \texttt{o\allowbreak{}c\allowbreak{}c\allowbreak{}\textgreater{}\allowbreak{}=\allowbreak{}2} 的状态中取最大的 \texttt{l\allowbreak{}e\allowbreak{}n}。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 后缀自动机.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10;
+struct T
+{
+    int ch[26],len,link,occ; // 字符转移、当前状态的最长长度、后缀链接、出现次数
+}tr[N*2]; // 一个状态可能代表多个子串，最多预留约2n个状态
+int tot=1,last=1; // 状态总数、整个当前字符串对应的状态，1为根，0表示不存在
+int cnt[N],ord[N*2]; // 按len计数的桶、按len从小到大排列的状态编号
+
+void extend(int c) // 在当前字符串末尾添加一个字符，c为0..25
+{
+    int cur=++tot,p=last; // cur代表新前缀的结束位置，p沿后缀链接向前寻找
+    tr[cur].len=tr[last].len+1;
+    tr[cur].occ=1; // 新增一个实际结束位置，先在新状态中记录一次
+    while(p&&!tr[p].ch[c]) // 当前后缀还不能接字符c，补上通向cur的转移
+    {
+        tr[p].ch[c]=cur;
+        p=tr[p].link; // 继续处理更短的后缀
+    }
+
+    if(!p)tr[cur].link=1; // 所有后缀都没有原有转移，后缀链接指向根
+    else
+    {
+        int q=tr[p].ch[c]; // 找到原来已经存在的字符c转移
+        if(tr[p].len+1==tr[q].len)
+            tr[cur].link=q; // 长度刚好衔接，q就是新状态的后缀链接目标
+        else
+        {
+            int clone=++tot; // 原状态需要拆分，新建克隆状态承接较短的一组子串
+            tr[clone]=tr[q]; // 保留原状态的字符转移和后缀链接
+            tr[clone].len=tr[p].len+1; // 克隆状态的最长长度改为当前需要的长度
+            tr[clone].occ=0; // 克隆只拆分状态，没有新增实际结束位置
+            while(p&&tr[p].ch[c]==q)
+            {
+                tr[p].ch[c]=clone; // 将较短后缀原本通向q的转移改为通向clone
+                p=tr[p].link;
+            }
+            tr[q].link=tr[cur].link=clone; // 原状态和新状态都通过clone连接更短的后缀
+        }
+    }
+    last=cur; // 整个当前字符串对应的新状态
+}
+
+void build(const string &s) // 输入非空小写字母串，构建并统计出现次数，支持重新构建
+{
+    for(int i=1;i<=tot;i++)tr[i]={}; // 清空上次实际用到的状态
+    tot=last=1;
+    for(char c:s)extend(c-'a'); // 从左到右逐个加入字符
+
+    int n=s.size();
+    fill(cnt,cnt+n+1,0);
+    for(int i=1;i<=tot;i++)cnt[tr[i].len]++; // 按状态最长长度进行计数排序
+    for(int i=1;i<=n;i++)cnt[i]+=cnt[i-1];
+    for(int i=tot;i>=1;i--)ord[cnt[tr[i].len]--]=i;
+    for(int i=tot;i>=2;i--) // 从长状态向短状态传播，根位于ord[1]，不再向外传播
+    {
+        int p=ord[i];
+        tr[tr[p].link].occ+=tr[p].occ; // 当前串每次出现，它的后缀也会在同一位置结束
+    }
+}
+
+int query(const string &s) // 查询非空小写字母串的出现次数，允许重叠
+{
+    int p=1; // 从根开始，依次沿字符转移
+    for(char c:s)
+    {
+        int x=c-'a';
+        if(!tr[p].ch[x])return 0; // 没有对应转移，说明这个串不是原串的子串
+        p=tr[p].ch[x];
+    }
+    return tr[p].occ; // 到达的状态中，所有子串具有相同的出现次数
+}
+
+int distinct() // 统计不同的非空子串数量
+{
+    int an=0;
+    for(int p=2;p<=tot;p++) // 根代表空串，不参与统计
+        an+=tr[p].len-tr[tr[p].link].len; // 当前状态每种合法长度恰好代表一个子串
+    return an;
+}
+
+void solve()
+{
+    string s;
+    cin>>s; // 输入非空小写字母串，示例为ababa
+    build(s);
+    cout<<distinct()<<endl; // 第一行输出不同的非空子串数量
+    int q;
+    cin>>q; // 接下来输入q个要查询的非空小写字母串
+    while(q--)
+    {
+        string t;
+        cin>>t;
+        cout<<query(t)<<endl; // 输出t在原串中的出现次数，重叠出现也计算
+    }
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    solve();
+    return 0;
+}
+\end{lstlisting}
 \subsection*{字符串 - 字典树 (Trie)}
 \addcontentsline{toc}{subsection}{字符串 - 字典树 (Trie)}
-\noindent\textbf{字符串 - 字典树 (Trie)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：高效存储和查询字符串集合（前缀树）。将字符串的公共前缀合并，最大限度减少无谓的字符串比较。 \\
-* \textbf{时间复杂度}：插入与查询均为 $O(|S|)$，其中 $|S|$ 为单条字符串的长度，与字典中字符串的数量无关。 \\
-* \textbf{适用场景}：词频统计、前缀匹配查询、字符串去重/判重、自动机预处理。 \\
-* \textbf{核心思想}：将字符隐式地映射为树上的边。每个节点代表一个前缀状态，\texttt{nex[p][c]} 相当于在节点 \texttt{p} 后追加字符 \texttt{c} 转移到的下一个状态节点。 \\
-* \textbf{常见模型}： \\
-1. \textbf{点名/签到系统}：记录字符串是否合法及是否被重复访问（如本模板的 \texttt{OK/REPEAT/WRONG}）。 \\
-2. \textbf{前缀统计}：给经过的每个节点打上 \texttt{cnt++} 标记，用于查询以某个字符串为前缀的单词数量。 \\
-3. \textbf{01 Trie}：将数字转为二进制位插入，用于解决最大异或和等极值问题 \\
-\noindent\texttt{\scriptsize File: 字典树.cpp}
-\begin{lstlisting}
+% Source: 字符串/字典树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：高效存储和查询字符串集合（前缀树）。将字符串的公共前缀合并，最大限度减少无谓的字符串比较。
+\item \textbf{时间复杂度}：插入与查询均为 $O(|S|)$，其中 $|S|$ 为单条字符串的长度，与字典中字符串的数量无关。
+\item \textbf{适用场景}：词频统计、前缀匹配查询、字符串去重/判重、自动机预处理。
+\item \textbf{核心思想}：将字符隐式地映射为树上的边。每个节点代表一个前缀状态，\texttt{n\allowbreak{}e\allowbreak{}x\allowbreak{}[\allowbreak{}p\allowbreak{}]\allowbreak{}[\allowbreak{}c\allowbreak{}]} 相当于在节点 \texttt{p} 后追加字符 \texttt{c} 转移到的下一个状态节点。
+\item \textbf{常见模型}：
+\begin{enumerate}[start=1]
+\item \textbf{点名/签到系统}：记录字符串是否合法及是否被重复访问（如本模板的 \texttt{O\allowbreak{}K\allowbreak{}/\allowbreak{}R\allowbreak{}E\allowbreak{}P\allowbreak{}E\allowbreak{}A\allowbreak{}T\allowbreak{}/\allowbreak{}W\allowbreak{}R\allowbreak{}O\allowbreak{}N\allowbreak{}G}）。
+\item \textbf{前缀统计}：给经过的每个节点打上 \texttt{c\allowbreak{}n\allowbreak{}t\allowbreak{}+\allowbreak{}+} 标记，用于查询“以某个字符串为前缀的单词数量”。
+\item \textbf{01 Trie}：将数字转为二进制位插入，用于解决最大异或和等极值问题
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 字典树.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -1430,35 +2073,38 @@ struct Trie {
 \addcontentsline{toc}{section}{数学}
 \subsection*{博弈论 - SG 函数与 Sprague-Grundy 定理}
 \addcontentsline{toc}{subsection}{博弈论 - SG 函数与 Sprague-Grundy 定理}
-\noindent\textbf{博弈论 - SG 函数与 Sprague-Grundy 定理} \\
-
-
-\noindent\textbf{解决什么实际问题 (实战映射)} \\
-在算竞的博弈论（尤其是公平组合游戏 Impartial Game）中，当你遇到以下特征的题目时，直接掏出 SG 定理： \\
-1. \textbf{多线并行的独立游戏 (复合博弈)}：桌子上有 $N$ 堆石子，或者有 $N$ 张图，每次只能选择\textbf{其中一堆/一张图}进行操作。\textbf{【核心痛点】}：多线操作的分支极度爆炸，无法直接算。但 SG 定理能将它们降维打击，各自算各自的，最后异或起来就能得到全局胜负。 \\
-2. \textbf{规则古怪的取石子/移动棋子}：比如每次只能取斐波那契数个石子、每次可以把一堆石子分裂成不相等的两堆。这类问题无法用传统 Nim 游戏（直接异或石子数）的结论秒杀，必须手推它们的状态转移图，求出每个状态的 SG 值。 \\
-3. \textbf{无法操作者判负 (正常规则)}：这是使用 SG 函数的绝对大前提。 \\
-
-
-\noindent\textbf{核心结论与数学性质 (实战必背)} \\
-所有的公平组合博弈，最终都可以等效映射为经典的 Nim 游戏。 \\
-
-
-1. \textbf{$mex$ 运算 (Minimum Excluded Value)}： \\
-* 定义：施加于一个集合，求出\textbf{不属于该集合的最小非负整数}。 \\
-* 举例：$mex(\{0, 1, 3\}) = 2$；$mex(\{1, 2\}) = 0$；$mex(\emptyset) = 0$。 \\
-2. \textbf{状态的 SG 值定义}： \\
-* 一个状态 $x$ 的 SG 值，等于它\textbf{所有后继状态}的 SG 值构成的集合的 $mex$。 \\
-* 公式：$SG(x) = mex(\{SG(y) \mid x \to y\})$。 \\
-* \textbf{必败态结论}：所有无法继续操作的终点状态，其后继为空集，所以 $SG(\text{终点}) = mex(\emptyset) = 0$。反之，如果 $SG(x) = 0$，当前玩家面对 $x$ 必败；$SG(x) > 0$，必胜。 \\
-3. \textbf{Sprague-Grundy 定理 (大一统缝合怪)}： \\
-* 如果一个大游戏由 $N$ 个互相独立的小游戏组成（每次只能动其中一个），那么这个大游戏的全局状态的 SG 值，等于所有小游戏当前状态的 SG 值的\textbf{异或和 (XOR)}。 \\
-* $$SG_{total} = SG(x_1) \oplus SG(x_2) \oplus \dots \oplus SG(x_n)$$ \\
-* \textbf{终极判决}：若 $SG_{total} > 0$，先手必胜；若 $SG_{total} = 0$，先手必败。 \\
-
-
-\noindent\texttt{\scriptsize File: 博弈论-sg函数.cpp}
-\begin{lstlisting}
+% Source: 数学/博弈论-sg函数_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{解决什么实际问题 (实战映射)}\par\nobreak
+在算竞的博弈论（尤其是公平组合游戏 Impartial Game）中，当你遇到以下特征的题目时，直接掏出 SG 定理：\par
+\begin{enumerate}[start=1]
+\item \textbf{多线并行的独立游戏 (复合博弈)}：桌子上有 $N$ 堆石子，或者有 $N$ 张图，每次只能选择\textbf{其中一堆/一张图}进行操作。\textbf{【核心痛点】}：多线操作的分支极度爆炸，无法直接算。但 SG 定理能将它们“降维打击”，各自算各自的，最后异或起来就能得到全局胜负。
+\item \textbf{规则古怪的取石子/移动棋子}：比如“每次只能取斐波那契数个石子”、“每次可以把一堆石子分裂成不相等的两堆”。这类问题无法用传统 Nim 游戏（直接异或石子数）的结论秒杀，必须手推它们的状态转移图，求出每个状态的 SG 值。
+\item \textbf{“无法操作者判负” (正常规则)}：这是使用 SG 函数的绝对大前提。
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{核心结论与数学性质 (实战必背)}\par\nobreak
+所有的公平组合博弈，最终都可以等效映射为经典的 Nim 游戏。\par
+\begin{enumerate}[start=1]
+\item \textbf{$mex$ 运算 (Minimum Excluded Value)}：
+\begin{itemize}
+\item 定义：施加于一个集合，求出\textbf{不属于该集合的最小非负整数}。
+\item 举例：$mex(\{0, 1, 3\}) = 2$；$mex(\{1, 2\}) = 0$；$mex(\emptyset) = 0$。
+\end{itemize}
+\item \textbf{状态的 SG 值定义}：
+\begin{itemize}
+\item 一个状态 $x$ 的 SG 值，等于它\textbf{所有后继状态}的 SG 值构成的集合的 $mex$。
+\item 公式：$SG(x) = mex(\{SG(y) \mid x \to y\})$。
+\item \textbf{必败态结论}：所有无法继续操作的终点状态，其后继为空集，所以 $SG(\text{终点}) = mex(\emptyset) = 0$。反之，如果 $SG(x) = 0$，当前玩家面对 $x$ 必败；$SG(x) > 0$，必胜。
+\end{itemize}
+\item \textbf{Sprague-Grundy 定理 (大一统缝合怪)}：
+\begin{itemize}
+\item 如果一个大游戏由 $N$ 个互相独立的小游戏组成（每次只能动其中一个），那么这个大游戏的全局状态的 SG 值，等于所有小游戏当前状态的 SG 值的\textbf{异或和 (XOR)}。
+\item 
+\NotebookMath{SG_{total} = SG(x_1) \oplus SG(x_2) \oplus \dots \oplus SG(x_n)}
+\item \textbf{终极判决}：若 $SG_{total} > 0$，先手必胜；若 $SG_{total} = 0$，先手必败。
+\end{itemize}
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 博弈论-sg函数.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -1543,206 +2189,228 @@ signed main()
     return 0;
 }
 \end{lstlisting}
-\subsection*{数学 - 任意模数多项式乘法 (MTT / 三模数 NTT)}
-\addcontentsline{toc}{subsection}{数学 - 任意模数多项式乘法 (MTT / 三模数 NTT)}
-\noindent\textbf{数学 - 任意模数多项式乘法 (MTT / 三模数 NTT)} \\
+\subsection*{多项式 - FFT (快速傅里叶变换)}
+\addcontentsline{toc}{subsection}{多项式 - FFT (快速傅里叶变换)}
+% Source: 数学/多项式-fft_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：快速计算多项式乘积，本模板返回整数系数卷积。
+\item \textbf{核心思想}：系数转为点值，对应相乘，再逆变换恢复系数。
+\item \textbf{复杂度}：时间 $O(n\log n)$，空间 $O(n)$，$n$ 为补齐后的变换长度。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{itemize}
+\item 系数从常数项到最高次项存入非空数组，调用 \texttt{m\allowbreak{}u\allowbreak{}l\allowbreak{}(\allowbreak{}a\allowbreak{},\allowbreak{}b\allowbreak{})}，返回 \texttt{a\allowbreak{}.\allowbreak{}s\allowbreak{}i\allowbreak{}z\allowbreak{}e\allowbreak{}(\allowbreak{})\allowbreak{}+\allowbreak{}b\allowbreak{}.\allowbreak{}s\allowbreak{}i\allowbreak{}z\allowbreak{}e\allowbreak{}(\allowbreak{})\allowbreak{}-\allowbreak{}1} 个系数。
+\item 函数自动补0到2的幂，使用 \texttt{d\allowbreak{}o\allowbreak{}u\allowbreak{}b\allowbreak{}l\allowbreak{}e} 计算，最后四舍五入为整数；支持负系数。
+\end{itemize}
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+vector<int>a={1,2},b={3,4}; // 1+2x与3+4x相乘
+vector<int>ans=mul(a,b); // {3,10,8}，即3+10x+8x²
+\end{lstlisting}
 
-
-\noindent\textbf{1. 什么时候用（触发条件）} \\
-当且仅当同时满足以下 \textbf{3 个条件}时，掏出此模板： \\
-1. \textbf{题型}：需要求多项式乘法 / 序列卷积（如 $C_k = \sum A_i \times B_{k-i}$）。 \\
-2. \textbf{模数非 NTT 素数}：题目给定的模数（如 $10^9+7$ 或任意合数）无法使用标准 NTT。 \\
-3. \textbf{数据极大}：序列长度 $\ge 10^5$，原系数达到 $10^9$。此时绝对真实结果峰值达 $10^{23}$，使用复数 FFT + 取模必定引发 \texttt{long double} 精度丢失（WA）。 \\
-
-
-\noindent\textbf{2. 核心参数} \\
-* \textbf{时间复杂度}：$O(N \log N)$（常数约为普通 NTT 的 9 倍，注意卡常）。 \\
-* \textbf{御用三模数}：$P_0 = 998244353$，$P_1 = 1004535809$，$P_2 = 469762049$（原根均为 $G=3$）。三者乘积 $> 10^{26}$，足以覆盖 $10^{23}$。 \\
-
-
---- \\
-
-
-\noindent\textbf{3. 怎么用（5 步执行逻辑）} \\
-
-
-不要管底层数学，直接按以下顺序拼接代码： \\
-
-
-* \textbf{Step 1【复制】}：将输入的原始多项式 $A$、$B$，各自复制 3 份存入 \texttt{a[0\textasciitilde{}2][i]} 和 \texttt{b[0\textasciitilde{}2][i]}。 \\
-* \textbf{Step 2【初始化】}：求出首个 $\ge n+m+1$ 的 2 的次幂 \texttt{tot}，并递推求出位逆序数组 \texttt{rev}。 \\
-* \textbf{Step 3【常数预处理】}： \\
-* \texttt{inv1} = $P_0$ 在模 $P_1$ 下的逆元。 \\
-* \texttt{inv12} = $(P_0 \times P_1) \pmod{P_2}$ 在模 $P_2$ 下的逆元。 \\
-* \textbf{Step 4【三次独立 NTT】}：循环 $k \in [0, 2]$，在模数 $P_k$ 下独立执行： \\
-1. 正向 NTT：\texttt{ntt(a[k], 1, P[k])} 与 \texttt{ntt(b[k], 1, P[k])}。 \\
-2. 点值相乘：\texttt{a[k][i] = a[k][i] * b[k][i] \% P[k]}。 \\
-3. 逆向 NTT：\texttt{ntt(a[k], -1, P[k])}。 \\
-4. 乘逆元：结果逐项乘以 \texttt{tot} 在模 $P_k$ 下的逆元。 \\
-* \textbf{Step 5【CRT 组合取模】}：遍历结果数组的每一项 $i$，调用 \texttt{CRT(a[0][i], a[1][i], a[2][i], target\_mod)}： \\
-1. \textbf{一阶合并}：$x_{12} = \text{合并方程 } P_0 \text{ 和 } P_1$（用 \texttt{inv1}，使用 \texttt{long long}）。 \\
-2. \textbf{二阶合并}：$\text{Ans} = \text{合并方程 } x_{12} \text{ 和 } P_2$（用 \texttt{inv12}，\textbf{必须强制转为 \texttt{\_\_int128}}）。 \\
-3. \textbf{输出}：返回 $\text{Ans} \pmod{target\_mod}$ 作为该项最终结果。 \\
-\noindent\texttt{\scriptsize File: 多项式-ntt.cpp}
-\begin{lstlisting}
+\par\addvspace{0.7ex}\noindent\textbf{与NTT的区别}\par\nobreak
+\begin{itemize}
+\item \textbf{运算方式}：FFT使用复数和浮点运算，NTT使用模运算，模意义下没有浮点误差。
+\item \textbf{结果含义}：本模板返回普通整数系数，NTT返回系数对 \texttt{9\allowbreak{}9\allowbreak{}8\allowbreak{}2\allowbreak{}4\allowbreak{}4\allowbreak{}3\allowbreak{}5\allowbreak{}3} 取模的结果。
+\item \textbf{如何选择}：普通整数卷积且精度足够时用FFT；题目要求模 \texttt{9\allowbreak{}9\allowbreak{}8\allowbreak{}2\allowbreak{}4\allowbreak{}4\allowbreak{}3\allowbreak{}5\allowbreak{}3} 时用NTT。FFT的系数或结果较大时可能舍入失准，不能保证任意 \texttt{l\allowbreak{}o\allowbreak{}n\allowbreak{}g\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}n\allowbreak{}g} 系数都精确。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 多项式-fft.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
-
 #define int long long
 #define endl '\n'
 
-const int MAXN=3e6+10; 
+using cp=complex<double>;
+const double pi=acos(-1);
 
-// --- 御用三模数与原根 ---
-const int P[3] = {998244353, 1004535809, 469762049};
-const int G = 3;
-
-// --- 预处理 CRT 需要的逆元常数 ---
-// inv1: P[0] 在模 P[1] 下的逆元
-// inv12: (P[0] * P[1]) 在模 P[2] 下的逆元
-int inv1, inv12;
-
-int a_ori[MAXN], b_ori[MAXN]; // 原始数组
-int a[3][MAXN], b[3][MAXN];   // 3 个模数下的分身数组
-int rev[MAXN];
-int tot, bit;
-
-// --- 带有模数的快速幂 ---
-int qmi(int a, int k, int mod)
+void fft(vector<cp>&a,int op) // op=1为正变换，op=-1为逆变换，数组长度必须是2的幂
 {
-    int res=1;
-    a%=mod;
-    while(k)
+    int n=a.size();
+    for(int i=1,j=0;i<n;i++) // 将下标调整为二进制位翻转后的顺序
     {
-        if(k&1) res=res*a%mod;
-        a=a*a%mod;
-        k>>=1;
+        int k=n>>1;
+        for(;j&k;k>>=1)j^=k; // 从高位开始处理进位
+        j^=k;
+        if(i<j)swap(a[i],a[j]); // 每对位置只交换一次
     }
-    return res;
-}
 
-// --- 改造版 NTT (增加 mod 参数) ---
-void ntt(int *a, int type, int mod)
-{
-    for(int i=0;i<tot;i++) 
-        if(i<rev[i]) swap(a[i],a[rev[i]]);
-        
-    for(int mid=1;mid<tot;mid<<=1)
+    for(int len=2;len<=n;len<<=1) // 从长度2开始，逐层合并两个较小的变换
     {
-        // 质数原根是 G，逆元是 qmi(G, mod-2, mod)
-        int w1=qmi(type==1 ? G : qmi(G,mod-2,mod), (mod-1)/(mid*2), mod);
-        
-        for(int i=0;i<tot;i+=mid*2)
+        double ang=2*pi/len*op;
+        cp wn(cos(ang),sin(ang)); // 当前层的单位根
+        for(int i=0;i<n;i+=len) // 每次处理一个长度为len的区间
         {
-            int wk=1;
-            for(int j=0;j<mid;j++,wk=wk*w1%mod)
+            cp w(1,0); // 单位根从0次幂开始
+            for(int j=0;j<len/2;j++)
             {
-                int x=a[i+j];
-                int y=wk*a[i+j+mid]%mod;
-                a[i+j]=(x+y)%mod;
-                a[i+j+mid]=(x-y+mod)%mod;
+                cp u=a[i+j],v=w*a[i+j+len/2]; // 左半部分、乘上单位根后的右半部分
+                a[i+j]=u+v; // 蝶形合并的前半部分
+                a[i+j+len/2]=u-v; // 蝶形合并的后半部分
+                w*=wn; // 转到单位根的下一次幂
             }
         }
     }
+
+    if(op==-1)
+        for(auto &x:a)x/=n; // 逆变换最后除以长度，恢复原系数
 }
 
-// --- 核心：CRT 合并 3 个模数下的结果 ---
-int CRT(int a1, int a2, int a3, int target_mod)
+vector<int>mul(const vector<int>&a,const vector<int>&b) // 两个非空整数系数多项式相乘
 {
-    // 1. 合并前两个方程 (模 P0 和 P1)
-    // x12 是在模 P0*P1 下的真实答案，规模在 10^18 内，long long 不会爆
-    int x = (a2 - a1) % P[1];
-    if(x < 0) x += P[1];
-    int x12 = (a1 + x * inv1 % P[1] * P[0]); 
-    
-    // 2. 合并第三个方程 (将 x12 与 P2 合并)
-    int k = (a3 - x12 % P[2]) % P[2];
-    if(k < 0) k += P[2];
-    k = k * inv12 % P[2];
-    
-    // 3. 得到绝对真实的原始答案！(极大概率超过 1e18，必须上 __int128)
-    __int128 P0_mul_P1 = (__int128)P[0] * P[1];
-    __int128 ans = (__int128)k * P0_mul_P1 + x12;
-    
-    // 4. 对题目要求的刁钻模数取模
-    return ans % target_mod;
+    int m=a.size()+b.size()-1,n=1; // 乘积的系数数量、FFT使用的长度
+    while(n<m)n<<=1; // 补到不小于m的最小2次幂，避免循环卷积混叠
+
+    vector<cp>x(n),y(n); // 其余位置自动补0
+    for(int i=0;i<(int)a.size();i++)x[i]=a[i];
+    for(int i=0;i<(int)b.size();i++)y[i]=b[i];
+
+    fft(x,1);
+    fft(y,1); // 将两个多项式从系数表示转换为点值表示
+    for(int i=0;i<n;i++)x[i]*=y[i]; // 点值对应相乘，得到乘积的点值表示
+    fft(x,-1); // 逆变换得到乘积的系数
+
+    vector<int>ans(m);
+    for(int i=0;i<m;i++)ans[i]=llround(x[i].real()); // 四舍五入为整数，支持负系数
+    return ans;
+}
+\end{lstlisting}
+\subsection*{多项式 - NTT (快速数论变换)}
+\addcontentsline{toc}{subsection}{多项式 - NTT (快速数论变换)}
+% Source: 数学/多项式-ntt_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：快速计算多项式乘积，结果对 \texttt{9\allowbreak{}9\allowbreak{}8\allowbreak{}2\allowbreak{}4\allowbreak{}4\allowbreak{}3\allowbreak{}5\allowbreak{}3} 取模。
+\item \textbf{核心思想}：用模意义下的单位根完成正逆变换，点值相乘后恢复系数。
+\item \textbf{复杂度}：时间 $O(n\log n)$，空间 $O(n)$，$n$ 为补齐后的变换长度。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{itemize}
+\item 系数从常数项到最高次项存入非空数组，调用 \texttt{m\allowbreak{}u\allowbreak{}l\allowbreak{}(\allowbreak{}a\allowbreak{},\allowbreak{}b\allowbreak{})}，返回 \texttt{a\allowbreak{}.\allowbreak{}s\allowbreak{}i\allowbreak{}z\allowbreak{}e\allowbreak{}(\allowbreak{})\allowbreak{}+\allowbreak{}b\allowbreak{}.\allowbreak{}s\allowbreak{}i\allowbreak{}z\allowbreak{}e\allowbreak{}(\allowbreak{})\allowbreak{}-\allowbreak{}1} 个系数，负系数自动转为合法余数。
+\item 固定 \texttt{m\allowbreak{}o\allowbreak{}d\allowbreak{}=\allowbreak{}9\allowbreak{}9\allowbreak{}8\allowbreak{}2\allowbreak{}4\allowbreak{}4\allowbreak{}3\allowbreak{}5\allowbreak{}3}、原根 \texttt{g\allowbreak{}=\allowbreak{}3}，补齐后的变换长度必须不超过 $2^{23}$。
+\end{itemize}
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+vector<int>a={1,2},b={3,4}; // 1+2x与3+4x相乘
+vector<int>ans=mul(a,b); // {3,10,8}，所有系数对mod取模
+\end{lstlisting}
+
+\par\addvspace{0.7ex}\noindent\textbf{与FFT的区别}\par\nobreak
+\begin{itemize}
+\item \textbf{精度与结果}：NTT做整数模运算，模意义下结果精确；FFT做浮点运算，本仓库FFT模板将结果四舍五入为普通整数。
+\item \textbf{模数限制}：变换长度必须整除 \texttt{m\allowbreak{}o\allowbreak{}d\allowbreak{}-\allowbreak{}1}。当前模数满足 $998244353-1=119\times2^{23}$，不能直接改成 \texttt{1\allowbreak{}e\allowbreak{}9\allowbreak{}+\allowbreak{}7} 沿用本模板。
+\item \textbf{如何选择}：要求模 \texttt{9\allowbreak{}9\allowbreak{}8\allowbreak{}2\allowbreak{}4\allowbreak{}4\allowbreak{}3\allowbreak{}5\allowbreak{}3} 时用NTT；需要普通整数卷积且精度足够时用FFT。单模NTT不能直接恢复超过模数范围的普通整数系数。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 多项式-ntt.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int mod=998244353,g=3;
+
+int qpow(int a,int b) // 快速计算a^b mod mod
+{
+    int an=1;
+    while(b)
+    {
+        if(b&1)an=an*a%mod;
+        a=a*a%mod;
+        b>>=1;
+    }
+    return an;
 }
 
-void solve()
+void ntt(vector<int>&a,int op) // op=1为正变换，op=-1为逆变换，长度为2的幂且不超过2^23
 {
-    int n, m, target_mod;
-    // n 和 m 分别是最高次幂，target_mod 是题目要求的任意模数
-    cin>>n>>m>>target_mod; 
-    
-    for(int i=0;i<=n;i++) cin>>a_ori[i];
-    for(int i=0;i<=m;i++) cin>>b_ori[i];
-    
-    // 【第一步】：拷贝出 3 份分身
-    for(int i=0;i<=n;i++) a[0][i] = a[1][i] = a[2][i] = a_ori[i];
-    for(int i=0;i<=m;i++) b[0][i] = b[1][i] = b[2][i] = b_ori[i];
-    
-    // 【第二步】：补齐 2 的次幂长度，预处理位逆序数组 rev
-    tot=1; bit=0;
-    while(tot<=n+m) { tot<<=1; bit++; }
-    for(int i=0;i<tot;i++) rev[i]=(rev[i>>1]>>1)|((i&1)<<(bit-1));
-    
-    // 【第三步】：预处理 CRT 的常数逆元
-    inv1 = qmi(P[0], P[1]-2, P[1]);
-    inv12 = qmi(P[0] * P[1] % P[2], P[2]-2, P[2]);
-    
-    // 【第四步】：平行时空 3 线并发 NTT
-    for(int k=0; k<3; k++)
+    int n=a.size();
+    for(int i=1,j=0;i<n;i++) // 将下标调整为二进制位翻转后的顺序
     {
-        ntt(a[k], 1, P[k]); // 正变换
-        ntt(b[k], 1, P[k]);
-        
-        for(int i=0; i<tot; i++) a[k][i] = a[k][i] * b[k][i] % P[k]; // O(N) 乘法
-        
-        ntt(a[k], -1, P[k]); // 逆变换
-        
-        // 逆变换除以 tot (乘以 tot 在当前模数下的逆元)
-        int inv_tot = qmi(tot, P[k]-2, P[k]);
-        for(int i=0; i<=n+m; i++) a[k][i] = a[k][i] * inv_tot % P[k];
+        int k=n>>1;
+        for(;j&k;k>>=1)j^=k; // 从高位开始处理进位
+        j^=k;
+        if(i<j)swap(a[i],a[j]); // 每对位置只交换一次
     }
-    
-    // 【第五步】：万剑归宗，利用 CRT 融合后直接输出真实值对 target_mod 取模的结果
-    for(int i=0; i<=n+m; i++)
+
+    for(int len=2;len<=n;len<<=1) // 逐层合并两个较小的变换
     {
-        int final_ans = CRT(a[0][i], a[1][i], a[2][i], target_mod);
-        cout << final_ans << " ";
+        int wn=qpow(g,(mod-1)/len); // 当前层的单位根，满足wn^len=1
+        if(op==-1)wn=qpow(wn,mod-2); // 逆变换使用单位根的逆元
+        for(int i=0;i<n;i+=len) // 每次处理一个长度为len的区间
+        {
+            int w=1; // 单位根从0次幂开始
+            for(int j=0;j<len/2;j++)
+            {
+                int u=a[i+j],v=w*a[i+j+len/2]%mod;
+                a[i+j]=(u+v)%mod; // 蝶形合并的前半部分
+                a[i+j+len/2]=(u-v+mod)%mod; // 蝶形合并的后半部分
+                w=w*wn%mod; // 转到单位根的下一次幂
+            }
+        }
     }
-    cout<<endl;
+
+    if(op==-1)
+    {
+        int inv=qpow(n,mod-2); // 长度n在模意义下的逆元
+        for(auto &x:a)x=x*inv%mod; // 逆变换最后除以长度，恢复原系数
+    }
+}
+
+vector<int>mul(const vector<int>&a,const vector<int>&b) // 两个非空多项式相乘，返回系数模mod的结果
+{
+    int m=a.size()+b.size()-1,n=1; // 乘积的系数数量、NTT使用的长度
+    while(n<m)n<<=1; // 补到不小于m的最小2次幂
+
+    vector<int>x(n),y(n); // 其余位置自动补0
+    for(int i=0;i<(int)a.size();i++)x[i]=(a[i]%mod+mod)%mod;
+    for(int i=0;i<(int)b.size();i++)y[i]=(b[i]%mod+mod)%mod; // 将负系数也转为合法余数
+
+    ntt(x,1);
+    ntt(y,1); // 从系数表示转换为点值表示
+    for(int i=0;i<n;i++)x[i]=x[i]*y[i]%mod; // 对应点值相乘
+    ntt(x,-1); // 逆变换得到乘积的系数
+
+    x.resize(m); // 去掉补0产生的多余位置
+    return x;
 }
 \end{lstlisting}
 \subsection*{数学 - 卢卡斯定理与扩展卢卡斯定理 (Lucas \& exLucas)}
 \addcontentsline{toc}{subsection}{数学 - 卢卡斯定理与扩展卢卡斯定理 (Lucas \& exLucas)}
-\noindent\textbf{数学 - 卢卡斯定理与扩展卢卡斯定理 (Lucas \& exLucas)} \\
-
-
-\noindent\textbf{解决什么实际问题 (实战映射)} \\
-在算竞中，看到以下几种经典题面，直接套用卢卡斯全家桶： \\
-1. \textbf{天文数字的组合数（选数/网格图路径）}：题面要求从极大的集合中选数，或者在一个长宽达到 $10^{18}$ 的网格图中求路径数（本质也是组合数）。\textbf{特征}：$N, M$ 极大（远超 $10^7$，无法预处理阶乘），但模数 $P$ 相对较小（通常 $\le 10^5$）。$P$ 为质数直接用 Lucas，$P$ 为合数用 exLucas。 \\
-2. \textbf{阶乘末尾的零 / 整除质数的最高次幂}：题目问$N!$ 在 $P$ 进制下末尾有多少个 0或者$N!$ 能被 $p^k$ 整除的最大 $k$ 是多少。\textbf{破解}：直接抠出板子里的\textbf{勒让德定理}（即那个 \texttt{while(n) cnt += n / p, n /= p;} 循环），几行代码瞬间秒杀。 \\
-3. \textbf{组合数的奇偶性判断 / 规律分形}：题目让你判断 $\binom{N}{M}$ 是奇数还是偶数，或者多次询问要求 $O(1)$ 回答。\textbf{破解}：千万不要算！直接利用推论判断 \texttt{(N \& M) == M}，如果是 \texttt{true} 结果就是奇数，\texttt{false} 就是偶数。这在 CF 的思维题和打表找规律题中是绝杀技巧。 \\
-
-
-\noindent\textbf{核心结论与数学性质 (实战必背)} \\
-1. \textbf{卢卡斯定理 (Lucas Theorem)}： \\
-* \textbf{前提条件}：模数 $P$ \textbf{必须是质数}。 \\
-* \textbf{核心公式}：$\binom{n}{m} \equiv \binom{n \bmod p}{m \bmod p} \times \binom{n / p}{m / p} \pmod p$ \\
-* \textbf{进制推论 (极为有用)}：如果把 $n$ 和 $m$ 都转化为 $p$ 进制数，那么 $\binom{n}{m} \pmod p$ 等价于对应位上的组合数连乘。只要某一位上出现 $m_i > n_i$，直接返回 0。 \\
-2. \textbf{勒让德定理 (Legendre's Formula)}： \\
-* \textbf{用途}：计算 $n!$ 质因数分解后，质数 $p$ 的指数。 \\
-* \textbf{结论}：指数 $cnt = \sum_{i=1}^{\infty} \lfloor \frac{n}{p^i} \rfloor$。代码中通常写成 \texttt{while(n) cnt += n / p, n /= p;}。这是扩展卢卡斯中提纯因子的核心。 \\
-3. \textbf{库默尔定理 (Kummer's Theorem)}： \\
-* \textbf{结论}：$\binom{n}{m}$ 中包含质数 $p$ 的个数，等于在 $p$ 进制下计算 $m + (n-m)$ 时\textbf{发生进位的次数}。 \\
-* \textbf{奇偶性推论}：$\binom{n}{m}$ 为奇数（即 $\bmod 2 \neq 0$）的充要条件是 \textbf{$n \ \& \ m == m$}（在二进制下 $m$ 是 $n$ 的子集）。 \\
-4. \textbf{扩展卢卡斯定理 (exLucas)}： \\
-* \textbf{前提条件}：模数 $P$ 是\textbf{合数}（不一定是质数）。 \\
-* \textbf{核心思想}：大一统缝合怪。先用\textbf{唯一分解定理}把 $P$ 拆成若干个 $p_i^{k_i}$ 的乘积；然后分别求出 $\binom{n}{m} \pmod{p_i^{k_i}}$；最后用\textbf{中国剩余定理 (CRT)} 把所有结果拼起来。 \\
-* \textbf{提纯操作}：在求 $\binom{n}{m} \pmod{p^k}$ 时，因为 $p$ 的倍数没有逆元，必须用勒让德定理把 $n!, m!, (n-m)!$ 里所有的 $p$ 因子全部抠出来，剩下互质的部分求逆元，最后再乘上 $p^{\Delta cnt}$。 \\
-\noindent\texttt{\scriptsize File: 数论-卢卡斯定理-扩展.cpp}
-\begin{lstlisting}
+% Source: 数学/数论-卢卡斯定理-扩展_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{解决什么实际问题 (实战映射)}\par\nobreak
+在算竞中，看到以下几种经典题面，直接套用卢卡斯全家桶：\par
+\begin{enumerate}[start=1]
+\item \textbf{天文数字的组合数（选数/网格图路径）}：题面要求从极大的集合中选数，或者在一个长宽达到 $10^{18}$ 的网格图中求路径数（本质也是组合数）。\textbf{特征}：$N, M$ 极大（远超 $10^7$，无法预处理阶乘），但模数 $P$ 相对较小（通常 $\le 10^5$）。$P$ 为质数直接用 Lucas，$P$ 为合数用 exLucas。
+\item \textbf{阶乘末尾的零 / 整除质数的最高次幂}：题目问“$N!$ 在 $P$ 进制下末尾有多少个 0”或者“$N!$ 能被 $p^k$ 整除的最大 $k$ 是多少”。\textbf{破解}：直接抠出板子里的\textbf{勒让德定理}（即那个 \texttt{w\allowbreak{}h\allowbreak{}i\allowbreak{}l\allowbreak{}e\allowbreak{}(\allowbreak{}n\allowbreak{})\allowbreak{} \allowbreak{}c\allowbreak{}n\allowbreak{}t\allowbreak{} \allowbreak{}+\allowbreak{}=\allowbreak{} \allowbreak{}n\allowbreak{} \allowbreak{}/\allowbreak{} \allowbreak{}p\allowbreak{},\allowbreak{} \allowbreak{}n\allowbreak{} \allowbreak{}/\allowbreak{}=\allowbreak{} \allowbreak{}p\allowbreak{};} 循环），几行代码瞬间秒杀。
+\item \textbf{组合数的奇偶性判断 / 规律分形}：题目让你判断 $\binom{N}{M}$ 是奇数还是偶数，或者多次询问要求 $O(1)$ 回答。\textbf{破解}：千万不要算！直接利用推论判断 \texttt{(\allowbreak{}N\allowbreak{} \allowbreak{}\&\allowbreak{} \allowbreak{}M\allowbreak{})\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}M}，如果是 \texttt{t\allowbreak{}r\allowbreak{}u\allowbreak{}e} 结果就是奇数，\texttt{f\allowbreak{}a\allowbreak{}l\allowbreak{}s\allowbreak{}e} 就是偶数。这在 CF 的思维题和打表找规律题中是绝杀技巧。
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{核心结论与数学性质 (实战必背)}\par\nobreak
+\begin{enumerate}[start=1]
+\item \textbf{卢卡斯定理 (Lucas Theorem)}：
+\begin{itemize}
+\item \textbf{前提条件}：模数 $P$ \textbf{必须是质数}。
+\item \textbf{核心公式}：$\binom{n}{m} \equiv \binom{n \bmod p}{m \bmod p} \times \binom{n / p}{m / p} \pmod p$
+\item \textbf{进制推论 (极为有用)}：如果把 $n$ 和 $m$ 都转化为 $p$ 进制数，那么 $\binom{n}{m} \pmod p$ 等价于对应位上的组合数连乘。只要某一位上出现 $m_i > n_i$，直接返回 0。
+\end{itemize}
+\item \textbf{勒让德定理 (Legendre's Formula)}：
+\begin{itemize}
+\item \textbf{用途}：计算 $n!$ 质因数分解后，质数 $p$ 的指数。
+\item \textbf{结论}：指数 $cnt = \sum_{i=1}^{\infty} \lfloor \frac{n}{p^i} \rfloor$。代码中通常写成 \texttt{w\allowbreak{}h\allowbreak{}i\allowbreak{}l\allowbreak{}e\allowbreak{}(\allowbreak{}n\allowbreak{})\allowbreak{} \allowbreak{}c\allowbreak{}n\allowbreak{}t\allowbreak{} \allowbreak{}+\allowbreak{}=\allowbreak{} \allowbreak{}n\allowbreak{} \allowbreak{}/\allowbreak{} \allowbreak{}p\allowbreak{},\allowbreak{} \allowbreak{}n\allowbreak{} \allowbreak{}/\allowbreak{}=\allowbreak{} \allowbreak{}p\allowbreak{};}。这是扩展卢卡斯中提纯因子的核心。
+\end{itemize}
+\item \textbf{库默尔定理 (Kummer's Theorem)}：
+\begin{itemize}
+\item \textbf{结论}：$\binom{n}{m}$ 中包含质数 $p$ 的个数，等于在 $p$ 进制下计算 $m + (n-m)$ 时\textbf{发生进位的次数}。
+\item \textbf{奇偶性推论}：$\binom{n}{m}$ 为奇数（即 $\bmod 2 \neq 0$）的充要条件是 \textbf{$n \ \& \ m == m$}（在二进制下 $m$ 是 $n$ 的子集）。
+\end{itemize}
+\item \textbf{扩展卢卡斯定理 (exLucas)}：
+\begin{itemize}
+\item \textbf{前提条件}：模数 $P$ 是\textbf{合数}（不一定是质数）。
+\item \textbf{核心思想}：大一统缝合怪。先用\textbf{唯一分解定理}把 $P$ 拆成若干个 $p_i^{k_i}$ 的乘积；然后分别求出 $\binom{n}{m} \pmod{p_i^{k_i}}$；最后用\textbf{中国剩余定理 (CRT)} 把所有结果拼起来。
+\item \textbf{提纯操作}：在求 $\binom{n}{m} \pmod{p^k}$ 时，因为 $p$ 的倍数没有逆元，必须用勒让德定理把 $n!, m!, (n-m)!$ 里所有的 $p$ 因子全部抠出来，剩下互质的部分求逆元，最后再乘上 $p^{\Delta cnt}$。
+\end{itemize}
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 数论-卢卡斯定理-扩展.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -1797,7 +2465,7 @@ int lucas(int a,int b,int p)
     if(a<p&&b<p)return C(a,b,p);
     return C(a%p,b%p,p)*lucas(a/p,b/p,p)%p;
 }
-/* 💡 提示：如果有多组询问且 p <= 1e5，请把 C 函数改成预处理阶乘和阶乘逆元以做到 O(1) 查询。 */
+/*  提示：如果有多组询问且 p <= 1e5，请把 C 函数改成预处理阶乘和阶乘逆元以做到 O(1) 查询。 */
 
 
 // ================= 2. 扩展卢卡斯定理 (模数 P 可以是合数) =================
@@ -1872,18 +2540,20 @@ void solve()
 \end{lstlisting}
 \subsection*{数论 - 中国剩余定理与扩展 (CRT \& EXCRT)}
 \addcontentsline{toc}{subsection}{数论 - 中国剩余定理与扩展 (CRT \& EXCRT)}
-\noindent\textbf{数论 - 中国剩余定理与扩展 (CRT \& EXCRT)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：求解一元线性同余方程组 $x \equiv a_i \pmod{m_i}$。 \\
-* \textbf{CRT 核心思想}：构造法。对于每一个方程构造一个 $ans_i$，使得它在对 $m_i$ 取模时余数为 $a_i$，对其他模数取模时余数为 $0$。最后全部加起来求和取总模数。\textbf{（前提：$m_i$ 必须两两互质）} \\
-* \textbf{EXCRT 核心思想}：合并法（数学归纳）。每次将两个方程通过 \texttt{exgcd} 合并成一个新的同余方程，直到只剩下一个方程。\textbf{（无互质限制，无解会返回 -1）} \\
-* \textbf{避坑指南}： \\
-1. EXCRT 在合并过程中，中间变量相乘极容易产生大于 \texttt{1e18} 的数值导致溢出，实战中强烈建议用 \texttt{\_\_int128} 强转。 \\
-2. 无论加减乘，运算完一定要立刻 \texttt{\% M} 并 \texttt{(x \% M + M) \% M} 变为正数，同余世界里负数是万恶之源。 \\
-\noindent\texttt{\scriptsize File: 数论-扩展中国剩余定理.cpp}
-\begin{lstlisting}
+% Source: 数学/数论-扩展中国剩余定理_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求解一元线性同余方程组 $x \equiv a_i \pmod{m_i}$。
+\item \textbf{CRT 核心思想}：构造法。对于每一个方程构造一个 $ans_i$，使得它在对 $m_i$ 取模时余数为 $a_i$，对其他模数取模时余数为 $0$。最后全部加起来求和取总模数。\textbf{（前提：$m_i$ 必须两两互质）}
+\item \textbf{EXCRT 核心思想}：合并法（数学归纳）。每次将两个方程通过 \texttt{e\allowbreak{}x\allowbreak{}g\allowbreak{}c\allowbreak{}d} 合并成一个新的同余方程，直到只剩下一个方程。\textbf{（无互质限制，无解会返回 -1）}
+\item \textbf{避坑指南}：
+\begin{enumerate}[start=1]
+\item EXCRT 在合并过程中，中间变量相乘极容易产生大于 \texttt{1\allowbreak{}e\allowbreak{}1\allowbreak{}8} 的数值导致溢出，实战中强烈建议用 \texttt{\_\allowbreak{}\_\allowbreak{}i\allowbreak{}n\allowbreak{}t\allowbreak{}1\allowbreak{}2\allowbreak{}8} 强转。
+\item 无论加减乘，运算完一定要立刻 \texttt{\%\allowbreak{} \allowbreak{}M} 并 \texttt{(\allowbreak{}x\allowbreak{} \allowbreak{}\%\allowbreak{} \allowbreak{}M\allowbreak{} \allowbreak{}+\allowbreak{} \allowbreak{}M\allowbreak{})\allowbreak{} \allowbreak{}\%\allowbreak{} \allowbreak{}M} 变为正数，同余世界里负数是万恶之源。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 数论-扩展中国剩余定理.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -1963,29 +2633,29 @@ void solve()
 \end{lstlisting}
 \subsection*{数论 - 欧拉函数 \& 扩展欧拉定理}
 \addcontentsline{toc}{subsection}{数论 - 欧拉函数 \& 扩展欧拉定理}
-\noindent\textbf{数论 - 欧拉函数 \& 扩展欧拉定理} \\
-
-
-\noindent\textbf{核心结论与数学性质 (实战必背)} \\
-在算竞中，欧拉函数 $\phi(N)$ 不仅用来求$1 \sim N$ 中与 $N$ 互质的数的个数，它的各种推论更是解数论题的题眼。以下结论务必牢记： \\
-
-
-1. \textbf{质数性质}：若 $p$ 为质数，则 $\phi(p) = p - 1$。（显然 $1 \sim p-1$ 都与 $p$ 互质） \\
-2. \textbf{质数幂性质}：若 $p$ 为质数，则 $\phi(p^k) = p^k - p^{k-1} = p^{k-1}(p - 1)$。 \\
-3. \textbf{积性函数}：若 $a, b$ 互质（即 $\gcd(a, b) = 1$），则 $\phi(a \times b) = \phi(a) \times \phi(b)$。这是线性筛欧拉函数的核心基石。 \\
-4. \textbf{互质和推论}：$1 \sim N$ 中所有与 $N$ 互质的数的\textbf{总和}为 $N \times \frac{\phi(N)}{2}$（当 $N > 1$ 时）。 \\
-5. \textbf{欧拉定理}：若 $\gcd(a, m) = 1$，则 $a^{\phi(m)} \equiv 1 \pmod m$。 \\
-* \textbf{特例（费马小定理）}：若 $m$ 为质数，$\phi(m) = m - 1$，即 $a^{m-1} \equiv 1 \pmod m$。 \\
-6. \textbf{扩展欧拉定理 (降幂公式)}：当指数极大（如 $10^{100000}$）无法用 \texttt{long long} 存储时，强制降维： \\
-$$a^b \equiv a^{b \pmod{\phi(m)} + \phi(m)} \pmod m \quad (\text{前提: } b \ge \phi(m))$$ \\
-$$a^b \equiv a^b \pmod m \quad (\text{前提: } b < \phi(m))$$ \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{求单个数的 $\phi$}：利用分解质因数，复杂度 $O(\sqrt{N})$。公式为 $N \times \prod(1 - \frac{1}{p})$。 \\
-* \textbf{求 $1 \sim N$ 的 $\phi$ 数组}：利用上述的\textbf{积性函数}结论配合线性筛，复杂度 $O(N)$。 \\
-\noindent\texttt{\scriptsize File: 数论-欧拉定理扩展.cpp}
-\begin{lstlisting}
+% Source: 数学/数论-欧拉定理扩展_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{核心结论与数学性质 (实战必背)}\par\nobreak
+在算竞中，欧拉函数 $\phi(N)$ 不仅用来求“$1 \sim N$ 中与 $N$ 互质的数的个数”，它的各种推论更是解数论题的题眼。以下结论务必牢记：\par
+\begin{enumerate}[start=1]
+\item \textbf{质数性质}：若 $p$ 为质数，则 $\phi(p) = p - 1$。（显然 $1 \sim p-1$ 都与 $p$ 互质）
+\item \textbf{质数幂性质}：若 $p$ 为质数，则 $\phi(p^k) = p^k - p^{k-1} = p^{k-1}(p - 1)$。
+\item \textbf{积性函数}：若 $a, b$ 互质（即 $\gcd(a, b) = 1$），则 $\phi(a \times b) = \phi(a) \times \phi(b)$。这是线性筛欧拉函数的核心基石。
+\item \textbf{互质和推论}：$1 \sim N$ 中所有与 $N$ 互质的数的\textbf{总和}为 $N \times \frac{\phi(N)}{2}$（当 $N > 1$ 时）。
+\item \textbf{欧拉定理}：若 $\gcd(a, m) = 1$，则 $a^{\phi(m)} \equiv 1 \pmod m$。
+\begin{itemize}
+\item \textbf{特例（费马小定理）}：若 $m$ 为质数，$\phi(m) = m - 1$，即 $a^{m-1} \equiv 1 \pmod m$。
+\end{itemize}
+\item \textbf{扩展欧拉定理 (降幂公式)}：当指数极大（如 $10^{100000}$）无法用 \texttt{l\allowbreak{}o\allowbreak{}n\allowbreak{}g\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}n\allowbreak{}g} 存储时，强制降维：
+\NotebookMath{a^b \equiv a^{b \pmod{\phi(m)} + \phi(m)} \pmod m \quad (\text{前提: } b \ge \phi(m))}
+\NotebookMath{a^b \equiv a^b \pmod m \quad (\text{前提: } b < \phi(m))}
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{求单个数的 $\phi$}：利用分解质因数，复杂度 $O(\sqrt{N})$。公式为 $N \times \prod(1 - \frac{1}{p})$。
+\item \textbf{求 $1 \sim N$ 的 $\phi$ 数组}：利用上述的\textbf{积性函数}结论配合线性筛，复杂度 $O(N)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 数论-欧拉定理扩展.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -2102,19 +2772,113 @@ void solve()
     */
 }
 \end{lstlisting}
+\subsection*{数论 - 莫比乌斯反演}
+\addcontentsline{toc}{subsection}{数论 - 莫比乌斯反演}
+% Source: 数学/数论-莫比乌斯反演_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{核心结论}\par\nobreak
+\begin{itemize}
+\item \textbf{莫比乌斯函数}：$\mu(1)=1$；含有平方质因子的数，$\mu(n)=0$；其余数若有 $t$ 个不同质因子，则 $\mu(n)=(-1)^t$。
+\item \textbf{约数求和}：$\sum_{d\mid n}\mu(d)$ 在 $n=1$ 时为 $1$，在 $n>1$ 时为 $0$。例如 $\mu(6)=1$、$\mu(12)=0$。
+\item \textbf{反演公式}：若 $F(n)=\sum_{d\mid n}f(d)$，则 $f(n)=\sum_{d\mid n}\mu(d)F(n/d)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{itemize}
+\item \textbf{初始化}：调用 \texttt{i\allowbreak{}n\allowbreak{}i\allowbreak{}t\allowbreak{}(\allowbreak{}N\allowbreak{})}，线性筛出 $1\sim N$ 的 \texttt{m\allowbreak{}u}，同时计算前缀和 \texttt{s\allowbreak{}u}；\texttt{N} 为正整数，且至少覆盖后续调用中最大的 \texttt{m\allowbreak{}i\allowbreak{}n\allowbreak{}(\allowbreak{}n\allowbreak{},\allowbreak{}m\allowbreak{})}。多次查询可以统一预处理一次。
+\item \textbf{统计互质数对}：调用 \texttt{c\allowbreak{}a\allowbreak{}l\allowbreak{}(\allowbreak{}n\allowbreak{},\allowbreak{}m\allowbreak{})}，返回满足 $1\le a\le n$、$1\le b\le m$、$\gcd(a,b)=1$ 的有序数对数量。例如 \texttt{c\allowbreak{}a\allowbreak{}l\allowbreak{}(\allowbreak{}6\allowbreak{},\allowbreak{}6\allowbreak{})} 返回 \texttt{2\allowbreak{}3}，其中 \texttt{(\allowbreak{}1\allowbreak{},\allowbreak{}2\allowbreak{})} 与 \texttt{(\allowbreak{}2\allowbreak{},\allowbreak{}1\allowbreak{})} 分别计数。
+\item \textbf{统计最大公约数为 k 的数对}：先令 \texttt{n\allowbreak{}/\allowbreak{}=\allowbreak{}k}、\texttt{m\allowbreak{}/\allowbreak{}=\allowbreak{}k}，再调用 \texttt{c\allowbreak{}a\allowbreak{}l\allowbreak{}(\allowbreak{}n\allowbreak{},\allowbreak{}m\allowbreak{})}。代码中的 \texttt{s\allowbreak{}o\allowbreak{}l\allowbreak{}v\allowbreak{}e\allowbreak{}(\allowbreak{})} 读入正整数 \texttt{n\allowbreak{},\allowbreak{}m\allowbreak{},\allowbreak{}k} 并输出结果；缩小后的任意范围为 $0$ 时，直接输出 $0$。
+\end{itemize}
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+init(min(n,m)); // 预处理本次互质计数所需的范围
+int an=cal(n,m); // 统计两个范围内的互质有序数对
+\end{lstlisting}
+
+\par\addvspace{0.7ex}\noindent\textbf{计数原理}\par\nobreak
+利用约数求和性质，对每个数对枚举其公约数 $d$：互质时贡献 $1$，不互质时总贡献为 $0$。交换求和顺序后得到：\par
+\NotebookMath{\operatorname{cal}(n,m)=\sum_{d=1}^{\min(n,m)}\mu(d)\left\lfloor\frac{n}{d}\right\rfloor\left\lfloor\frac{m}{d}\right\rfloor}
+固定区间左端点 \texttt{l}，令 \texttt{x\allowbreak{}=\allowbreak{}n\allowbreak{}/\allowbreak{}l}、\texttt{y\allowbreak{}=\allowbreak{}m\allowbreak{}/\allowbreak{}l}，则两个商同时不变的最远右端点为 \texttt{r\allowbreak{}=\allowbreak{}m\allowbreak{}i\allowbreak{}n\allowbreak{}(\allowbreak{}n\allowbreak{}/\allowbreak{}x\allowbreak{},\allowbreak{}m\allowbreak{}/\allowbreak{}y\allowbreak{})}。这一段的贡献合并为 \texttt{(\allowbreak{}s\allowbreak{}u\allowbreak{}[\allowbreak{}r\allowbreak{}]\allowbreak{}-\allowbreak{}s\allowbreak{}u\allowbreak{}[\allowbreak{}l\allowbreak{}-\allowbreak{}1\allowbreak{}]\allowbreak{})\allowbreak{}*\allowbreak{}x\allowbreak{}*\allowbreak{}y}，然后跳到 \texttt{r\allowbreak{}+\allowbreak{}1}。\par
+\par\addvspace{0.7ex}\noindent\textbf{复杂度}\par\nobreak
+\begin{itemize}
+\item \textbf{预处理}：时间 $O(N)$，空间 $O(N)$。
+\item \textbf{单次查询}：整除分块，时间 $O(\sqrt n+\sqrt m)$，额外空间 $O(1)$；这里的 $n,m$ 为传入 \texttt{c\allowbreak{}a\allowbreak{}l} 的范围。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 数论-莫比乌斯反演.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+vector<int>mu,pri,su,st; // mu为莫比乌斯函数，pri存质数，su为mu的前缀和，st标记合数
+void init(int n)
+{
+    mu.assign(n+1,0); // 初始化mu
+    st.assign(n+1,0); // 初始化合数标记
+    su.assign(n+1,0); // 初始化前缀和，su[0]=0
+    pri.clear(); // 清空质数，支持重复调用
+    mu[1]=1; // 特殊定义：mu(1)=1
+    for(int i=2;i<=n;i++)
+    {
+        if(!st[i]) // 没有被更小的数筛到，说明i是质数
+        {
+            pri.push_back(i); // 记录质数，保持从小到大
+            mu[i]=-1; // 只有一个质因子，所以mu(i)=-1
+        }
+        for(auto p:pri) // 用质数p筛出合数i*p
+        {
+            if(p>n/i)break; // 等价于i*p>n，同时避免乘法溢出
+            st[i*p]=1; // 标记i*p为合数
+            if(i%p==0) // i已经含有p，再乘p就含有p²
+            {
+                mu[i*p]=0; // 含有平方质因子，mu为0
+                break; // 保证每个合数只由它的最小质因子筛一次
+            }
+            mu[i*p]=-mu[i]; // 新增一个不同质因子，正负翻转；原来为0则仍为0
+        }
+    }
+    for(int i=1;i<=n;i++)su[i]=su[i-1]+mu[i]; // 区间mu之和为su[r]-su[l-1]
+}
+int cal(int n,int m) // 统计1<=a<=n、1<=b<=m且gcd(a,b)=1的有序数对
+{
+    int an=0,lim=min(n,m); // 公约数d不会超过两个范围的较小值
+    for(int l=1,r;l<=lim;l=r+1) // 每次处理一段两个商都不变的区间
+    {
+        int x=n/l,y=m/l; // 当前区间内，两个范围中d的倍数分别有x、y个
+        r=min(n/x,m/y); // 两个商分别不变到n/x、m/y，取较小的右端点
+        an+=(su[r]-su[l-1])*x*y; // 合并这一段的mu[d]*(n/d)*(m/d)
+    }
+    return an; // 互质数对最终贡献1，不互质数对的容斥贡献抵消为0
+}
+void solve()
+{
+    int n,m,k;
+    cin>>n>>m>>k; // 输入正整数n、m、k，要求gcd(a,b)=k
+    n/=k; // 令a=k*x，则1<=x<=原来的n/k
+    m/=k; // 令b=k*y，原条件等价于gcd(x,y)=1
+    if(!n||!m) // 某个范围内没有正的k的倍数
+    {
+        cout<<0<<endl;
+        return;
+    }
+    init(min(n,m)); // 只需预处理求和中会用到的mu
+    cout<<cal(n,m)<<endl; // 输入6 6 1时，输出23
+}
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    solve();
+}
+\end{lstlisting}
 \subsection*{数论 - 整除分块 (数论分块)}
 \addcontentsline{toc}{subsection}{数论 - 整除分块 (数论分块)}
-\noindent\textbf{数论 - 整除分块 (数论分块)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：快速计算形如 $\sum_{i=1}^n \lfloor \frac{k}{i} \rfloor$ 的区间取整求和问题。 \\
-* \textbf{时间复杂度}：$O(\sqrt{n})$。 \\
-* \textbf{适用场景}：适用于 $n$ 极大（如 $10^9$ 级别）导致 $O(n)$ 遍历超时的情况。利用 $\lfloor \frac{k}{i} \rfloor$ 取值成块连续相同的特性，每次直接计算并跳过一整段区间，极大提升效率。常作为莫比乌斯反演、杜教筛的底层组件。 \\
-\noindent\texttt{\scriptsize File: 整除分块.cpp}
-\begin{lstlisting}
+% Source: 数学/整除分块_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：快速计算形如 $\sum_{i=1}^n \lfloor \frac{k}{i} \rfloor$ 的区间取整求和问题。
+\item \textbf{时间复杂度}：$O(\sqrt{n})$。
+\item \textbf{适用场景}：适用于 $n$ 极大（如 $10^9$ 级别）导致 $O(n)$ 遍历超时的情况。利用 $\lfloor \frac{k}{i} \rfloor$ 取值成块连续相同的特性，每次直接计算并跳过一整段区间，极大提升效率。常作为莫比乌斯反演、杜教筛的底层组件。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 整除分块.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 void solve()
@@ -2132,21 +2896,19 @@ void solve()
 \end{lstlisting}
 \subsection*{数学 - 矩阵运算全家桶 (无重载 N*M 版)}
 \addcontentsline{toc}{subsection}{数学 - 矩阵运算全家桶 (无重载 N*M 版)}
-\noindent\textbf{数学 - 矩阵运算全家桶 (无重载 N*M 版)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：任意维度矩阵的加、减、乘，以及方阵的求逆。采用普通函数调用，逻辑清晰，不易与基本数据类型混淆。 \\
-* \textbf{复杂度}：乘法 $O(N \times M \times P)$，求逆 $O(N^3)$。 \\
-* \textbf{避坑}： \\
-* 调用 \texttt{mul(A, B)} 时，必须保证 \texttt{A.c == B.r}，否则乘法无意义（代码中默认保证合法，无断言以追求极限常数）。 \\
-* 调用 \texttt{inv(A)} 时，\texttt{A} 必须是方阵。不可逆时返回空矩阵。 \\
-
-
-
-
-\noindent\texttt{\scriptsize File: 矩阵1运算.cpp}
-\begin{lstlisting}
+% Source: 数学/矩阵1运算_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：任意维度矩阵的加、减、乘，以及方阵的求逆。采用普通函数调用，逻辑清晰，不易与基本数据类型混淆。
+\item \textbf{复杂度}：乘法 $O(N \times M \times P)$，求逆 $O(N^3)$。
+\item \textbf{避坑}：
+\begin{itemize}
+\item 调用 \texttt{m\allowbreak{}u\allowbreak{}l\allowbreak{}(\allowbreak{}A\allowbreak{},\allowbreak{} \allowbreak{}B\allowbreak{})} 时，必须保证 \texttt{A\allowbreak{}.\allowbreak{}c\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}B\allowbreak{}.\allowbreak{}r}，否则乘法无意义（代码中默认保证合法，无断言以追求极限常数）。
+\item 调用 \texttt{i\allowbreak{}n\allowbreak{}v\allowbreak{}(\allowbreak{}A\allowbreak{})} 时，\texttt{A} 必须是方阵。不可逆时返回空矩阵。
+\end{itemize}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 矩阵1运算.cpp}}\par
+\begin{lstlisting}[language=C++]
 
 #include<bits/stdc++.h>
 using namespace std;
@@ -2265,7 +3027,7 @@ Mat inv(Mat a)
     return res;
 }
 
-/* 💡 使用提示：
+/*  使用提示：
 计算 (A + B) * C：
 Mat ans = mul(add(A, B), C);
 
@@ -2275,15 +3037,15 @@ Mat ans = mul(A, inv(B));
 \end{lstlisting}
 \subsection*{矩阵与递推 - 矩阵快速幂}
 \addcontentsline{toc}{subsection}{矩阵与递推 - 矩阵快速幂}
-\noindent\textbf{矩阵与递推 - 矩阵快速幂} \\
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：快速求解线性递推数列的第 $n$ 项（如斐波那契数列、方案数统计等），以及图论中求解定长路径的方案数。 \\
-* \textbf{时间复杂度}：$O(M^3 \log k)$，其中 $M$ 为矩阵的大小（状态维度），$k$ 为递推的项数或幂次。 \\
-* \textbf{适用场景}：适用于递推项数极大（如 $k \ge 10^{18}$）且状态转移呈线性的场景。纯全局数组写法避开了 \texttt{struct} 和运算符重载的开销，结合了极其关键的 \texttt{if(!A[i][k]) continue;} 稀疏矩阵常数剪枝，运行极快。 \\
-\noindent\texttt{\scriptsize File: 矩阵快速幂.cpp}
-\begin{lstlisting}
+% Source: 数学/矩阵快速幂_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：快速求解线性递推数列的第 $n$ 项（如斐波那契数列、方案数统计等），以及图论中求解定长路径的方案数。
+\item \textbf{时间复杂度}：$O(M^3 \log k)$，其中 $M$ 为矩阵的大小（状态维度），$k$ 为递推的项数或幂次。
+\item \textbf{适用场景}：适用于递推项数极大（如 $k \ge 10^{18}$）且状态转移呈线性的场景。纯全局数组写法避开了 \texttt{s\allowbreak{}t\allowbreak{}r\allowbreak{}u\allowbreak{}c\allowbreak{}t} 和运算符重载的开销，结合了极其关键的 \texttt{i\allowbreak{}f\allowbreak{}(\allowbreak{}!\allowbreak{}A\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{}[\allowbreak{}k\allowbreak{}]\allowbreak{})\allowbreak{} \allowbreak{}c\allowbreak{}o\allowbreak{}n\allowbreak{}t\allowbreak{}i\allowbreak{}n\allowbreak{}u\allowbreak{}e\allowbreak{};} 稀疏矩阵常数剪枝，运行极快。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 矩阵快速幂.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 const int N = 4;
@@ -2335,17 +3097,15 @@ int main()
 \end{lstlisting}
 \subsection*{数据结构 - 异或线性基 (XOR Linear Basis)}
 \addcontentsline{toc}{subsection}{数据结构 - 异或线性基 (XOR Linear Basis)}
-\noindent\textbf{数据结构 - 异或线性基 (XOR Linear Basis)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：处理异或空间问题。能在 $O(\log V)$ 时间内插入元素，支持查询原数组子集的最大异或和、最小异或和、第 $k$ 小异或和，以及判断某个数能否被子集异或表示。 \\
-* \textbf{核心性质}：线性基中的元素互相异或绝对得不到 0；\texttt{d[i]} 存在时，其二进制最高位必然是第 $i$ 位。 \\
-* \textbf{避坑指南}：求第 $k$ 小前\textbf{必须}调用 \texttt{rebuild()} 进行高斯消元对角化；判断位运算时必须写 \texttt{(x>>i)\&1}。 \\
-\noindent\texttt{\scriptsize File: 线性代数-线性基.cpp}
-\begin{lstlisting}
+% Source: 数学/线性代数-线性基_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：处理异或空间问题。能在 $O(\log V)$ 时间内插入元素，支持查询原数组子集的最大异或和、最小异或和、第 $k$ 小异或和，以及判断某个数能否被子集异或表示。
+\item \textbf{核心性质}：线性基中的元素互相异或绝对得不到 0；\texttt{d\allowbreak{}[\allowbreak{}i\allowbreak{}]} 存在时，其二进制最高位必然是第 $i$ 位。
+\item \textbf{避坑指南}：求第 $k$ 小前\textbf{必须}调用 \texttt{r\allowbreak{}e\allowbreak{}b\allowbreak{}u\allowbreak{}i\allowbreak{}l\allowbreak{}d\allowbreak{}(\allowbreak{})} 进行高斯消元对角化；判断位运算时必须写 \texttt{(\allowbreak{}x\allowbreak{}\textgreater{}\allowbreak{}\textgreater{}\allowbreak{}i\allowbreak{})\allowbreak{}\&\allowbreak{}1}。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 线性代数-线性基.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -2441,24 +3201,24 @@ int kth(int k)
 \end{lstlisting}
 \subsection*{组合数学 - 卡特兰数 (Catalan Number)}
 \addcontentsline{toc}{subsection}{组合数学 - 卡特兰数 (Catalan Number)}
-\noindent\textbf{组合数学 - 卡特兰数 (Catalan Number)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：用于解决在特定规则下，两种操作数量始终满足偏序关系的计数问题。 \\
-* \textbf{时间复杂度}：预处理阶乘与逆元 $O(N)$，单次查询 $O(1)$。 \\
-* \textbf{适用场景}：题目模型可转化为两种互相抵消的操作（如 $+1$ 和 $-1$），且限制任意时刻的前缀和必须 $\ge 0$ 时。核心是 \textbf{容斥原理 + 折线法（翻转法）}，推导出公式 $C_n = \binom{2n}{n} - \binom{2n}{n-1} = \frac{1}{n+1} \binom{2n}{n}$。 \\
-* \textbf{常见模型}： \\
-1. \textbf{括号匹配}：$n$ 对括号，合法的括号序列总数。 \\
-2. \textbf{出栈序列}：长度为 $n$ 的序列依次进栈，不同的合法出栈序列总数。 \\
-3. \textbf{网格路径}：从 $(0,0)$ 到 $(n,n)$，只能向右或向上走，且不越过对角线 $y=x$ 的路径总数。 \\
-4. \textbf{二叉树形态}：$n$ 个结点的二叉树，共有多少种不同的形态。 \\
-5. \textbf{多边形剖分}：凸 $n+2$ 边形通过对角线划分为三角形的方案数。 \\
-6. \textbf{找零问题}：$n$ 个人拿 50 元，$n$ 个人拿 100 元排队买票，售票员不会找不开钱的排队方案数。 \\
-\noindent\texttt{\scriptsize File: 组合数学-卡特兰数.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-卡特兰数_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：用于解决“在特定规则下，两种操作数量始终满足偏序关系”的计数问题。
+\item \textbf{时间复杂度}：预处理阶乘与逆元 $O(N)$，单次查询 $O(1)$。
+\item \textbf{适用场景}：题目模型可转化为两种互相抵消的操作（如 $+1$ 和 $-1$），且限制任意时刻的前缀和必须 $\ge 0$ 时。核心是 \textbf{容斥原理 + 折线法（翻转法）}，推导出公式 $C_n = \binom{2n}{n} - \binom{2n}{n-1} = \frac{1}{n+1} \binom{2n}{n}$。
+\item \textbf{常见模型}：
+\begin{enumerate}[start=1]
+\item \textbf{括号匹配}：$n$ 对括号，合法的括号序列总数。
+\item \textbf{出栈序列}：长度为 $n$ 的序列依次进栈，不同的合法出栈序列总数。
+\item \textbf{网格路径}：从 $(0,0)$ 到 $(n,n)$，只能向右或向上走，且不越过对角线 $y=x$ 的路径总数。
+\item \textbf{二叉树形态}：$n$ 个结点的二叉树，共有多少种不同的形态。
+\item \textbf{多边形剖分}：凸 $n+2$ 边形通过对角线划分为三角形的方案数。
+\item \textbf{找零问题}：$n$ 个人拿 50 元，$n$ 个人拿 100 元排队买票，售票员不会找不开钱的排队方案数。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-卡特兰数.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include <iostream>
 using namespace std;
 
@@ -2524,17 +3284,15 @@ signed main(){
 \end{lstlisting}
 \subsection*{组合数学 - 多重集组合数}
 \addcontentsline{toc}{subsection}{组合数学 - 多重集组合数}
-\noindent\textbf{组合数学 - 多重集组合数} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：有 $k$ 种物品，第 $i$ 种最多选 $n_i$ 个，求一共选 $r$ 个的方案数。 \\
-* \textbf{时间复杂度}：$O(2^k \cdot k)$。 \\
-* \textbf{适用场景}：种类 $k$ 极小（$k \le 20$），总数 $r$ 极大（无法用多重背包 DP）时。核心是 \textbf{容斥原理 + 隔板法}。 \\
-\noindent\texttt{\scriptsize File: 组合数学-多重组合数.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-多重组合数_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：有 $k$ 种物品，第 $i$ 种最多选 $n_i$ 个，求一共选 $r$ 个的方案数。
+\item \textbf{时间复杂度}：$O(2^k \cdot k)$。
+\item \textbf{适用场景}：种类 $k$ 极小（$k \le 20$），总数 $r$ 极大（无法用多重背包 DP）时。核心是 \textbf{容斥原理 + 隔板法}。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-多重组合数.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>>
 using namespace std;
 using namespace std;
@@ -2591,22 +3349,94 @@ int mulC(int k,int r,vector<int>&cn)
     return ans;
 }
 \end{lstlisting}
+\subsection*{组合数学 - 广义卡特兰数}
+\addcontentsline{toc}{subsection}{组合数学 - 广义卡特兰数}
+% Source: 数学/组合数学-广义卡特兰数_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{计数的问题}\par\nobreak
+余额从0开始，安排下面两种操作的顺序：\par
+\begin{itemize}
+\item \textbf{A：加1}，共 \texttt{(\allowbreak{}k\allowbreak{}-\allowbreak{}1\allowbreak{})\allowbreak{}*\allowbreak{}n} 次。
+\item \textbf{B：减去k-1}，共 \texttt{n} 次。
+\item \textbf{要求}：任何时刻余额都不能为负。同类操作不区分，问有多少种合法顺序。
+\end{itemize}
+当 \texttt{k\allowbreak{}=\allowbreak{}2} 时，两种操作就是 \texttt{+\allowbreak{}1\allowbreak{}、\allowbreak{}-\allowbreak{}1}，退化为普通卡特兰数。一般的答案为：\par
+\NotebookMath{F_k(n)=\frac{1}{(k-1)n+1}\binom{kn}{n}}
+\par\addvspace{0.7ex}\noindent\textbf{一个例子}\par\nobreak
+\texttt{n\allowbreak{}=\allowbreak{}2\allowbreak{}、\allowbreak{}k\allowbreak{}=\allowbreak{}3}：4次加1、2次减2，合法顺序有3种：\par
+\begin{lstlisting}[language={},numbers=none,basicstyle=\footnotesize\ttfamily]
+AAAABB
+AAABAB
+AABAAB
+\end{lstlisting}
+
+例如 \texttt{A\allowbreak{}A\allowbreak{}B\allowbreak{}A\allowbreak{}A\allowbreak{}B} 的余额依次为 \texttt{1\allowbreak{}、\allowbreak{}2\allowbreak{}、\allowbreak{}0\allowbreak{}、\allowbreak{}1\allowbreak{}、\allowbreak{}2\allowbreak{}、\allowbreak{}0}，始终非负；以 \texttt{A\allowbreak{}B} 开头则会变成 \texttt{1\allowbreak{}、\allowbreak{}-\allowbreak{}1}，不合法。\par
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+init(6); // 预处理到最大k*n，范围小于固定质数模1e9+7
+int a=catalan(2); // k默认是2，答案2
+int b=catalan(2,3); // 对应上例，答案3
+\end{lstlisting}
+
+要求 \texttt{n\allowbreak{}\textgreater{}\allowbreak{}=\allowbreak{}0\allowbreak{}、\allowbreak{}k\allowbreak{}\textgreater{}\allowbreak{}=\allowbreak{}2}，结果对 \texttt{1\allowbreak{}e\allowbreak{}9\allowbreak{}+\allowbreak{}7} 取模。预处理 $O(M+\log mod)$，单次计算 $O(\log mod)$，空间 $O(M)$。\par
+参考：广义卡特兰公式 (\texttt{h\allowbreak{}t\allowbreak{}t\allowbreak{}p\allowbreak{}s\allowbreak{}:\allowbreak{}/\allowbreak{}/\allowbreak{}a\allowbreak{}r\allowbreak{}x\allowbreak{}i\allowbreak{}v\allowbreak{}.\allowbreak{}o\allowbreak{}r\allowbreak{}g\allowbreak{}/\allowbreak{}a\allowbreak{}b\allowbreak{}s\allowbreak{}/\allowbreak{}0\allowbreak{}7\allowbreak{}1\allowbreak{}1\allowbreak{}.\allowbreak{}0\allowbreak{}9\allowbreak{}0\allowbreak{}6})。\par
+\par\noindent{\scriptsize\texttt{File: 组合数学-广义卡特兰数.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int mod=1e9+7;
+vector<int>fac,inv; // 阶乘、阶乘的逆元
+
+int qpow(int a,int b)
+{
+    int an=1;
+    while(b)
+    {
+        if(b&1)an=an*a%mod;
+        a=a*a%mod;
+        b>>=1;
+    }
+    return an;
+}
+
+void init(int n) // 预处理到最大k*n，预处理范围小于mod
+{
+    fac.assign(n+1,1);
+    inv.assign(n+1,1);
+    for(int i=1;i<=n;i++)fac[i]=fac[i-1]*i%mod;
+    inv[n]=qpow(fac[n],mod-2);
+    for(int i=n;i>=1;i--)inv[i-1]=inv[i]*i%mod;
+}
+
+int C(int n,int m)
+{
+    if(m<0||m>n)return 0;
+    return fac[n]*inv[m]%mod*inv[n-m]%mod;
+}
+
+int catalan(int n,int k=2) // 广义卡特兰数，n>=0、k>=2，提前预处理到k*n
+{
+    return C(k*n,n)*qpow((k-1)*n+1,mod-2)%mod; // C(k*n,n)/((k-1)*n+1)，k=2即普通卡特兰数
+}
+\end{lstlisting}
 \subsection*{组合数学 - k 部分拆数 (k-Part Integer Partition)}
 \addcontentsline{toc}{subsection}{组合数学 - k 部分拆数 (k-Part Integer Partition)}
-\noindent\textbf{组合数学 - k 部分拆数 (k-Part Integer Partition)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：求将自然数 $n$ 分拆为恰好 $k$ 个正整数之和的方案数（不考虑顺序）。 \\
-* \textbf{时间复杂度}：全局预处理 $O(n \cdot k)$，单次查询 $O(1)$。 \\
-* \textbf{核心推导}：将分拆方案分为两类： \\
-1. \textbf{至少包含一个 1}：将这个 1 拿走，等价于把 $n-1$ 拆分成 $k-1$ 个部分，方案数为 $p(n-1, k-1)$。 \\
-2. \textbf{所有部分都 $\ge 2$}：将这 $k$ 个部分每个都减去 1（总共减去 $k$），剩下的每个数依然 $\ge 1$，等价于把 $n-k$ 拆分成 $k$ 个部分，方案数为 $p(n-k, k)$。 \\
-* \textbf{状态转移方程}：$p(n, k) = p(n-1, k-1) + p(n-k, k)$ \\
-\noindent\texttt{\scriptsize File: 组合数学-拆分数.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-拆分数_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求将自然数 $n$ 分拆为恰好 $k$ 个正整数之和的方案数（不考虑顺序）。
+\item \textbf{时间复杂度}：全局预处理 $O(n \cdot k)$，单次查询 $O(1)$。
+\item \textbf{核心推导}：将分拆方案分为两类：
+\begin{enumerate}[start=1]
+\item \textbf{至少包含一个 1}：将这个 1 拿走，等价于把 $n-1$ 拆分成 $k-1$ 个部分，方案数为 $p(n-1, k-1)$。
+\item \textbf{所有部分都 $\ge 2$}：将这 $k$ 个部分每个都减去 1（总共减去 $k$），剩下的每个数依然 $\ge 1$，等价于把 $n-k$ 拆分成 $k$ 个部分，方案数为 $p(n-k, k)$。
+\end{enumerate}
+\item \textbf{状态转移方程}：$p(n, k) = p(n-1, k-1) + p(n-k, k)$
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-拆分数.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include <iostream>
 #include <cstring>
 using namespace std;
@@ -2648,21 +3478,21 @@ void solve(){
 \end{lstlisting}
 \subsection*{组合数学 - 互异分拆数 (Distinct Integer Partition)}
 \addcontentsline{toc}{subsection}{组合数学 - 互异分拆数 (Distinct Integer Partition)}
-\noindent\textbf{组合数学 - 互异分拆数 (Distinct Integer Partition)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：求将自然数 $n$ 分拆为若干个\textbf{互不相同}的正整数之和的方案数。 \\
-* \textbf{时间复杂度}：利用分拆部分数的上限约为 $\sqrt{2n}$，时间复杂度降至 $O(n \sqrt{n})$。使用滚动数组优化，空间复杂度为 $O(n)$。 \\
-* \textbf{核心推导}：假设把 $n$ 拆成 $k$ 个互不相同的部分，将其从大到小排列 $r_1 > r_2 > \dots > r_k \ge 1$。 \\
-给这 $k$ 个数\textbf{同时减去 1}（总共减去 $k$），它们依然严格递减： \\
-1. 如果原本最小的数 $r_k = 1$，减 1 后变成 0（消失了），剩下 $k-1$ 堆互不相同的数。方案数为 $pd(n-k, k-1)$。 \\
-2. 如果原本最小的数 $r_k \ge 2$，减 1 后 $\ge 1$（没消失），依然是 $k$ 堆互不相同的数。方案数为 $pd(n-k, k)$。 \\
-* \textbf{状态转移方程}：$pd(n, k) = pd(n-k, k-1) + pd(n-k, k)$ \\
-\noindent\texttt{\scriptsize File: 组合数学-拆分数互异.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-拆分数互异_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求将自然数 $n$ 分拆为若干个\textbf{互不相同}的正整数之和的方案数。
+\item \textbf{时间复杂度}：利用分拆部分数的上限约为 $\sqrt{2n}$，时间复杂度降至 $O(n \sqrt{n})$。使用滚动数组优化，空间复杂度为 $O(n)$。
+\item \textbf{核心推导}：假设把 $n$ 拆成 $k$ 个互不相同的部分，将其从大到小排列 $r_1 > r_2 > \dots > r_k \ge 1$。
+给这 $k$ 个数\textbf{同时减去 1}（总共减去 $k$），它们依然严格递减：\par
+\begin{enumerate}[start=1]
+\item 如果原本最小的数 $r_k = 1$，减 1 后变成 0（消失了），剩下 $k-1$ 堆互不相同的数。方案数为 $pd(n-k, k-1)$。
+\item 如果原本最小的数 $r_k \ge 2$，减 1 后 $\ge 1$（没消失），依然是 $k$ 堆互不相同的数。方案数为 $pd(n-k, k)$。
+\end{enumerate}
+\item \textbf{状态转移方程}：$pd(n, k) = pd(n-k, k-1) + pd(n-k, k)$
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-拆分数互异.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include <iostream>
 #include <cstring>
 using namespace std;
@@ -2705,15 +3535,15 @@ void solve(){
 \end{lstlisting}
 \subsection*{数学 - 斐波那契快速倍增法 (Fast Doubling)}
 \addcontentsline{toc}{subsection}{数学 - 斐波那契快速倍增法 (Fast Doubling)}
-\noindent\textbf{数学 - 斐波那契快速倍增法 (Fast Doubling)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：在 $O(\log N)$ 时间复杂度内，求出斐波那契数列的第 $N$ 项对特定模数取模的结果，常数极小，全面碾压矩阵快速幂。 \\
-* \textbf{时间复杂度}：$O(\log N)$。 \\
-* \textbf{核心思想}：利用分治思想与恒等式 $F_{2k} = F_k(2F_{k+1} - F_k)$ 和 $F_{2k+1} = F_k^2 + F_{k+1}^2$，每次将所求项的下标减半，递归求解。 \\
-\noindent\texttt{\scriptsize File: 组合数学-斐波那.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-斐波那_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在 $O(\log N)$ 时间复杂度内，求出斐波那契数列的第 $N$ 项对特定模数取模的结果，常数极小，全面碾压矩阵快速幂。
+\item \textbf{时间复杂度}：$O(\log N)$。
+\item \textbf{核心思想}：利用分治思想与恒等式 $F_{2k} = F_k(2F_{k+1} - F_k)$ 和 $F_{2k+1} = F_k^2 + F_{k+1}^2$，每次将所求项的下标减半，递归求解。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-斐波那.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 using PII = pair<int,int>;
@@ -2734,22 +3564,22 @@ PII fib(int n)
 \end{lstlisting}
 \subsection*{组合数学 - 斯特林数 (Stirling Number)}
 \addcontentsline{toc}{subsection}{组合数学 - 斯特林数 (Stirling Number)}
-\noindent\textbf{组合数学 - 斯特林数 (Stirling Number)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：解决两类经典的元素划分排列问题，并在多项式推导中用于普通幂与阶乘幂的相互转化。 \\
-1. \textbf{第二类斯特林数} $S(n,k)$ 或 $\begin{Bmatrix} n \\ k \end{Bmatrix}$：将 $n$ 个\textbf{两两不同}的元素，划分到 $k$ 个\textbf{互不区分}且\textbf{非空}的\textbf{集合}（分宿舍问题，不看顺序）。 \\
-2. \textbf{第一类斯特林数} $s(n,k)$ 或 $\begin{bmatrix} n \\ k \end{bmatrix}$：将 $n$ 个\textbf{两两不同}的元素，划分成 $k$ 个\textbf{互不区分}且\textbf{非空}的\textbf{轮换}（圆桌会议问题，旋转视为同一种，翻转视为不同）。 \\
-* \textbf{时间复杂度}： \\
-* \textbf{预处理 DP 表}：$O(N^2)$，适用于 $N, K \le 5000$ 的频繁查询。 \\
-* \textbf{求单个第二类斯特林数}：$O(K \log N)$，适用于 $N$ 极大（如 $10^9$），$K \le 10^5$ 的单次计算。 \\
-
-
-
-
-\noindent\texttt{\scriptsize File: 组合数学-斯特林数.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-斯特林数_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：解决两类经典的元素划分排列问题，并在多项式推导中用于普通幂与阶乘幂的相互转化。
+\begin{enumerate}[start=1]
+\item \textbf{第二类斯特林数} $S(n,k)$ 或 $\begin{Bmatrix} n \\ k \end{Bmatrix}$：将 $n$ 个\textbf{两两不同}的元素，划分到 $k$ 个\textbf{互不区分}且\textbf{非空}的\textbf{集合}（分宿舍问题，不看顺序）。
+\item \textbf{第一类斯特林数} $s(n,k)$ 或 $\begin{bmatrix} n \\ k \end{bmatrix}$：将 $n$ 个\textbf{两两不同}的元素，划分成 $k$ 个\textbf{互不区分}且\textbf{非空}的\textbf{轮换}（圆桌会议问题，旋转视为同一种，翻转视为不同）。
+\end{enumerate}
+\item \textbf{时间复杂度}：
+\begin{itemize}
+\item \textbf{预处理 DP 表}：$O(N^2)$，适用于 $N, K \le 5000$ 的频繁查询。
+\item \textbf{求单个第二类斯特林数}：$O(K \log N)$，适用于 $N$ 极大（如 $10^9$），$K \le 10^5$ 的单次计算。
+\end{itemize}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-斯特林数.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include <iostream>
 using namespace std;
 
@@ -2828,47 +3658,32 @@ void solve(){
 \end{lstlisting}
 \subsection*{数学 - 范德蒙德卷积 (Vandermonde's Convolution)}
 \addcontentsline{toc}{subsection}{数学 - 范德蒙德卷积 (Vandermonde's Convolution)}
-Markdown \\
-\noindent\textbf{数学 - 范德蒙德卷积 (Vandermonde's Convolution)} \\
-
-
-\noindent\textbf{解决什么实际问题 (实战映射)} \\
-在算竞的组合数学与期望 DP 中，当你遇到以下情况时，直接祭出范德蒙德卷积： \\
-1. \textbf{$O(N)$ 暴力求和化 $O(1)$ 的化简神器}：题目让你求一个长得像 $\sum C(n, i) \times C(m, k-i)$ 的式子，如果暴力循环求和会 TLE，利用范德蒙德卷积可以直接把它压缩成\textbf{一个组合数}，做到 $O(1)$ 极速求解。 \\
-2. \textbf{多项式系数合并}：在推导生成函数或多项式乘法 $(1+x)^n \times (1+x)^m$ 的某一项系数时，范德蒙德卷积是其在组合意义上的等价表达。 \\
-3. \textbf{分堆选人的组合背景}：例如班里有 $N$ 个男生 $M$ 个女生，要选出 $K$ 个人，求各种男女比例情况下的方案数总和，利用它的组合意义瞬间秒杀。 \\
-
-
-\noindent\textbf{核心结论与数学性质 (实战必背)} \\
-所有的范德蒙德卷积，本质上都是在讲一句话：\textbf{从 $n$ 里面选 $i$ 个，再从 $m$ 里面选 $k-i$ 个，穷举所有的 $i$，就等同于直接把 $n$ 和 $m$ 倒在一起，从 $n+m$ 里面选 $k$ 个。} \\
-
-
-1. \textbf{基础公式 (标准范德蒙德卷积)}： \\
-$$\sum_{i=0}^k \binom{n}{i} \binom{m}{k-i} = \binom{n+m}{k}$$ \\
-*(注：当 $i > n$ 或 $k-i > m$ 时，组合数为 0，不影响等式成立)* \\
-
-
-2. \textbf{平方和推论 (极为高频)}： \\
-当 $n = m = k$ 时，配合 $\binom{n}{i} = \binom{n}{n-i}$，可以推导出组合数的平方和公式： \\
-$$\sum_{i=0}^n \binom{n}{i}^2 = \sum_{i=0}^n \binom{n}{i} \binom{n}{n-i} = \binom{2n}{n}$$ \\
-\textbf{实战映射}：遇到 $\sum C(n, i)^2$，直接输出 $C(2n, n)$！ \\
-
-
-3. \textbf{错位平移推论 (进阶版)}： \\
-$$\sum_{i=0}^{\min(n, m-k)} \binom{n}{i} \binom{m}{i+k} = \binom{n+m}{n+k}$$ \\
-\textbf{推导技巧}：利用对称性把第一项变成 $\binom{n}{n-i}$，此时上下标之和 $(n-i) + (i+k) = n+k$ 变为定值，即可套用基础公式。 \\
-
-
-4. \textbf{多项式意义证明}： \\
-考虑等式 $(1+x)^n \times (1+x)^m = (1+x)^{n+m}$。 \\
-等式右边 $x^k$ 的系数是 $\binom{n+m}{k}$。 \\
-等式左边展开后，要凑出 $x^k$，必然是由前者的 $x^i$ 和后者的 $x^{k-i}$ 相乘得到。因此两边系数必须相等，得证。 \\
-
-
-
-
-\noindent\texttt{\scriptsize File: 组合数学-范德蒙德卷积.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-范德蒙德卷积_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{解决什么实际问题 (实战映射)}\par\nobreak
+在算竞的组合数学与期望 DP 中，当你遇到以下情况时，直接祭出范德蒙德卷积：\par
+\begin{enumerate}[start=1]
+\item \textbf{$O(N)$ 暴力求和化 $O(1)$ 的化简神器}：题目让你求一个长得像 $\sum C(n, i) \times C(m, k-i)$ 的式子，如果暴力循环求和会 TLE，利用范德蒙德卷积可以直接把它压缩成\textbf{一个组合数}，做到 $O(1)$ 极速求解。
+\item \textbf{多项式系数合并}：在推导生成函数或多项式乘法 $(1+x)^n \times (1+x)^m$ 的某一项系数时，范德蒙德卷积是其在组合意义上的等价表达。
+\item \textbf{“分堆选人”的组合背景}：例如“班里有 $N$ 个男生 $M$ 个女生，要选出 $K$ 个人，求各种男女比例情况下的方案数总和”，利用它的组合意义瞬间秒杀。
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{核心结论与数学性质 (实战必背)}\par\nobreak
+所有的范德蒙德卷积，本质上都是在讲一句话：\textbf{“从 $n$ 里面选 $i$ 个，再从 $m$ 里面选 $k-i$ 个，穷举所有的 $i$，就等同于直接把 $n$ 和 $m$ 倒在一起，从 $n+m$ 里面选 $k$ 个。”}\par
+\begin{enumerate}[start=1]
+\item \textbf{基础公式 (标准范德蒙德卷积)}：
+\NotebookMath{\sum_{i=0}^k \binom{n}{i} \binom{m}{k-i} = \binom{n+m}{k}}
+\textit{(注：当 $i > n$ 或 $k-i > m$ 时，组合数为 0，不影响等式成立)}\par
+\item \textbf{平方和推论 (极为高频)}：
+当 $n = m = k$ 时，配合 $\binom{n}{i} = \binom{n}{n-i}$，可以推导出组合数的平方和公式：\par
+\NotebookMath{\sum_{i=0}^n \binom{n}{i}^2 = \sum_{i=0}^n \binom{n}{i} \binom{n}{n-i} = \binom{2n}{n}}
+\textbf{实战映射}：遇到 $\sum C(n, i)^2$，直接输出 $C(2n, n)$！\par
+\item \textbf{错位平移推论 (进阶版)}：
+\NotebookMath{\sum_{i=0}^{\min(n, m-k)} \binom{n}{i} \binom{m}{i+k} = \binom{n+m}{n+k}}
+\textbf{推导技巧}：利用对称性把第一项变成 $\binom{n}{n-i}$，此时上下标之和 $(n-i) + (i+k) = n+k$ 变为定值，即可套用基础公式。\par
+\item \textbf{多项式意义证明}：
+考虑等式 $(1+x)^n \times (1+x)^m = (1+x)^{n+m}$。 等式右边 $x^k$ 的系数是 $\binom{n+m}{k}$。 等式左边展开后，要凑出 $x^k$，必然是由前者的 $x^i$ 和后者的 $x^{k-i}$ 相乘得到。因此两边系数必须相等，得证。\par
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 组合数学-范德蒙德卷积.cpp}}\par
+\begin{lstlisting}[language=C++]
 
 #include<bits/stdc++.h>
 using namespace std;
@@ -2958,20 +3773,22 @@ signed main()
 \end{lstlisting}
 \subsection*{数学 - 皮萨诺周期 (Pisano Period) 与超大数降维}
 \addcontentsline{toc}{subsection}{数学 - 皮萨诺周期 (Pisano Period) 与超大数降维}
-\noindent\textbf{数学 - 皮萨诺周期 (Pisano Period) 与超大数降维} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：当 $N$ 是高精度超大数（如长度达 $10^5$ 的数字串）时，求 $F_N \pmod m$。通过计算模 $m$ 下的周期 $P$，将原问题强行降维为 $F_{N \bmod P} \pmod m$。 \\
-* \textbf{时间复杂度}：求周期 $O(\sqrt{m})$，大数取模 $O(|N|)$，最后倍增求值 $O(\log m)$。 \\
-* \textbf{核心思想 (周期分类查表法则)}： \\
-斐波那契通项公式中包含 $\sqrt{5}$。在模质数 $p$ 的世界里，$\sqrt{5}$ 是否存在（二次剩余）决定了周期的长度。利用二次互反律，我们只需看 $p$ 除以 5 的余数（即个位特征）来查表： \\
-1. \textbf{特例}：$p=2$ 时基数为 $3$；$p=5$ 时基数为 $20$。 \\
-2. \textbf{第一派 ($p \pmod 5 = 1$ 或 $4$)}：即个位为 1 或 9。此时模 $p$ 意义下存在 $\sqrt{5}$，公式正常运转，周期基数取 \textbf{$p-1$}。 \\
-3. \textbf{第二派 ($p \pmod 5 = 2$ 或 $3$)}：即个位为 3 或 7。此时模 $p$ 意义下不存在 $\sqrt{5}$，进入二维扩域，周期基数取 \textbf{$2(p+1)$}。 \\
-将 $m$ 分解质因数后，分别计算上述基数并求最小公倍数 (LCM)，即可得到总周期。 \\
-\noindent\texttt{\scriptsize File: 组合数学-费波纳周期.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-费波纳周期_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：当 $N$ 是高精度超大数（如长度达 $10^5$ 的数字串）时，求 $F_N \pmod m$。通过计算模 $m$ 下的周期 $P$，将原问题强行降维为 $F_{N \bmod P} \pmod m$。
+\item \textbf{时间复杂度}：求周期 $O(\sqrt{m})$，大数取模 $O(|N|)$，最后倍增求值 $O(\log m)$。
+\item \textbf{核心思想 (周期分类查表法则)}：
+斐波那契通项公式中包含 $\sqrt{5}$。在模质数 $p$ 的世界里，$\sqrt{5}$ 是否存在（二次剩余）决定了周期的长度。利用二次互反律，我们只需看 $p$ 除以 5 的余数（即个位特征）来查表：\par
+\begin{enumerate}[start=1]
+\item \textbf{特例}：$p=2$ 时基数为 $3$；$p=5$ 时基数为 $20$。
+\item \textbf{第一派 ($p \pmod 5 = 1$ 或 $4$)}：即个位为 1 或 9。此时模 $p$ 意义下存在 $\sqrt{5}$，公式正常运转，周期基数取 \textbf{$p-1$}。
+\item \textbf{第二派 ($p \pmod 5 = 2$ 或 $3$)}：即个位为 3 或 7。此时模 $p$ 意义下不存在 $\sqrt{5}$，进入二维扩域，周期基数取 \textbf{$2(p+1)$}。
+\end{enumerate}
+将 $m$ 分解质因数后，分别计算上述基数并求最小公倍数 (LCM)，即可得到总周期。\par
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-费波纳周期.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -3047,21 +3864,20 @@ int n_mod = 0;
     }
     cout<<fib(n_mod).first
 */
-
-
 \end{lstlisting}
 \subsection*{组合数学 - 错位排列 (Derangement)}
 \addcontentsline{toc}{subsection}{组合数学 - 错位排列 (Derangement)}
-\noindent\textbf{组合数学 - 错位排列 (Derangement)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：计算 $n$ 个元素的全错位排列方案数（没有任何一个元素在自己原来的位置上）。 \\
-* \textbf{时间复杂度}：预处理 $O(N)$，单次查询 $O(1)$。 \\
-* \textbf{核心思想}：动态规划/递推。考虑第 $n$ 个元素放在位置 $k$，而第 $k$ 个元素是否放在位置 $n$，可划分为两个子问题。 \\
-* \textbf{核心公式}：$$D_n = (n-1)(D_{n-1} + D_{n-2})$$ \\
-\noindent\texttt{\scriptsize File: 组合数学-错排.cpp}
-\begin{lstlisting}
+% Source: 数学/组合数学-错排_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：计算 $n$ 个元素的全错位排列方案数（没有任何一个元素在自己原来的位置上）。
+\item \textbf{时间复杂度}：预处理 $O(N)$，单次查询 $O(1)$。
+\item \textbf{核心思想}：动态规划/递推。考虑第 $n$ 个元素放在位置 $k$，而第 $k$ 个元素是否放在位置 $n$，可划分为两个子问题。
+\item \textbf{核心公式}：
+\NotebookMath{D_n = (n-1)(D_{n-1} + D_{n-2})}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 组合数学-错排.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -3074,121 +3890,17 @@ void pre()
     for(int i=3;i<N;i++)d[i]=(i-1)*(d[i-1]+d[i-2])%MOD;
 }
 \end{lstlisting}
-\subsection*{数论 - 莫比乌斯反演计算 gcd(x,y)=k}
-\addcontentsline{toc}{subsection}{数论 - 莫比乌斯反演计算 gcd(x,y)=k}
-\noindent\textbf{数论 - 莫比乌斯反演计算 gcd(x,y)=k} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：快速计算 $\sum_{x=1}^n \sum_{y=1}^m [\gcd(x, y) = k]$ 的对数（即在指定范围内，最大公约数为 $k$ 的数对数量）。 \\
-* \textbf{时间复杂度}： \\
-* \textbf{预处理}：$O(N)$（线性筛求 $\mu$ 函数及前缀和）。 \\
-* \textbf{单次查询}：$O(\sqrt{N})$（数论整除分块）。非常适合处理高达 $10^5$ 级别的多组询问 (Multi-testcases)。 \\
-* \textbf{核心推导}： \\
-将求 $[\gcd(x, y) = k]$ 转化为 $[\gcd(x/k, y/k) = 1]$，套用莫比乌斯核心定理 $[n=1] = \sum_{d|n} \mu(d)$，交换求和次序后得到最终化简公式： \\
-$$ \text{Ans} = \sum_{d=1}^{\min(\lfloor n/k \rfloor, \lfloor m/k \rfloor)} \mu(d) \lfloor \frac{n}{kd} \rfloor \lfloor \frac{m}{kd} \rfloor $$ \\
-* \textbf{实现细节}：公式中 $\lfloor \frac{n}{kd} \rfloor \lfloor \frac{m}{kd} \rfloor$ 呈块状分布，使用整除分块跳跃式累加，配合 \texttt{sum\_mu} 前缀和实现 $O(1)$ 块内求值。 \\
-\noindent\texttt{\scriptsize File: 莫比乌斯反演.cpp}
-\begin{lstlisting}
-#include<bits/stdc++.h>
-using namespace std;
-
-#define int long long
-#define endl '\n'
-
-// 最大数据范围，根据题目自行调整，注意不要开太大爆内存
-const int N = 5e4 + 10; 
-int pri[N], cnt;
-bool st[N];
-int mu[N], sum_mu[N];
-
-// 1. 预处理：线性筛求莫比乌斯函数及其前缀和 O(N)
-void get_mu(int n)
-{
-    mu[1] = 1;
-    for(int i = 2; i <= n; i++)
-    {
-        if(!st[i])
-        {
-            pri[cnt++] = i;
-            mu[i] = -1; 
-        }
-        for(int j = 0; pri[j] <= n / i; j++)
-        {
-            st[pri[j] * i] = 1;
-            if(i % pri[j] == 0)
-            {
-                mu[pri[j] * i] = 0; 
-                break;
-            }
-            mu[pri[j] * i] = -mu[i];
-        }
-    }
-    // 预处理前缀和，配合整除分块 $O(1)$ 求区间和
-    for(int i = 1; i <= n; i++) sum_mu[i] = sum_mu[i - 1] + mu[i];
-}
-
-// 2. 查询：整除分块计算单次答案 O(sqrt(N))
-int query(int n, int m, int k)
-{
-    if (k == 0) return 0; // 防御性判断
-    n /= k; 
-    m /= k;
-    
-    int ans = 0;
-    int limit = min(n, m);
-    
-    // 整除分块核心逻辑：l 为块左端点，r 为块右端点
-    for (int l = 1, r; l <= limit; l = r + 1)
-    {
-        // 计算当前取整结果不变的右边界
-        r = min({limit, n / (n / l), m / (m / l)});
-        
-        // 累加当前块的贡献：块内 mu 的和 * 取整乘积
-        ans += (sum_mu[r] - sum_mu[l - 1]) * (n / l) * (m / l);
-    }
-    return ans;
-}
-
-void solve()
-{
-    int n, m, k;
-    // 题目可能不给 k 而是默认求互质 (k=1)，具体视题目输入而定
-    cin >> n >> m >> k; 
-    cout << query(n, m, k) << endl;
-}
-
-signed main()
-{
-    // 解除流同步，加速 I/O
-    ios::sync_with_stdio(false);
-    cin.tie(0); cout.tie(0);
-    
-    // 【警告】全局必须只预处理一次！范围传题目可能的最大界限
-    get_mu(N - 1); 
-    
-    int T;
-    cin >> T;
-    while(T--) solve();
-    
-    return 0;
-}
-\end{lstlisting}
 \subsection*{数论 - 线性筛质数 (欧拉筛)}
 \addcontentsline{toc}{subsection}{数论 - 线性筛质数 (欧拉筛)}
-\noindent\textbf{数论 - 线性筛质数 (欧拉筛)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：快速筛选出 $1 \sim n$ 范围内的所有质数。 \\
-* \textbf{时间复杂度}：$O(n)$。 \\
-* \textbf{适用场景}：适用于 $n$ 较大（如 $10^7$ 级别）的情况。相比埃氏筛，它保证每个合数只被其\textbf{最小质因子}筛去一次，因此是线性的，效率极高。 \\
-\noindent\texttt{\scriptsize File: 质数筛.cpp}
-\begin{lstlisting}
+% Source: 数学/质数筛_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：快速筛选出 $1 \sim n$ 范围内的所有质数。
+\item \textbf{时间复杂度}：$O(n)$。
+\item \textbf{适用场景}：适用于 $n$ 较大（如 $10^7$ 级别）的情况。相比埃氏筛，它保证每个合数只被其\textbf{最小质因子}筛去一次，因此是线性的，效率极高。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 质数筛.cpp}}\par
+\begin{lstlisting}[language=C++]
 const int N = 1e7 + 10;
 int pri[N], cnt;
 bool st[N];
@@ -3207,20 +3919,22 @@ void getpri(int n)
 \end{lstlisting}
 \subsection*{数学 - 高斯消元 (高斯-若尔当消元法)}
 \addcontentsline{toc}{subsection}{数学 - 高斯消元 (高斯-若尔当消元法)}
-\noindent\textbf{数学 - 高斯消元 (高斯-若尔当消元法)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：求解 $N$ 元一次线性方程组。 \\
-* \textbf{时间复杂度}：$O(N^3)$。 \\
-* \textbf{核心步骤}： \\
-1. 找主元：为了防止浮点数精度爆炸，必须在当前列找一个绝对值最大的数作为主元，并把它换到当前行。 \\
-2. 判自由变元：如果当前列全是 0（小于 \texttt{eps}），说明该变量是自由的，直接跳过处理下一列。 \\
-3. 消元：用当前行去消掉\textbf{其他所有行}的这一列，将其化为 0。 \\
-* \textbf{避坑指南}： \\
-消元结束后，如果秩（非全零行的数量）小于 $N$，需要进一步判断：如果等号左边全为 0，但等号右边不为 0，则\textbf{无解}；如果等号右边也全为 0，则有\textbf{无穷多解}。 \\
-\noindent\texttt{\scriptsize File: 高斯消元.cpp}
-\begin{lstlisting}
+% Source: 数学/高斯消元_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求解 $N$ 元一次线性方程组。
+\item \textbf{时间复杂度}：$O(N^3)$。
+\item \textbf{核心步骤}：
+\begin{enumerate}[start=1]
+\item 找主元：为了防止浮点数精度爆炸，必须在当前列找一个绝对值最大的数作为主元，并把它换到当前行。
+\item 判自由变元：如果当前列全是 0（小于 \texttt{e\allowbreak{}p\allowbreak{}s}），说明该变量是自由的，直接跳过处理下一列。
+\item 消元：用当前行去消掉\textbf{其他所有行}的这一列，将其化为 0。
+\end{enumerate}
+\item \textbf{避坑指南}：
+消元结束后，如果秩（非全零行的数量）小于 $N$，需要进一步判断：如果等号左边全为 0，但等号右边不为 0，则\textbf{无解}；如果等号右边也全为 0，则有\textbf{无穷多解}。\par
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 高斯消元.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -3308,7 +4022,7 @@ void solve()
     */
 }
 /*
-### 💡 实战小贴士
+###  实战小贴士
 如果你遇到的题目要求在**模运算（整数域）**下解线性方程组（比如 `a[i][j]` 都是整数且要求模 $998244353$），只需要把这个模板里的：
 1. `double` 改回 `int`。
 2. 找主元时去掉 `fabs`。
@@ -3319,46 +4033,34 @@ void solve()
 \addcontentsline{toc}{section}{数据结构}
 \subsection*{数据结构 - CDQ 分治 (三维偏序)}
 \addcontentsline{toc}{subsection}{数据结构 - CDQ 分治 (三维偏序)}
-\noindent\textbf{数据结构 - CDQ 分治 (三维偏序)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：统计每个三维点之前满足 $x_j \le x_i$、$y_j \le y_i$、$z_j \le z_i$ 的点数。 \\
-* \textbf{核心思想}：按照 $(x,y,z)$ 字典序排序，在第一维下标上进行 CDQ 分治；第二维排序扫描，第三维使用树状数组维护前缀和。 \\
-* \textbf{复杂度}：每层分别排序左右区间，时间复杂度 $O(N\log^2N)$，空间复杂度 $O(N)$。 \\
-
-
-\noindent\textbf{核心流程} \\
-
-
-1. 按 $(x,y,z)$ 排序，将完全相同的点合并，记录重复次数 \texttt{cnt}。 \\
-2. 对第三维 \texttt{z} 离散化。 \\
-3. \texttt{cdq(l,r)} 先递归左区间，再处理左区间对右区间的贡献。 \\
-4. 左右区间按 \texttt{y} 排序，用双指针加入 \texttt{y[left] <= y[right]} 的点。 \\
-5. 在树状数组中加入左侧点的 \texttt{cnt}，查询 \texttt{z[left] <= z[right]} 的数量。 \\
-6. 当前层结束后用相反增量撤销树状数组修改，再递归右区间。 \\
-7. 最终答案为 \texttt{ans + cnt}，并恢复到原输入顺序。 \\
-
-
-\noindent\textbf{注意事项} \\
-
-
-* 初始排序必须是 \texttt{(x,y,z)} 字典序，否则相同 \texttt{x} 时可能漏掉合法贡献。 \\
-* 本模板是小于等于偏序，第二维和第三维都要保留等号。 \\
-* 树状数组维护计数，清除时应执行 \texttt{add(z,-cnt)}，不能直接把树状数组节点清零。 \\
-* 如果题目要求严格偏序、最大值转移或答案直方图，需要相应修改比较边界和树状数组维护内容。 \\
-
-
-\noindent\textbf{使用方式} \\
-
-
-输入第一行是 \texttt{N}，接下来 \texttt{N} 行每行输入 \texttt{x y z}。程序按照原输入顺序逐行输出每个点的被支配点数量，包含点自身和完全相同的重复点。 \\
-
-
-\noindent\texttt{\scriptsize File: cdq.cpp}
-\begin{lstlisting}
+% Source: 数据结构/cdq_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：统计每个三维点之前满足 $x_j \le x_i$、$y_j \le y_i$、$z_j \le z_i$ 的点数。
+\item \textbf{核心思想}：按照 $(x,y,z)$ 字典序排序，在第一维下标上进行 CDQ 分治；第二维排序扫描，第三维使用树状数组维护前缀和。
+\item \textbf{复杂度}：每层分别排序左右区间，时间复杂度 $O(N\log^2N)$，空间复杂度 $O(N)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{核心流程}\par\nobreak
+\begin{enumerate}[start=1]
+\item 按 $(x,y,z)$ 排序，将完全相同的点合并，记录重复次数 \texttt{c\allowbreak{}n\allowbreak{}t}。
+\item 对第三维 \texttt{z} 离散化。
+\item \texttt{c\allowbreak{}d\allowbreak{}q\allowbreak{}(\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{})} 先递归左区间，再处理左区间对右区间的贡献。
+\item 左右区间按 \texttt{y} 排序，用双指针加入 \texttt{y\allowbreak{}[\allowbreak{}l\allowbreak{}e\allowbreak{}f\allowbreak{}t\allowbreak{}]\allowbreak{} \allowbreak{}\textless{}\allowbreak{}=\allowbreak{} \allowbreak{}y\allowbreak{}[\allowbreak{}r\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t\allowbreak{}]} 的点。
+\item 在树状数组中加入左侧点的 \texttt{c\allowbreak{}n\allowbreak{}t}，查询 \texttt{z\allowbreak{}[\allowbreak{}l\allowbreak{}e\allowbreak{}f\allowbreak{}t\allowbreak{}]\allowbreak{} \allowbreak{}\textless{}\allowbreak{}=\allowbreak{} \allowbreak{}z\allowbreak{}[\allowbreak{}r\allowbreak{}i\allowbreak{}g\allowbreak{}h\allowbreak{}t\allowbreak{}]} 的数量。
+\item 当前层结束后用相反增量撤销树状数组修改，再递归右区间。
+\item 最终答案为 \texttt{a\allowbreak{}n\allowbreak{}s\allowbreak{} \allowbreak{}+\allowbreak{} \allowbreak{}c\allowbreak{}n\allowbreak{}t}，并恢复到原输入顺序。
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{注意事项}\par\nobreak
+\begin{itemize}
+\item 初始排序必须是 \texttt{(\allowbreak{}x\allowbreak{},\allowbreak{}y\allowbreak{},\allowbreak{}z\allowbreak{})} 字典序，否则相同 \texttt{x} 时可能漏掉合法贡献。
+\item 本模板是“小于等于”偏序，第二维和第三维都要保留等号。
+\item 树状数组维护计数，清除时应执行 \texttt{a\allowbreak{}d\allowbreak{}d\allowbreak{}(\allowbreak{}z\allowbreak{},\allowbreak{}-\allowbreak{}c\allowbreak{}n\allowbreak{}t\allowbreak{})}，不能直接把树状数组节点清零。
+\item 如果题目要求严格偏序、最大值转移或答案直方图，需要相应修改比较边界和树状数组维护内容。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用方式}\par\nobreak
+输入第一行是 \texttt{N}，接下来 \texttt{N} 行每行输入 \texttt{x\allowbreak{} \allowbreak{}y\allowbreak{} \allowbreak{}z}。程序按照原输入顺序逐行输出每个点的被支配点数量，包含点自身和完全相同的重复点。\par
+\par\noindent{\scriptsize\texttt{File: cdq.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -3531,27 +4233,28 @@ signed main()
 
     return 0;
 }
-
 \end{lstlisting}
 \subsection*{数据结构 - ST表 (RMQ)}
 \addcontentsline{toc}{subsection}{数据结构 - ST表 (RMQ)}
-\noindent\textbf{数据结构 - ST表 (RMQ)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：解决静态数组的可重复贡献问题区间查询（如最值、GCD等），不支持修改。 \\
-* \textbf{时间复杂度}： \\
-* 预处理：$O(N \log N)$。 \\
-* 单次查询：$O(1)$。 \\
-* \textbf{适用场景}：数组无动态修改且查询极频繁（$M \ge 10^6$）时，$O(1)$ 速度平替线段树。 \\
-* \textbf{注意事项}： \\
-1. \texttt{pre()} 预处理 \texttt{logn} 必须在 \texttt{main} 最开头仅调用一次，严防多测 TLE。 \\
-2. 建表外层倍增循环界限写为 \texttt{(1<<j) <= n} 进行常数级剪枝。 \\
-3. 查询区间 $[L, R]$ 时，步长 $s = \text{logn}[R - L + 1]$，结果由两端覆盖：$\max(f[L][s], f[R - (1 \ll s) + 1][s])$。 \\
-\noindent\texttt{\scriptsize File: st表.cpp}
-\begin{lstlisting}
+% Source: 数据结构/st表_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：解决静态数组的“可重复贡献问题”区间查询（如最值、GCD等），不支持修改。
+\item \textbf{时间复杂度}：
+\begin{itemize}
+\item 预处理：$O(N \log N)$。
+\item 单次查询：$O(1)$。
+\end{itemize}
+\item \textbf{适用场景}：数组无动态修改且查询极频繁（$M \ge 10^6$）时，$O(1)$ 速度平替线段树。
+\item \textbf{注意事项}：
+\begin{enumerate}[start=1]
+\item \texttt{p\allowbreak{}r\allowbreak{}e\allowbreak{}(\allowbreak{})} 预处理 \texttt{l\allowbreak{}o\allowbreak{}g\allowbreak{}n} 必须在 \texttt{m\allowbreak{}a\allowbreak{}i\allowbreak{}n} 最开头仅调用一次，严防多测 TLE。
+\item 建表外层倍增循环界限写为 \texttt{(\allowbreak{}1\allowbreak{}\textless{}\allowbreak{}\textless{}\allowbreak{}j\allowbreak{})\allowbreak{} \allowbreak{}\textless{}\allowbreak{}=\allowbreak{} \allowbreak{}n} 进行常数级剪枝。
+\item 查询区间 $[L, R]$ 时，步长 $s = \text{logn}[R - L + 1]$，结果由两端覆盖：$\max(f[L][s], f[R - (1 \ll s) + 1][s])$。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: st表.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -3588,20 +4291,20 @@ void solve()
 \end{lstlisting}
 \subsection*{分块 - 区间加 \& 区间秩查询}
 \addcontentsline{toc}{subsection}{分块 - 区间加 \& 区间秩查询}
-\noindent\textbf{分块 - 区间加 \& 区间秩查询} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：在 $O(\sqrt{N} \log \sqrt{N})$ 的时间内维护序列的区间增量修改，并支持查询区间内小于特定值 $x$ 的元素个数。 \\
-* \textbf{时间复杂度}： \\
-* 建块：$O(N \log \sqrt{N})$。 \\
-* 区间修改：$O(\sqrt{N} \log \sqrt{N})$。 \\
-* 区间查询：$O(\sqrt{N} \log \sqrt{N})$。 \\
-* \textbf{适用场景}：处理无法直接通过线段树或树状数组维护的非线性区间问题（如区间秩、区间众数、区间第 $k$ 大），常用于处理带区间加法的统计问题。 \\
-\noindent\texttt{\scriptsize File: 分块.cpp}
-\begin{lstlisting}
+% Source: 数据结构/分块1_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在 $O(\sqrt{N} \log \sqrt{N})$ 的时间内维护序列的区间增量修改，并支持查询区间内小于特定值 $x$ 的元素个数。
+\item \textbf{时间复杂度}：
+\begin{itemize}
+\item 建块：$O(N \log \sqrt{N})$。
+\item 区间修改：$O(\sqrt{N} \log \sqrt{N})$。
+\item 区间查询：$O(\sqrt{N} \log \sqrt{N})$。
+\end{itemize}
+\item \textbf{适用场景}：处理无法直接通过线段树或树状数组维护的非线性区间问题（如区间秩、区间众数、区间第 $k$ 大），常用于处理带区间加法的统计问题。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 分块1.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -3696,121 +4399,153 @@ void solve()
     }
 }
 \end{lstlisting}
-\subsection*{数据结构 - 可持久化线段树 (主席树) + 离散化}
-\addcontentsline{toc}{subsection}{数据结构 - 可持久化线段树 (主席树) + 离散化}
-\noindent\textbf{数据结构 - 可持久化线段树 (主席树) + 离散化} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：保存线段树的历史版本。最经典的实战应用是\textbf{查询静态区间第 $k$ 小}。 \\
-* \textbf{时间复杂度}：建树与离散化 $O(N \log N)$，单次查询 $O(\log N)$。 \\
-* \textbf{核心思想}：先将原数组离散化，将极大的值域压缩到 $1 \sim N$。然后按原数组下标顺序依次插入离散化后的排名，每次插入生成一个新版本的主席树。查询区间 $[L, R]$ 时，用第 $R$ 个版本减去第 $L-1$ 个版本。 \\
-* \textbf{避坑指南}： \\
-1. \textbf{空间开满}：\texttt{MAXM = MAXN * 32}，必须开到 $32$ 倍防 RE。 \\
-2. 离散化去重后的总个数 \texttt{num} 就是线段树的值域上限，建树和查询时的右边界都传入 \texttt{num}。 \\
-\noindent\texttt{\scriptsize File: 可持久化线段树.cpp}
-\begin{lstlisting}
+\subsection*{分块 - 回滚莫队 (只增不删)}
+\addcontentsline{toc}{subsection}{分块 - 回滚莫队 (只增不删)}
+% Source: 数据结构/分块-回滚莫队_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：处理容易加入、难以删除维护答案的离线区间查询，模板求区间内某个数的最大出现次数。
+\item \textbf{核心思想}：左端点按块排序，块内右端点升序。块右侧永久加入，块内部分临时加入；查询后回滚次数并恢复保存的答案，换块时清空。
+\item \textbf{使用方法}：填入 \texttt{a\allowbreak{}[\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}n\allowbreak{}]}、\texttt{q\allowbreak{}[\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}m\allowbreak{}]} 和原编号 \texttt{i\allowbreak{}d}，\texttt{c\allowbreak{}n\allowbreak{}t} 初始为零，调用 \texttt{m\allowbreak{}o\allowbreak{}(\allowbreak{}n\allowbreak{},\allowbreak{}m\allowbreak{})} 后读取 \texttt{a\allowbreak{}n\allowbreak{}s\allowbreak{}[\allowbreak{}i\allowbreak{}d\allowbreak{}]}。数值用作 \texttt{c\allowbreak{}n\allowbreak{}t} 下标，必要时先离散化。
+\item \textbf{时间复杂度}：$O(m\log m+(n+m)\sqrt n)$，其中单次加入、回滚为 $O(1)$。
+\item \textbf{空间复杂度}：模板固定数组为 $O(N)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 分块-回滚莫队.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
-
 #define int long long
 #define endl '\n'
 
-const int MAXN=2e5+10;
-const int MAXM=MAXN*32; 
+const int N=2e5+10;
+int a[N],cnt[N],ans[N]; // 原数组、出现次数、询问答案，a中的值作为cnt下标
+int len,an; // 分块长度、当前区间内某个数的最大出现次数
 
-int a[MAXN],b[MAXN],num;
-int rt[MAXN];  
-int lc[MAXM],rc[MAXM],sum[MAXM],tot;       
-
-// --- 1. 离散化 ---
-void discrete(int n)
+struct Q
 {
-    for(int i=1;i<=n;i++)b[i]=a[i];
-    sort(b+1,b+n+1);
-    num=unique(b+1,b+n+1)-(b+1);
+    int l,r,id; // 询问区间[l,r]、询问原编号
+}q[N];
+
+void add(int x) // 加入位置x，最大出现次数只会增加
+{
+    cnt[a[x]]++;
+    an=max(an,cnt[a[x]]); // 更新当前最大出现次数
 }
 
-// 获取离散化后的排名
-int getid(int v)
+void del(int x) // 回滚位置x，只恢复出现次数
 {
-    return lower_bound(b+1,b+num+1,v)-b;
+    cnt[a[x]]--; // an通过之前保存的值恢复，不在这里重新计算
 }
 
-// --- 2. 主席树核心 ---
-void build(int &u,int l,int r)
+bool cmp(const Q &x,const Q &y)
 {
-    u=++tot;
-    if(l==r)return;
-    int mid=l+r>>1;
-    build(lc[u],l,mid);
-    build(rc[u],mid+1,r);
+    int u=(x.l-1)/len,v=(y.l-1)/len;
+    if(u!=v)return u<v; // 左端点按块编号排序
+    return x.r<y.r; // 同一块内右端点升序，保证右端点只向右移动
 }
 
-void update(int pre,int &u,int l,int r,int p)
+void mo(int n,int m) // a[1..n]、q[1..m]提前填好，cnt初始为0
 {
-    u=++tot;          
-    lc[u]=lc[pre];    
-    rc[u]=rc[pre];
-    sum[u]=sum[pre]+1;
-    if(l==r)return;
-    
-    int mid=l+r>>1;
-    if(p<=mid)update(lc[pre],lc[u],l,mid,p);
-    else update(rc[pre],rc[u],mid+1,r,p);
-}
-
-int query(int u,int v,int l,int r,int k)
-{
-    if(l==r)return l; 
-    
-    int x=sum[lc[v]]-sum[lc[u]]; 
-    int mid=l+r>>1;
-    
-    if(k<=x)return query(lc[u],lc[v],l,mid,k);
-    else return query(rc[u],rc[v],mid+1,r,k-x);
-}
-
-void solve()
-{
-    // 实战调用示例
-    /*
-    int n,q;
-    cin>>n>>q;
-    for(int i=1;i<=n;i++)cin>>a[i];
-    
-    discrete(n);          // 1. 离散化
-    build(rt[0],1,num);   // 2. 建立空树 (版本0)
-    
-    // 3. 依次插入生成新版本
-    for(int i=1;i<=n;i++)
+    len=max(1LL,(int)sqrt(n));
+    sort(q+1,q+m+1,cmp);
+    int last=-1,ed=0,r=0; // 上一个块编号、当前块右边界、永久区间右端点
+    for(int i=1;i<=m;i++)
     {
-        update(rt[i-1],rt[i],1,num,getid(a[i]));
+        int u=(q[i].l-1)/len; // 当前询问左端点所在块
+        if(u!=last) // 换块后，重新建立永久区间
+        {
+            while(r>ed)del(r--); // 清空上一块的永久区间[ed+1,r]
+            an=0; // 当前区间已清空，答案重新初始化
+            ed=min(n,(u+1)*len); // 当前块的右边界
+            r=ed; // 永久区间从[ed+1,ed]这个空区间开始
+            last=u;
+        }
+
+        while(r<q[i].r)add(++r); // 永久加入块右侧的位置，同一块内不回退
+        int re=an; // 保存永久区间的答案，供临时加入后恢复
+        int t=min(ed,q[i].r); // 同块询问只加到右端点，跨块询问加到块边界
+
+        for(int j=t;j>=q[i].l;j--)add(j); // 临时加入块内部分，与永久区间组成询问区间
+        ans[q[i].id]=an; // 保存当前询问的答案
+        for(int j=q[i].l;j<=t;j++)del(j); // 按加入的逆序回滚块内部分
+        an=re; // 恢复永久区间的答案，准备下一个询问
     }
-    
-    // 4. 处理查询
-    while(q--)
+}
+\end{lstlisting}
+\subsection*{分块 - 莫队 (离线区间查询)}
+\addcontentsline{toc}{subsection}{分块 - 莫队 (离线区间查询)}
+% Source: 数据结构/分块-莫队_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：处理静态数组的离线区间查询，模板维护区间内不同数的个数。
+\item \textbf{核心思想}：左端点按块排序，块内右端点奇偶交替排序；移动左右端点，通过 \texttt{a\allowbreak{}d\allowbreak{}d\allowbreak{}/\allowbreak{}d\allowbreak{}e\allowbreak{}l} 维护答案。
+\item \textbf{使用方法}：填入 \texttt{a\allowbreak{}[\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}n\allowbreak{}]}、\texttt{q\allowbreak{}[\allowbreak{}1\allowbreak{}.\allowbreak{}.\allowbreak{}m\allowbreak{}]}，设置询问原编号 \texttt{i\allowbreak{}d}，调用 \texttt{m\allowbreak{}o\allowbreak{}(\allowbreak{}n\allowbreak{},\allowbreak{}m\allowbreak{})}，从 \texttt{a\allowbreak{}n\allowbreak{}s\allowbreak{}[\allowbreak{}i\allowbreak{}d\allowbreak{}]} 取答案。\texttt{c\allowbreak{}n\allowbreak{}t}、\texttt{a\allowbreak{}n} 初始为零，数值用作 \texttt{c\allowbreak{}n\allowbreak{}t} 下标，必要时先离散化。
+\item \textbf{时间复杂度}：$O(m\log m+(n+m)\sqrt n)$，其中单次 \texttt{a\allowbreak{}d\allowbreak{}d\allowbreak{}/\allowbreak{}d\allowbreak{}e\allowbreak{}l} 为 $O(1)$。
+\item \textbf{空间复杂度}：模板固定数组为 $O(N)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 分块-莫队.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10;
+int a[N],cnt[N],ans[N]; // 原数组、当前区间内每个值的出现次数、每个询问的答案，a中的值作为cnt下标
+int len,an; // 分块长度、当前区间内不同数的个数
+
+struct Q
+{
+    int l,r,id; // 询问区间[l,r]、询问的原始编号
+}q[N];
+
+void add(int x) // 将位置x加入当前区间，按题目修改维护逻辑
+{
+    if(cnt[a[x]]==0)an++; // 加入前没有这个值，不同数个数加1
+    cnt[a[x]]++; // 这个值的出现次数加1
+}
+
+void del(int x) // 将位置x移出当前区间，按题目修改维护逻辑
+{
+    cnt[a[x]]--; // 这个值的出现次数减1
+    if(cnt[a[x]]==0)an--; // 最后一次出现被移除，不同数个数减1
+}
+
+bool cmp(const Q &x,const Q &y) // 调整询问顺序，减少区间端点移动次数
+{
+    int u=(x.l-1)/len,v=(y.l-1)/len; // 两个询问的左端点所在块，块编号从0开始
+    if(u!=v)return u<v; // 不同块按块编号升序排列
+    if(u&1)return x.r>y.r; // 同一奇数块内，右端点降序排列
+    return x.r<y.r; // 同一偶数块内，右端点升序排列，形成交替移动顺序
+}
+
+void mo(int n,int m) // 数组长度n、询问数量m，处理静态数组的离线区间查询
+{
+    len=max(1LL,(int)sqrt(n)); // 块长取根号n，至少为1
+    sort(q+1,q+m+1,cmp); // a[1..n]、q[1..m]提前填好，q[i].id记录原编号
+    int l=1,r=0; // 当前维护区间为[l,r]，初始为空，cnt和an需为0
+    for(int i=1;i<=m;i++) // 按莫队顺序处理询问
     {
-        int l,r,k;
-        cin>>l>>r>>k;
-        int rk=query(rt[l-1],rt[r],1,num,k); // 返回的是排名
-        cout<<b[rk]<<endl;                   // 映射回原数值
+        while(l>q[i].l)add(--l); // 左端点向左移动，先移动再加入新位置
+        while(r<q[i].r)add(++r); // 右端点向右移动，先移动再加入新位置
+        while(l<q[i].l)del(l++); // 左端点向右移动，先移除旧位置再移动
+        while(r>q[i].r)del(r--); // 右端点向左移动，先移除旧位置再移动
+        ans[q[i].id]=an; // 当前区间已变为询问区间，按原编号保存答案
     }
-    */
 }
 \end{lstlisting}
 \subsection*{数据结构 - 带删除并查集}
 \addcontentsline{toc}{subsection}{数据结构 - 带删除并查集}
-\noindent\textbf{数据结构 - 带删除并查集} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：合并、查询、删除（将指定单点剥离为孤立点）。 \\
-* \textbf{复杂度}：均摊 $O(\alpha(N))$，极小常数。 \\
-* \textbf{核心思想}：\textbf{虚拟节点（替身术）}。真实节点 $x$ 映射到虚拟节点 \texttt{id[x]}。删除 $x$ 时，为其分配新编号 \texttt{id[x] = ++tot}，旧节点留在原树充当空壳维持连通性不断裂。 \\
-* \textbf{避坑}：每次删除必生新节点，\textbf{相关数组务必开到 $N + Q$}（节点数 + 操作数），且初始化需覆盖至上限！ \\
-\noindent\texttt{\scriptsize File: 并查集-删除集合单节点.cpp}
-\begin{lstlisting}
+% Source: 数据结构/并查集-删除集合单节点_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：合并、查询、删除（将指定单点剥离为孤立点）。
+\item \textbf{复杂度}：均摊 $O(\alpha(N))$，极小常数。
+\item \textbf{核心思想}：\textbf{虚拟节点（替身术）}。真实节点 $x$ 映射到虚拟节点 \texttt{i\allowbreak{}d\allowbreak{}[\allowbreak{}x\allowbreak{}]}。删除 $x$ 时，为其分配新编号 \texttt{i\allowbreak{}d\allowbreak{}[\allowbreak{}x\allowbreak{}]\allowbreak{} \allowbreak{}=\allowbreak{} \allowbreak{}+\allowbreak{}+\allowbreak{}t\allowbreak{}o\allowbreak{}t}，旧节点留在原树充当“空壳”维持连通性不断裂。
+\item \textbf{避坑}：每次删除必生新节点，\textbf{相关数组务必开到 $N + Q$}（节点数 + 操作数），且初始化需覆盖至上限！
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 并查集-删除集合单节点.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -3869,18 +4604,20 @@ void del(int x)
 \end{lstlisting}
 \subsection*{数据结构 - 带权并查集 (Weighted DSU)}
 \addcontentsline{toc}{subsection}{数据结构 - 带权并查集 (Weighted DSU)}
-\noindent\textbf{数据结构 - 带权并查集 (Weighted DSU)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：在维护连通性的基础上，动态维护节点间的相对关系（如 $x$ 到根节点的距离、相对偏置或某种异或关系）。 \\
-* \textbf{复杂度}：均摊 $O(\alpha(N))$。 \\
-* \textbf{核心逻辑}： \\
-1. \textbf{路径压缩 (懒更新)}：在执行 \texttt{find(x)} 时，递归更新 \texttt{d[x]}。通过 \texttt{d[x] = d[x] + d[fa[x]]}（这里的 \texttt{+} 可以是加法、异或或取模运算），将 $x$ 到原父亲的关系转化为 $x$ 到新根的关系。 \\
-2. \textbf{合并 (计算权值)}：当合并两个集合时，已知 $x$ 与 $y$ 的关系为 $v$，通过已有的 $d[x]$ 和 $d[y]$ 推导出两个根节点之间的权重。 \\
-* \textbf{避坑}：在 \texttt{merge} 时，必须严格按照向量合成公式推导根节点的更新，防止由于方向问题导致的权值错误。 \\
-\noindent\texttt{\scriptsize File: 并查集-懒标记.cpp}
-\begin{lstlisting}
+% Source: 数据结构/并查集-懒标记_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在维护连通性的基础上，动态维护节点间的相对关系（如 $x$ 到根节点的距离、相对偏置或某种异或关系）。
+\item \textbf{复杂度}：均摊 $O(\alpha(N))$。
+\item \textbf{核心逻辑}：
+\begin{enumerate}[start=1]
+\item \textbf{路径压缩 (懒更新)}：在执行 \texttt{f\allowbreak{}i\allowbreak{}n\allowbreak{}d\allowbreak{}(\allowbreak{}x\allowbreak{})} 时，递归更新 \texttt{d\allowbreak{}[\allowbreak{}x\allowbreak{}]}。通过 \texttt{d\allowbreak{}[\allowbreak{}x\allowbreak{}]\allowbreak{} \allowbreak{}=\allowbreak{} \allowbreak{}d\allowbreak{}[\allowbreak{}x\allowbreak{}]\allowbreak{} \allowbreak{}+\allowbreak{} \allowbreak{}d\allowbreak{}[\allowbreak{}f\allowbreak{}a\allowbreak{}[\allowbreak{}x\allowbreak{}]\allowbreak{}]}（这里的 \texttt{+} 可以是加法、异或或取模运算），将 $x$ 到原父亲的关系转化为 $x$ 到新根的关系。
+\item \textbf{合并 (计算权值)}：当合并两个集合时，已知 $x$ 与 $y$ 的关系为 $v$，通过已有的 $d[x]$ 和 $d[y]$ 推导出两个根节点之间的权重。
+\end{enumerate}
+\item \textbf{避坑}：在 \texttt{m\allowbreak{}e\allowbreak{}r\allowbreak{}g\allowbreak{}e} 时，必须严格按照向量合成公式推导根节点的更新，防止由于方向问题导致的权值错误。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 并查集-懒标记.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -3923,7 +4660,7 @@ void merge(int x,int y,int v)
     }
 }
 
-/* 💡 使用提示：
+/*  使用提示：
 计算 x 和 y 的相对权值（距离）：
 if(find(x) == find(y)) 
     int dist = d[x] - d[y];
@@ -3931,22 +4668,18 @@ if(find(x) == find(y))
 \end{lstlisting}
 \subsection*{数据结构/图论 - LCA 转 RMQ (欧拉序/DFN + ST表)}
 \addcontentsline{toc}{subsection}{数据结构/图论 - LCA 转 RMQ (欧拉序/DFN + ST表)}
-Markdown \\
-\noindent\textbf{数据结构/图论 - LCA 转 RMQ (欧拉序/DFN + ST表)} \\
-
-
-\noindent\textbf{何时使用} \\
-当题目需要\textbf{极其频繁地查询最近公共祖先 (LCA)} 时（例如查询量 $M$ 达到 $10^6$ 级别，或者需要构建\textbf{虚树}）。 \\
-普通的倍增 LCA 查询复杂度是 $O(\log N)$，而欧拉序+ST表可以做到\textbf{预处理 $O(N \log N)$，查询严格 $O(1)$}。 \\
-
-
-\noindent\textbf{核心步骤} \\
-1. \textbf{\texttt{dfs} (求欧拉序)}：不仅在向下走时记录节点，在\textbf{回溯时也要记录}。这样一棵 $N$ 个节点的树会生成长度为 $2N-1$ 的欧拉序数组 \texttt{seq}。同时记录每个节点第一次出现的位置 \texttt{first} 和深度 \texttt{dep}。 \\
-2. \textbf{结论映射}：节点 $u$ 和 $v$ 的 LCA，就是欧拉序数组中，从 \texttt{first[u]} 到 \texttt{first[v]} 这段区间内，\textbf{深度最小的那个节点}。 \\
-3. \textbf{\texttt{build\_ST} (建ST表)}：在欧拉序数组上跑一遍 ST 表算法，维护区间最小深度对应的节点。 \\
-4. \textbf{\texttt{query\_LCA}}：取出 $u$ 和 $v$ 的 \texttt{first} 下标构成区间 $[L, R]$，直接 $O(1)$ 查 ST 表。 \\
-\noindent\texttt{\scriptsize File: 树-公共祖先dfn.cpp}
-\begin{lstlisting}
+% Source: 数据结构/树-公共祖先dfn_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{何时使用}\par\nobreak
+当题目需要\textbf{极其频繁地查询最近公共祖先 (LCA)} 时（例如查询量 $M$ 达到 $10^6$ 级别，或者需要构建\textbf{虚树}）。 普通的倍增 LCA 查询复杂度是 $O(\log N)$，而欧拉序+ST表可以做到\textbf{预处理 $O(N \log N)$，查询严格 $O(1)$}。\par
+\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
+\begin{enumerate}[start=1]
+\item \textbf{\texttt{d\allowbreak{}f\allowbreak{}s} (求欧拉序)}：不仅在向下走时记录节点，在\textbf{回溯时也要记录}。这样一棵 $N$ 个节点的树会生成长度为 $2N-1$ 的欧拉序数组 \texttt{s\allowbreak{}e\allowbreak{}q}。同时记录每个节点第一次出现的位置 \texttt{f\allowbreak{}i\allowbreak{}r\allowbreak{}s\allowbreak{}t} 和深度 \texttt{d\allowbreak{}e\allowbreak{}p}。
+\item \textbf{结论映射}：节点 $u$ 和 $v$ 的 LCA，就是欧拉序数组中，从 \texttt{f\allowbreak{}i\allowbreak{}r\allowbreak{}s\allowbreak{}t\allowbreak{}[\allowbreak{}u\allowbreak{}]} 到 \texttt{f\allowbreak{}i\allowbreak{}r\allowbreak{}s\allowbreak{}t\allowbreak{}[\allowbreak{}v\allowbreak{}]} 这段区间内，\textbf{深度最小的那个节点}。
+\item \textbf{\texttt{b\allowbreak{}u\allowbreak{}i\allowbreak{}l\allowbreak{}d\allowbreak{}\_\allowbreak{}S\allowbreak{}T} (建ST表)}：在欧拉序数组上跑一遍 ST 表算法，维护区间最小深度对应的节点。
+\item \textbf{\texttt{q\allowbreak{}u\allowbreak{}e\allowbreak{}r\allowbreak{}y\allowbreak{}\_\allowbreak{}L\allowbreak{}C\allowbreak{}A}}：取出 $u$ 和 $v$ 的 \texttt{f\allowbreak{}i\allowbreak{}r\allowbreak{}s\allowbreak{}t} 下标构成区间 $[L, R]$，直接 $O(1)$ 查 ST 表。
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 树-公共祖先dfn.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -4051,26 +4784,24 @@ void solve()
 \end{lstlisting}
 \subsection*{树 - 最近公共祖先 (LCA) - 倍增法}
 \addcontentsline{toc}{subsection}{树 - 最近公共祖先 (LCA) - 倍增法}
-\noindent\textbf{树 - 最近公共祖先 (LCA) - 倍增法} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：在有根树中，快速查询两个节点的最近公共祖先。 \\
-* \textbf{时间复杂度}： \\
-* 预处理：$O(N \log N)$。 \\
-* 单次查询：$O(\log N)$。 \\
-* \textbf{适用场景}：适用于 $N, M$ 较大（如 $10^5 \sim 10^6$）且需要在线查询的情况。 \\
-* \textbf{注意事项}： \\
-1. \texttt{f} 数组第二维的大小由 $N$ 决定，通常 $2^{19} > 5 \times 10^5$，所以开 \texttt{20} 足够。 \\
-2. 利用 \texttt{de[0] = 0} (全局变量默认值) 作为哨兵，防止倍增跳越界。 \\
-
-
-
-
-\noindent\texttt{\scriptsize File: 树-公共祖先LCA.cpp}
-\begin{lstlisting}
+% Source: 数据结构/树-公共祖先LCA_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在有根树中，快速查询两个节点的最近公共祖先。
+\item \textbf{时间复杂度}：
+\begin{itemize}
+\item 预处理：$O(N \log N)$。
+\item 单次查询：$O(\log N)$。
+\end{itemize}
+\item \textbf{适用场景}：适用于 $N, M$ 较大（如 $10^5 \sim 10^6$）且需要在线查询的情况。
+\item \textbf{注意事项}：
+\begin{enumerate}[start=1]
+\item \texttt{f} 数组第二维的大小由 $N$ 决定，通常 $2^{19} > 5 \times 10^5$，所以开 \texttt{2\allowbreak{}0} 足够。
+\item 利用 \texttt{d\allowbreak{}e\allowbreak{}[\allowbreak{}0\allowbreak{}]\allowbreak{} \allowbreak{}=\allowbreak{} \allowbreak{}0} (全局变量默认值) 作为哨兵，防止倍增跳越界。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 树-公共祖先LCA.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -4124,63 +4855,17 @@ int main()
     return 0;
 }
 \end{lstlisting}
-\subsection*{树 - 笛卡尔树}
-\addcontentsline{toc}{subsection}{树 - 笛卡尔树}
-\noindent\textbf{树 - 笛卡尔树} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：将序列转化为同时满足二叉搜索树（按下标）和堆（按权值）性质的二叉树。 \\
-* \textbf{时间复杂度}： \\
-* 建树：$O(N)$。 \\
-* \textbf{适用场景}：将序列区间问题转化为树上问题（如 RMQ 转 LCA），或求解直方图最大矩形/子段问题。本质是单调栈的树形化。 \\
-* \textbf{注意事项}： \\
-1. 多组数据时\textbf{务必清空单调栈指针} \texttt{top = 0} 及左右儿子数组 \texttt{ls}, \texttt{rs}。 \\
-2. 单调栈 \texttt{st} 中存储的是数组的\textbf{下标}，比较大小时需代入原数组判定（如 \texttt{ar[st[top]] > ar[i]}）。 \\
-3. 线性建树完毕后，整棵树的根节点固定为栈底元素 \texttt{st[1]}。 \\
-\noindent\texttt{\scriptsize File: 树-笛卡尔树.cpp}
-\begin{lstlisting}
-#include<bits/stdc++.h>
-using namespace std;
-
-const int N = 1e5 + 10;
-vector<int>ar(N), ls(N), rs(N);
-vector<int>st(N);
-int top;
-int build(int n)
-{
-    top = 0;
-    for(int i = 1;i <= n;i++)ls[i] = rs[i] = 0;
-    for(int i = 1;i <= n;i++)
-    {
-        int la = 0;
-        while(top && ar[st[top]] > ar[i])
-        {
-            la = st[top];
-            top--;
-        }
-        if(top)rs[st[top]] = i;
-        ls[i] = la;
-        st[++top] = i;
-    }
-    return st[1];
-}
-\end{lstlisting}
 \subsection*{数据结构 - 离散化权值树状数组 (支持查排名/第k小/前驱/后继)}
 \addcontentsline{toc}{subsection}{数据结构 - 离散化权值树状数组 (支持查排名/第k小/前驱/后继)}
-\noindent\textbf{数据结构 - 离散化权值树状数组 (支持查排名/第k小/前驱/后继)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：可以代替普通平衡树（如 Treap、Splay）的绝大多数功能。维护一个可重集，支持插入、删除、查询数值的排名、查询第 $k$ 小、求前驱和后继。 \\
-* \textbf{核心思想}：先将所有可能出现的值离散化（映射为 $1 \sim N$ 的相对大小），然后将树状数组当作桶来用，\texttt{tr[i]} 维护的是离散化排名在某段区间内的数字一共出现了几次。结合树上倍增，可以将查询第 $k$ 小的复杂度优化至 $O(\log N)$。 \\
-* \textbf{时间复杂度}：所有操作均在 $O(\log N)$ 内完成。常数极小，吊打普通平衡树 \\
-\noindent\texttt{\scriptsize File: 树状数组-离散化.cpp}
-\begin{lstlisting}
+% Source: 数据结构/树状数组-离散化_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：可以代替普通平衡树（如 Treap、Splay）的绝大多数功能。维护一个可重集，支持插入、删除、查询数值的排名、查询第 $k$ 小、求前驱和后继。
+\item \textbf{核心思想}：先将所有可能出现的值离散化（映射为 $1 \sim N$ 的相对大小），然后将树状数组当作“桶”来用，\texttt{t\allowbreak{}r\allowbreak{}[\allowbreak{}i\allowbreak{}]} 维护的是离散化排名在某段区间内的数字一共出现了几次。结合树上倍增，可以将查询第 $k$ 小的复杂度优化至 $O(\log N)$。
+\item \textbf{时间复杂度}：所有操作均在 $O(\log N)$ 内完成。常数极小，吊打普通平衡树
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 树状数组-离散化.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -4263,19 +4948,119 @@ pre(x) 和 suf(x) 返回的都是离散化后的排名！
 int ans = b[pre(x)];
 */
 \end{lstlisting}
+\subsection*{树 - 笛卡尔树}
+\addcontentsline{toc}{subsection}{树 - 笛卡尔树}
+% Source: 数据结构/树-笛卡尔树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：将序列转化为同时满足“二叉搜索树（按下标）”和“堆（按权值）”性质的二叉树。
+\item \textbf{时间复杂度}：
+\begin{itemize}
+\item 建树：$O(N)$。
+\end{itemize}
+\item \textbf{适用场景}：将序列区间问题转化为树上问题（如 RMQ 转 LCA），或求解直方图最大矩形/子段问题。本质是单调栈的树形化。
+\item \textbf{注意事项}：
+\begin{enumerate}[start=1]
+\item 多组数据时\textbf{务必清空单调栈指针} \texttt{t\allowbreak{}o\allowbreak{}p\allowbreak{} \allowbreak{}=\allowbreak{} \allowbreak{}0} 及左右儿子数组 \texttt{l\allowbreak{}s}, \texttt{r\allowbreak{}s}。
+\item 单调栈 \texttt{s\allowbreak{}t} 中存储的是数组的\textbf{下标}，比较大小时需代入原数组判定（如 \texttt{a\allowbreak{}r\allowbreak{}[\allowbreak{}s\allowbreak{}t\allowbreak{}[\allowbreak{}t\allowbreak{}o\allowbreak{}p\allowbreak{}]\allowbreak{}]\allowbreak{} \allowbreak{}\textgreater{}\allowbreak{} \allowbreak{}a\allowbreak{}r\allowbreak{}[\allowbreak{}i\allowbreak{}]}）。
+\item 线性建树完毕后，整棵树的根节点固定为栈底元素 \texttt{s\allowbreak{}t\allowbreak{}[\allowbreak{}1\allowbreak{}]}。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 树-笛卡尔树.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1e5 + 10;
+vector<int>ar(N), ls(N), rs(N);
+vector<int>st(N);
+int top;
+int build(int n)
+{
+    top = 0;
+    for(int i = 1;i <= n;i++)ls[i] = rs[i] = 0;
+    for(int i = 1;i <= n;i++)
+    {
+        int la = 0;
+        while(top && ar[st[top]] > ar[i])
+        {
+            la = st[top];
+            top--;
+        }
+        if(top)rs[st[top]] = i;
+        ls[i] = la;
+        st[++top] = i;
+    }
+    return st[1];
+}
+\end{lstlisting}
+\subsection*{线段树 - 主席树 (可持久化权值线段树)}
+\addcontentsline{toc}{subsection}{线段树 - 主席树 (可持久化权值线段树)}
+% Source: 数据结构/线段树-主席树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：查询静态数组区间第 $k$ 小，重复值分别计数。
+\item \textbf{核心思想}：每个前缀建立一个版本，插入时复制路径，其余节点共用。两个前缀版本的数量相减，得到区间内的值域分布。
+\item \textbf{建立版本}：将数值离散化到 \texttt{1\allowbreak{}.\allowbreak{}.\allowbreak{}s}，\texttt{r\allowbreak{}t\allowbreak{}[\allowbreak{}0\allowbreak{}]\allowbreak{}=\allowbreak{}0} 表示空树，依次执行 \texttt{r\allowbreak{}t\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{}=\allowbreak{}u\allowbreak{}p\allowbreak{}d\allowbreak{}a\allowbreak{}t\allowbreak{}e\allowbreak{}(\allowbreak{}r\allowbreak{}t\allowbreak{}[\allowbreak{}i\allowbreak{}-\allowbreak{}1\allowbreak{}]\allowbreak{},\allowbreak{}1\allowbreak{},\allowbreak{}s\allowbreak{},\allowbreak{}a\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{})}。
+\item \textbf{查询方法}：\texttt{q\allowbreak{}u\allowbreak{}e\allowbreak{}r\allowbreak{}y\allowbreak{}(\allowbreak{}r\allowbreak{}t\allowbreak{}[\allowbreak{}l\allowbreak{}-\allowbreak{}1\allowbreak{}]\allowbreak{},\allowbreak{}r\allowbreak{}t\allowbreak{}[\allowbreak{}r\allowbreak{}]\allowbreak{},\allowbreak{}1\allowbreak{},\allowbreak{}s\allowbreak{},\allowbreak{}k\allowbreak{})} 返回区间 \texttt{[\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{}]} 第 $k$ 小的离散化编号，再映射回原值，$1\le k\le r-l+1$。
+\item \textbf{时间复杂度}：单次插入、查询为 $O(\log s)$，建立全部版本为 $O(n\log s)$。
+\item \textbf{空间复杂度}：$O(n\log s)$，模板预留 \texttt{N\allowbreak{}*\allowbreak{}2\allowbreak{}0} 个节点。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 线段树-主席树.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10;
+int rt[N],tot; // rt[i]表示前i个数形成的版本，tot为已创建的节点数
+
+struct T
+{
+    int ls,rs,sum; // 左儿子、右儿子、当前值域内的数的个数
+}tr[N*20]; // 每次插入只新建根到叶子的一条链，零号节点表示空树
+
+int update(int pre,int l,int r,int x) // 在旧版本pre上插入值x，返回新版本的根
+{
+    int p=++tot; // 新建节点，避免修改旧版本
+    tr[p]=tr[pre]; // 复制旧节点的信息，未修改的子树继续共用
+    tr[p].sum++; // 插入一个数，当前值域内的数量加1
+    if(l==r)return p; // 到达值x对应的叶子，结束插入
+
+    int mid=(l+r)>>1;
+    if(x<=mid) // x在左半值域，只新建左侧路径
+        tr[p].ls=update(tr[pre].ls,l,mid,x);
+    else // x在右半值域，只新建右侧路径
+        tr[p].rs=update(tr[pre].rs,mid+1,r,x);
+
+    return p; // 返回新节点，供上一层连接
+}
+
+int query(int u,int v,int l,int r,int k) // 查询版本v减去版本u后，第k小的值
+{
+    if(l==r)return l; // 值域只剩一个值，它就是答案
+
+    int mid=(l+r)>>1;
+    int cnt=tr[tr[v].ls].sum-tr[tr[u].ls].sum; // 两个版本相减，得到查询区间落在左半值域的数量
+
+    if(k<=cnt) // 左半值域已有至少k个数，第k小在左侧
+        return query(tr[u].ls,tr[v].ls,l,mid,k);
+    else // 跳过左侧cnt个数，寻找右侧第k-cnt小
+        return query(tr[u].rs,tr[v].rs,mid+1,r,k-cnt);
+}
+\end{lstlisting}
 \subsection*{数据结构 - 懒标记线段树}
 \addcontentsline{toc}{subsection}{数据结构 - 懒标记线段树}
-\noindent\textbf{数据结构 - 懒标记线段树} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：维护一个长度为 $N$ 的数组，支持单次将区间 $[L, R]$ 内的所有元素加上 $v$，以及查询区间 $[L, R]$ 内的最大值。 \\
-* \textbf{时间复杂度}：建树 $O(N)$，单次区间修改 $O(\log N)$，单次区间查询 $O(\log N)$。 \\
-* \textbf{适用场景}：需要频繁交替进行区间修改和区间查询时（普通差分数组无法处理边修改边查询的情况）。核心是 \textbf{分治思想 + 延迟更新（Lazy Tag）}。s \\
-\noindent\texttt{\scriptsize File: 线段树-懒标记线段树.cpp}
-\begin{lstlisting}
+% Source: 数据结构/线段树-懒标记线段树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：维护一个长度为 $N$ 的数组，支持单次将区间 $[L, R]$ 内的所有元素加上 $v$，以及查询区间 $[L, R]$ 内的最大值。
+\item \textbf{时间复杂度}：建树 $O(N)$，单次区间修改 $O(\log N)$，单次区间查询 $O(\log N)$。
+\item \textbf{适用场景}：需要频繁交替进行“区间修改”和“区间查询”时（普通差分数组无法处理边修改边查询的情况）。核心是 \textbf{分治思想 + 延迟更新（Lazy Tag）}。s
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 线段树-懒标记线段树.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -4350,22 +5135,54 @@ int query(int u,int l,int r,int L,int R)
 \end{lstlisting}
 \section*{杂项}
 \addcontentsline{toc}{section}{杂项}
+\subsection*{杂项 - 多进程模板}
+\addcontentsline{toc}{subsection}{杂项 - 多进程模板}
+% Source: 杂项/多进程_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{使用说明}\par\nobreak
+\begin{enumerate}[start=1]
+\item 评测环境启动多个进程，并将当前进程的编号作为第一个命令行参数传入。模板在 \texttt{m\allowbreak{}a\allowbreak{}i\allowbreak{}n\allowbreak{}(\allowbreak{})} 中用 \texttt{a\allowbreak{}t\allowbreak{}o\allowbreak{}i\allowbreak{}(\allowbreak{}a\allowbreak{}r\allowbreak{}g\allowbreak{}v\allowbreak{}[\allowbreak{}1\allowbreak{}]\allowbreak{})} 读取编号，保存到全局变量 \texttt{i\allowbreak{}d}。
+\item 每个进程都会调用一次 \texttt{s\allowbreak{}o\allowbreak{}l\allowbreak{}v\allowbreak{}e\allowbreak{}(\allowbreak{})}。根据题目要求，在函数中用 \texttt{i\allowbreak{}d} 分配工作：模板示例将 \texttt{i\allowbreak{}d\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}0} 的逻辑和其他进程分开；若要区分其他进程，可继续判断 \texttt{i\allowbreak{}d} 的值。
+\item 按题目规定的协议进行输入、输出和进程间通信。需要立即发送输出时，调用 \texttt{c\allowbreak{}o\allowbreak{}u\allowbreak{}t\allowbreak{}.\allowbreak{}f\allowbreak{}l\allowbreak{}u\allowbreak{}s\allowbreak{}h\allowbreak{}(\allowbreak{})}，或使用 \texttt{e\allowbreak{}n\allowbreak{}d\allowbreak{}l} 刷新缓冲区。
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 多进程.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+
+int id;
+
+void solve()
+{
+    if(id==0)
+    {
+        // 编写进程 0 的逻辑
+    }
+    else
+    {
+        // 编写其他进程的逻辑；需要区分时可继续判断 id
+    }
+}
+
+int main(int argc,char *argv[])
+{
+    // 进程编号由启动程序时传入的第一个命令行参数提供
+    id=atoi(argv[1]);
+    solve();
+    return 0;
+}
+\end{lstlisting}
 \subsection*{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}
 \addcontentsline{toc}{subsection}{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}
-\noindent\textbf{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：维护序列的区间操作。擅长处理具有\textbf{区间推平（区间赋值）}操作且数据有一定随机性的题目。 \\
-* \textbf{时间复杂度}：在有大量随机区间赋值操作的前提下，\texttt{set} 中的节点数会被极大地压缩，所有区间操作的均摊时间复杂度趋近于 $O(m \log n)$。若缺乏推平操作，最坏会退化到 $O(mn)$。 \\
-* \textbf{核心思想}：利用 \texttt{std::set} 维护一段段值相同的连续区间。核心操作只有两个：\texttt{split}（将一个大区间按指定位置劈开）和 \texttt{assign}（将一段区间内的所有碎块删掉，替换成一整块）。 \\
-* \textbf{避坑铁律}：在执行区间操作时，\textbf{必须先 \texttt{split(r + 1)}，然后再 \texttt{split(l)}}，否则可能会导致右侧的迭代器失效，引发 RE（段错误）。 \\
-
-
-\noindent\texttt{\scriptsize File: 珂朵莉树.cpp}
-\begin{lstlisting}
+% Source: 杂项/珂朵莉树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：维护序列的区间操作。擅长处理具有\textbf{“区间推平（区间赋值）”}操作且数据有一定随机性的题目。
+\item \textbf{时间复杂度}：在有大量随机区间赋值操作的前提下，\texttt{s\allowbreak{}e\allowbreak{}t} 中的节点数会被极大地压缩，所有区间操作的均摊时间复杂度趋近于 $O(m \log n)$。若缺乏推平操作，最坏会退化到 $O(mn)$。
+\item \textbf{核心思想}：利用 \texttt{s\allowbreak{}t\allowbreak{}d\allowbreak{}:\allowbreak{}:\allowbreak{}s\allowbreak{}e\allowbreak{}t} 维护一段段值相同的连续区间。核心操作只有两个：\texttt{s\allowbreak{}p\allowbreak{}l\allowbreak{}i\allowbreak{}t}（将一个大区间按指定位置劈开）和 \texttt{a\allowbreak{}s\allowbreak{}s\allowbreak{}i\allowbreak{}g\allowbreak{}n}（将一段区间内的所有碎块删掉，替换成一整块）。
+\item \textbf{避坑铁律}：在执行区间操作时，\textbf{必须先 \texttt{s\allowbreak{}p\allowbreak{}l\allowbreak{}i\allowbreak{}t\allowbreak{}(\allowbreak{}r\allowbreak{} \allowbreak{}+\allowbreak{} \allowbreak{}1\allowbreak{})}，然后再 \texttt{s\allowbreak{}p\allowbreak{}l\allowbreak{}i\allowbreak{}t\allowbreak{}(\allowbreak{}l\allowbreak{})}}，否则可能会导致右侧的迭代器失效，引发 RE（段错误）。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 珂朵莉树.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -4428,16 +5245,18 @@ long long query(int l, int r) {
 \addcontentsline{toc}{section}{算法基础}
 \subsection*{算法 - 三分查找 (二分斜率/导数逼近)}
 \addcontentsline{toc}{subsection}{算法 - 三分查找 (二分斜率/导数逼近)}
-\noindent\textbf{算法 - 三分查找 (二分斜率/导数逼近)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：求单峰/单谷函数极值。 \\
-* \textbf{核心技巧}： \\
-* \textbf{浮点域}：取中点 $m$，向两侧偏移 $\epsilon/3$，比较两点大小直接砍掉一半区间。 \\
-* \textbf{整数域}：直接比较 $m$ 和 $m+1$（相当于整数域的最小偏移量），将三分降维成标准二分。 \\
-\noindent\texttt{\scriptsize File: 三分.cpp}
-\begin{lstlisting}
+% Source: 算法基础/三分_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求单峰/单谷函数极值。
+\item \textbf{核心技巧}：
+\begin{itemize}
+\item \textbf{浮点域}：取中点 $m$，向两侧偏移 $\epsilon/3$，比较两点大小直接砍掉一半区间。
+\item \textbf{整数域}：直接比较 $m$ 和 $m+1$（相当于整数域的最小偏移量），将三分降维成标准二分。
+\end{itemize}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 三分.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -4493,17 +5312,271 @@ int ts_i(int l, int r)
     return l; // 返回极大值对应的 x 坐标
 }
 \end{lstlisting}
+\subsection*{算法基础 - 点差分}
+\addcontentsline{toc}{subsection}{算法基础 - 点差分}
+% Source: 算法基础/点差分_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：多次给树上一条路径的所有点加权，最后统一求每个点的增量。
+\item \textbf{标记}：令 \texttt{p\allowbreak{}=\allowbreak{}l\allowbreak{}c\allowbreak{}a\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{})}，两端各加 \texttt{w}，\texttt{p} 和 \texttt{p} 的父节点各减 \texttt{w}。
+\item \textbf{汇总}：所有修改结束后调用一次 \texttt{c\allowbreak{}o\allowbreak{}l\allowbreak{}l\allowbreak{}e\allowbreak{}c\allowbreak{}t\allowbreak{}(\allowbreak{})}，子节点贡献累加给父节点，最终 \texttt{d\allowbreak{}[\allowbreak{}u\allowbreak{}]} 就是点 \texttt{u} 的增量。
+\item \textbf{复杂度}：预处理 $O(n\log n)$，单次修改 $O(\log n)$，最后汇总 $O(n)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用与例子}\par\nobreak
+建好邻接表 \texttt{e} 后调用 \texttt{i\allowbreak{}n\allowbreak{}i\allowbreak{}t\allowbreak{}(\allowbreak{})}；代码已包含LCA预处理，\texttt{f\allowbreak{}a\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}[\allowbreak{}0\allowbreak{}]} 为父节点，\texttt{d} 初始为0。\par
+\begin{lstlisting}[language={},numbers=none,basicstyle=\footnotesize\ttfamily]
+  1
+ / \
+2   3
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+init(); // 已建好下面的小树
+update(2,3,5); // 路径2→1→3上的点全部加5
+collect(); // 修改全部结束后汇总，得到d[1]=d[2]=d[3]=5
+\end{lstlisting}
+
+\textbf{为什么要减父节点？} LCA本身需要保留一份；在其父节点再减一份，才不会继续影响路径以外的祖先。\par
+CPP输入 \texttt{n\allowbreak{},\allowbreak{}m}、\texttt{n\allowbreak{}-\allowbreak{}1} 条边，再输入 \texttt{m} 组 \texttt{u\allowbreak{},\allowbreak{}v\allowbreak{},\allowbreak{}w}；输出各点的最终权值。\par
+参考：OI Wiki：树上差分 (\texttt{h\allowbreak{}t\allowbreak{}t\allowbreak{}p\allowbreak{}s\allowbreak{}:\allowbreak{}/\allowbreak{}/\allowbreak{}o\allowbreak{}i\allowbreak{}-\allowbreak{}w\allowbreak{}i\allowbreak{}k\allowbreak{}i\allowbreak{}.\allowbreak{}o\allowbreak{}r\allowbreak{}g\allowbreak{}/\allowbreak{}b\allowbreak{}a\allowbreak{}s\allowbreak{}i\allowbreak{}c\allowbreak{}/\allowbreak{}p\allowbreak{}r\allowbreak{}e\allowbreak{}f\allowbreak{}i\allowbreak{}x\allowbreak{}-\allowbreak{}s\allowbreak{}u\allowbreak{}m\allowbreak{}/\allowbreak{}\#\allowbreak{}树\allowbreak{}上\allowbreak{}差\allowbreak{}分})。\par
+\par\noindent{\scriptsize\texttt{File: 点差分.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10,L=20;
+vector<int>e[N],ord; // 原树、父节点排在子节点之前的遍历顺序
+int fa[N][L],dep[N],d[N]; // 倍增祖先、深度、差分标记，汇总后d保存最终增量
+
+void init(int root=1) // 提前建好树，预处理祖先和遍历顺序
+{
+    ord.clear();
+    ord.push_back(root);
+    dep[root]=1;
+    for(int j=0;j<L;j++)fa[root][j]=0; // 根的祖先为0号哨兵
+    for(int i=0;i<(int)ord.size();i++) // 按遍历顺序展开，避免递归遍历长链
+    {
+        int u=ord[i];
+        for(auto v:e[u])
+        {
+            if(v==fa[u][0])continue;
+            fa[v][0]=u;
+            dep[v]=dep[u]+1;
+            for(int j=1;j<L;j++)fa[v][j]=fa[fa[v][j-1]][j-1];
+            ord.push_back(v);
+        }
+    }
+}
+
+int lca(int u,int v) // 求u、v的最近公共祖先
+{
+    if(dep[u]<dep[v])swap(u,v);
+    int dif=dep[u]-dep[v];
+    for(int j=L-1;j>=0;j--)
+        if(dif&(1LL<<j))u=fa[u][j]; // 先将两点提升到同一深度
+    if(u==v)return u;
+    for(int j=L-1;j>=0;j--)
+    {
+        if(fa[u][j]!=fa[v][j])
+        {
+            u=fa[u][j];
+            v=fa[v][j];
+        }
+    }
+    return fa[u][0];
+}
+
+void update(int u,int v,int w) // 将路径u到v上的每个点加w，包含两个端点
+{
+    int p=lca(u,v);
+    d[u]+=w;
+    d[v]+=w; // 两个端点分别向祖先贡献w
+    d[p]-=w; // LCA被计算两次，减去一次
+    d[fa[p][0]]-=w; // 抵消LCA父节点及以上的贡献，0号哨兵不作为答案
+}
+
+void collect() // 所有修改结束后调用一次，将子节点贡献累加给父节点
+{
+    for(int i=(int)ord.size()-1;i>0;i--) // 逆序保证先处理子节点，根无需再向上累加
+    {
+        int u=ord[i];
+        d[fa[u][0]]+=d[u];
+    }
+}
+
+void solve()
+{
+    int n,m;
+    cin>>n>>m; // 点数、路径修改数量，初始点权均为0
+    for(int i=1;i<n;i++)
+    {
+        int u,v;
+        cin>>u>>v;
+        e[u].push_back(v);
+        e[v].push_back(u);
+    }
+    init();
+    while(m--)
+    {
+        int u,v,w;
+        cin>>u>>v>>w;
+        update(u,v,w);
+    }
+    collect();
+    for(int i=1;i<=n;i++)cout<<d[i]<<" "; // 输出每个点的最终权值
+    cout<<endl;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    solve();
+    return 0;
+}
+\end{lstlisting}
+\subsection*{算法基础 - 边差分}
+\addcontentsline{toc}{subsection}{算法基础 - 边差分}
+% Source: 算法基础/边差分_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：多次给树上一条路径的所有边加权，最后统一求每条边的增量。
+\item \textbf{标记}：令 \texttt{p\allowbreak{}=\allowbreak{}l\allowbreak{}c\allowbreak{}a\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{})}，两端各加 \texttt{w}，\texttt{p} 减 \texttt{2\allowbreak{}*\allowbreak{}w}。
+\item \textbf{汇总}：所有修改结束后调用一次 \texttt{c\allowbreak{}o\allowbreak{}l\allowbreak{}l\allowbreak{}e\allowbreak{}c\allowbreak{}t\allowbreak{}(\allowbreak{})}，最终 \texttt{d\allowbreak{}[\allowbreak{}u\allowbreak{}]} 表示边 \texttt{(\allowbreak{}u\allowbreak{},\allowbreak{}f\allowbreak{}a\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}[\allowbreak{}0\allowbreak{}]\allowbreak{})} 的增量，根没有父边。
+\item \textbf{复杂度}：预处理 $O(n\log n)$，单次修改 $O(\log n)$，最后汇总 $O(n)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用与例子}\par\nobreak
+建好邻接表 \texttt{e} 后调用 \texttt{i\allowbreak{}n\allowbreak{}i\allowbreak{}t\allowbreak{}(\allowbreak{})}；代码已包含LCA预处理，\texttt{d} 初始为0，用较深的端点表示一条边。\par
+\begin{lstlisting}[language={},numbers=none,basicstyle=\footnotesize\ttfamily]
+  1
+ / \
+2   3
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+init(); // 已建好下面的小树
+update(2,3,5); // 路径2→1→3上的两条边各加5
+collect(); // 得到d[2]=5、d[3]=5，分别对应1—2、1—3；d[1]=0
+\end{lstlisting}
+
+\textbf{为什么减两份？} 两端的贡献在LCA处汇合，需要全部抵消，因为LCA通向父节点的边不在路径上。\texttt{u\allowbreak{}=\allowbreak{}v} 时没有边，贡献为0。\par
+CPP输入 \texttt{n\allowbreak{},\allowbreak{}m}、\texttt{n\allowbreak{}-\allowbreak{}1} 条边，再输入 \texttt{m} 组 \texttt{u\allowbreak{},\allowbreak{}v\allowbreak{},\allowbreak{}w}；按道路输入顺序逐行输出最终边权。\par
+参考：OI Wiki：树上差分 (\texttt{h\allowbreak{}t\allowbreak{}t\allowbreak{}p\allowbreak{}s\allowbreak{}:\allowbreak{}/\allowbreak{}/\allowbreak{}o\allowbreak{}i\allowbreak{}-\allowbreak{}w\allowbreak{}i\allowbreak{}k\allowbreak{}i\allowbreak{}.\allowbreak{}o\allowbreak{}r\allowbreak{}g\allowbreak{}/\allowbreak{}b\allowbreak{}a\allowbreak{}s\allowbreak{}i\allowbreak{}c\allowbreak{}/\allowbreak{}p\allowbreak{}r\allowbreak{}e\allowbreak{}f\allowbreak{}i\allowbreak{}x\allowbreak{}-\allowbreak{}s\allowbreak{}u\allowbreak{}m\allowbreak{}/\allowbreak{}\#\allowbreak{}树\allowbreak{}上\allowbreak{}差\allowbreak{}分})。\par
+\par\noindent{\scriptsize\texttt{File: 边差分.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+
+const int N=2e5+10,L=20;
+vector<int>e[N],ord; // 原树、父节点排在子节点之前的遍历顺序
+int fa[N][L],dep[N],d[N]; // 倍增祖先、深度、差分标记，汇总后d保存最终增量
+
+void init(int root=1) // 提前建好树，预处理祖先和遍历顺序
+{
+    ord.clear();
+    ord.push_back(root);
+    dep[root]=1;
+    for(int j=0;j<L;j++)fa[root][j]=0; // 根的祖先为0号哨兵
+    for(int i=0;i<(int)ord.size();i++) // 按遍历顺序展开，避免递归遍历长链
+    {
+        int u=ord[i];
+        for(auto v:e[u])
+        {
+            if(v==fa[u][0])continue;
+            fa[v][0]=u;
+            dep[v]=dep[u]+1;
+            for(int j=1;j<L;j++)fa[v][j]=fa[fa[v][j-1]][j-1];
+            ord.push_back(v);
+        }
+    }
+}
+
+int lca(int u,int v) // 求u、v的最近公共祖先
+{
+    if(dep[u]<dep[v])swap(u,v);
+    int dif=dep[u]-dep[v];
+    for(int j=L-1;j>=0;j--)
+        if(dif&(1LL<<j))u=fa[u][j]; // 先将两点提升到同一深度
+    if(u==v)return u;
+    for(int j=L-1;j>=0;j--)
+    {
+        if(fa[u][j]!=fa[v][j])
+        {
+            u=fa[u][j];
+            v=fa[v][j];
+        }
+    }
+    return fa[u][0];
+}
+
+void update(int u,int v,int w) // 将路径u到v上的每条边加w
+{
+    int p=lca(u,v);
+    d[u]+=w;
+    d[v]+=w; // 将边权记在较深的端点上，两端分别向祖先贡献w
+    d[p]-=2*w; // LCA没有通向父亲的路径边，抵消在这里汇合的两份贡献
+}
+
+void collect() // 所有修改结束后调用一次，d[u]表示u到父节点的边权增量
+{
+    for(int i=(int)ord.size()-1;i>0;i--)
+    {
+        int u=ord[i];
+        d[fa[u][0]]+=d[u]; // 从子节点向父节点累加，根不对应任何父边
+    }
+}
+
+void solve()
+{
+    int n,m;
+    cin>>n>>m; // 点数、路径修改数量，初始边权均为0
+    vector<pair<int,int>>edges; // 保存道路输入顺序，最后按这个顺序输出
+    for(int i=1;i<n;i++)
+    {
+        int u,v;
+        cin>>u>>v;
+        e[u].push_back(v);
+        e[v].push_back(u);
+        edges.push_back({u,v});
+    }
+    init();
+    while(m--)
+    {
+        int u,v,w;
+        cin>>u>>v>>w;
+        update(u,v,w);
+    }
+    collect();
+    for(auto [u,v]:edges)
+    {
+        int x=dep[u]>dep[v]?u:v; // 每条边的答案存在较深的端点上
+        cout<<d[x]<<endl;
+    }
+}
+
+signed main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    solve();
+    return 0;
+}
+\end{lstlisting}
 \subsection*{基础算法 - 高精度运算 (BigInt)}
 \addcontentsline{toc}{subsection}{基础算法 - 高精度运算 (BigInt)}
-\noindent\textbf{基础算法 - 高精度运算 (BigInt)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{核心思路}：使用 \texttt{std::vector<int>} 或 \texttt{string} 逆序存储每一位数字（个位在下标 0）。逆序存储是为了在加法进位或乘法时，方便在 \texttt{vector} 末尾追加高位，而不需要频繁移动数组。 \\
-* \textbf{复杂度}：加减法 $O(N)$，乘法 $O(N \times M)$，除法 $O(N \times M)$。 \\
-* \textbf{优化建议}：对于极高要求的题目（位数上万），乘法需要使用 \textbf{FFT/NTT} 优化到 $O(N \log N)$，但基础比赛中使用模拟即可。 \\
-\noindent\texttt{\scriptsize File: 高精度.cpp}
-\begin{lstlisting}
+% Source: 算法基础/高精度_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{核心思路}：使用 \texttt{s\allowbreak{}t\allowbreak{}d\allowbreak{}:\allowbreak{}:\allowbreak{}v\allowbreak{}e\allowbreak{}c\allowbreak{}t\allowbreak{}o\allowbreak{}r\allowbreak{}\textless{}\allowbreak{}i\allowbreak{}n\allowbreak{}t\allowbreak{}\textgreater{}} 或 \texttt{s\allowbreak{}t\allowbreak{}r\allowbreak{}i\allowbreak{}n\allowbreak{}g} 逆序存储每一位数字（个位在下标 0）。逆序存储是为了在加法进位或乘法时，方便在 \texttt{v\allowbreak{}e\allowbreak{}c\allowbreak{}t\allowbreak{}o\allowbreak{}r} 末尾追加高位，而不需要频繁移动数组。
+\item \textbf{复杂度}：加减法 $O(N)$，乘法 $O(N \times M)$，除法 $O(N \times M)$。
+\item \textbf{优化建议}：对于极高要求的题目（位数上万），乘法需要使用 \textbf{FFT/NTT} 优化到 $O(N \log N)$，但基础比赛中使用模拟即可。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 高精度.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -4616,17 +5689,17 @@ signed main() {
 \addcontentsline{toc}{section}{计算几何}
 \subsection*{计算几何 - 二维点与向量基础 (2D Geometry)}
 \addcontentsline{toc}{subsection}{计算几何 - 二维点与向量基础 (2D Geometry)}
-\noindent\textbf{计算几何 - 二维点与向量基础 (2D Geometry)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：计算点与向量的距离、叉积、点积。所有二维几何（凸包、相交、面积）的地基。 \\
-* \textbf{复杂度}：$O(1)$。 \\
-* \textbf{核心思想}：全整数运算，拒用 \texttt{double} 和 \texttt{sqrt}，\textbf{彻底杜绝精度误差}。 \\
-* \textbf{叉积 \texttt{cro}}：$\vec{AB} \times \vec{AC}$。$>0$ 左转（逆时针）；$<0$ 右转（顺时针）；$=0$ 共线。绝对值为平行四边形面积。 \\
-* \textbf{点积 \texttt{dot}}：$\vec{AB} \cdot \vec{AC}$。$>0$ 锐角；$<0$ 钝角；$=0$ 垂直。 \\
-\noindent\texttt{\scriptsize File: 二维点与向量基础.cpp}
-\begin{lstlisting}
+% Source: 计算几何/二维点与向量基础_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：计算点与向量的距离、叉积、点积。所有二维几何（凸包、相交、面积）的地基。
+\item \textbf{复杂度}：$O(1)$。
+\item \textbf{核心思想}：全整数运算，拒用 \texttt{d\allowbreak{}o\allowbreak{}u\allowbreak{}b\allowbreak{}l\allowbreak{}e} 和 \texttt{s\allowbreak{}q\allowbreak{}r\allowbreak{}t}，\textbf{彻底杜绝精度误差}。
+\item \textbf{叉积 \texttt{c\allowbreak{}r\allowbreak{}o}}：$\vec{AB} \times \vec{AC}$。$>0$ 左转（逆时针）；$<0$ 右转（顺时针）；$=0$ 共线。绝对值为平行四边形面积。
+\item \textbf{点积 \texttt{d\allowbreak{}o\allowbreak{}t}}：$\vec{AB} \cdot \vec{AC}$。$>0$ 锐角；$<0$ 钝角；$=0$ 垂直。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 二维点与向量基础.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -4658,23 +5731,24 @@ int dis(po a, po b)
  * 若坐标绝对值达 1e9，叉积/点积相乘会爆 long long。
  * 此时必须将返回值和内部强转为 __int128。
  */
-
 \end{lstlisting}
 \subsection*{计算几何 - 凸包 Graham 扫描法 (Convex Hull - Graham Scan)}
 \addcontentsline{toc}{subsection}{计算几何 - 凸包 Graham 扫描法 (Convex Hull - Graham Scan)}
-\noindent\textbf{计算几何 - 凸包 Graham 扫描法 (Convex Hull - Graham Scan)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：在二维平面的散点集中，求出能够包含所有点的最小凸多边形（凸包）。 \\
-* \textbf{时间复杂度}：基准点寻找 $O(N)$，极角排序 $O(N \log N)$，单调栈扫描 $O(N)$。总复杂度为 $O(N \log N)$。 \\
-* \textbf{适用场景}：求最大围栏周长/面积、最远点对（旋转卡壳的前置步骤）、二维防线构建等外边界轮廓问题。 \\
-* \textbf{核心思想}： \\
-1. \textbf{找起点}：选出 $y$ 坐标最小（相同则取 $x$ 最小）的点 $P_1$ 作为绝对在凸包上的基准点。 \\
-2. \textbf{极角排序}：将其余点按相对 $P_1$ 的极角大小（利用叉积判左转）逆时针排序。 \\
-3. \textbf{单调栈维护}：按序遍历排序后的点，若新点与栈顶两个点构成的折线\textbf{没有向左转}（即叉积 $\le 0$），说明产生了凹陷，必须不断\textbf{弹出栈顶}，直到满足左转为止，最后将新点入栈。 \\
-\noindent\texttt{\scriptsize File: 凸包.cpp}
-\begin{lstlisting}
+% Source: 计算几何/凸包_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在二维平面的散点集中，求出能够包含所有点的最小凸多边形（凸包）。
+\item \textbf{时间复杂度}：基准点寻找 $O(N)$，极角排序 $O(N \log N)$，单调栈扫描 $O(N)$。总复杂度为 $O(N \log N)$。
+\item \textbf{适用场景}：求最大围栏周长/面积、最远点对（旋转卡壳的前置步骤）、二维防线构建等外边界轮廓问题。
+\item \textbf{核心思想}：
+\begin{enumerate}[start=1]
+\item \textbf{找起点}：选出 $y$ 坐标最小（相同则取 $x$ 最小）的点 $P_1$ 作为绝对在凸包上的基准点。
+\item \textbf{极角排序}：将其余点按相对 $P_1$ 的极角大小（利用叉积判左转）逆时针排序。
+\item \textbf{单调栈维护}：按序遍历排序后的点，若新点与栈顶两个点构成的折线\textbf{没有向左转}（即叉积 $\le 0$），说明产生了凹陷，必须不断\textbf{弹出栈顶}，直到满足左转为止，最后将新点入栈。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 凸包.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -4751,38 +5825,39 @@ void graham(int n)
  * 1. 共线处理：如果题目要求凸包边上的点也全部保留，遇到 cro == 0 时的出栈判定条件和排序逻辑需要特判修改。
  * 2. 坐标极值：如果点的坐标绝对值 >= 1e9，叉积计算过程中会爆 long long，必须转 __int128。
  */
-
 \end{lstlisting}
 \subsection*{计算几何 - 圆的交点与切线全家桶 (无重载运算符纯净版)}
 \addcontentsline{toc}{subsection}{计算几何 - 圆的交点与切线全家桶 (无重载运算符纯净版)}
-\noindent\textbf{计算几何 - 圆的交点与切线全家桶 (无重载运算符纯净版)} \\
-
-
-\noindent\textbf{解决什么实际问题 (实战映射)} \\
-在二维计算几何中，一旦引入了圆，往往意味着涉及范围覆盖、最短雷达探测、以及极角排序。这套板子专门对付以下经典恶心场景： \\
-1. \textbf{雷达/基站覆盖判定 (Circle-Circle / Line-Circle)}：求两个圆形探测器重叠的精确坐标，或者一架飞机（沿直线飞行）在雷达覆盖区域内飞行的准确入点和出点。 \\
-2. \textbf{光源/视线切点遮挡 (Point-Circle Tangents)}：一个人站在点 $P$ 看向一个圆柱体障碍物，求视线的边界边缘（即从点 $P$ 出发到圆的两条切线及切点坐标）。这是计算几何中阴影面积或视野锥问题的绝对核心。 \\
-3. \textbf{皮带传动/外围凸包 (Common Tangents)}：多个圆组成的机械齿轮或滑轮组，求包裹它们的最短皮带长度（利用圆与圆的外公切线，不过实战中单点求切线更为高频和基础）。 \\
-
-
-\noindent\textbf{核心结论与数学性质 (实战必背)} \\
-处理圆的问题，\textbf{绝对不要去解联立二次方程组！} 算竞中的终极武器是\textbf{极坐标与解三角形（三角函数）}。 \\
-
-
-1. \textbf{直线与圆的交点}： \\
-* 利用向量投影！求出圆心到直线的投影点（垂足），然后计算圆心到直线的距离 $d$。 \\
-* 若 $d > r$ 相离；$d = r$ 相切；$d < r$ 相交。利用勾股定理求出垂足到交点的偏移长度 $L = \sqrt{r^2 - d^2}$，在直线上沿方向向量平移即可。 \\
-2. \textbf{圆与圆的交点 (余弦定理)}： \\
-* 设两圆心距离为 $d$。在由两圆心和交点构成的三角形中，三边长分别为 $r_1, r_2, d$。 \\
-* 利用\textbf{余弦定理} $\cos \alpha = \frac{r_1^2 + d^2 - r_2^2}{2 \cdot r_1 \cdot d}$，求出两圆心连线与圆心到交点连线之间的夹角 $\alpha$。 \\
-* 把圆心连线的极角 $\theta$ 分别加上和减去 $\alpha$，即可得到两个交点的极角，利用极坐标转直角坐标搞定。 \\
-3. \textbf{点到圆的切线点}： \\
-* 设点 $P$ 到圆心 $O$ 的距离为 $d$。在切点构成的直角三角形中，斜边为 $d$，直角边为 $r$。 \\
-* 圆心角 $\alpha = \arccos(\frac{r}{d})$。求出 $\overrightarrow{OP}$ 的极角 $\theta$，切点极角即为 $\theta \pm \alpha$。 \\
-
-
-\noindent\texttt{\scriptsize File: 圆.cpp}
-\begin{lstlisting}
+% Source: 计算几何/圆_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{解决什么实际问题 (实战映射)}\par\nobreak
+在二维计算几何中，一旦引入了“圆”，往往意味着涉及范围覆盖、最短雷达探测、以及极角排序。这套板子专门对付以下经典恶心场景：\par
+\begin{enumerate}[start=1]
+\item \textbf{雷达/基站覆盖判定 (Circle-Circle / Line-Circle)}：求两个圆形探测器重叠的精确坐标，或者一架飞机（沿直线飞行）在雷达覆盖区域内飞行的准确入点和出点。
+\item \textbf{光源/视线切点遮挡 (Point-Circle Tangents)}：一个人站在点 $P$ 看向一个圆柱体障碍物，求视线的边界边缘（即从点 $P$ 出发到圆的两条切线及切点坐标）。这是计算几何中“阴影面积”或“视野锥”问题的绝对核心。
+\item \textbf{皮带传动/外围凸包 (Common Tangents)}：多个圆组成的机械齿轮或滑轮组，求包裹它们的最短皮带长度（利用圆与圆的外公切线，不过实战中单点求切线更为高频和基础）。
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{核心结论与数学性质 (实战必背)}\par\nobreak
+处理圆的问题，\textbf{绝对不要去解联立二次方程组！} 算竞中的终极武器是\textbf{极坐标与解三角形（三角函数）}。\par
+\begin{enumerate}[start=1]
+\item \textbf{直线与圆的交点}：
+\begin{itemize}
+\item 利用向量投影！求出圆心到直线的投影点（垂足），然后计算圆心到直线的距离 $d$。
+\item 若 $d > r$ 相离；$d = r$ 相切；$d < r$ 相交。利用勾股定理求出垂足到交点的偏移长度 $L = \sqrt{r^2 - d^2}$，在直线上沿方向向量平移即可。
+\end{itemize}
+\item \textbf{圆与圆的交点 (余弦定理)}：
+\begin{itemize}
+\item 设两圆心距离为 $d$。在由两圆心和交点构成的三角形中，三边长分别为 $r_1, r_2, d$。
+\item 利用\textbf{余弦定理} $\cos \alpha = \frac{r_1^2 + d^2 - r_2^2}{2 \cdot r_1 \cdot d}$，求出两圆心连线与圆心到交点连线之间的夹角 $\alpha$。
+\item 把圆心连线的极角 $\theta$ 分别加上和减去 $\alpha$，即可得到两个交点的极角，利用极坐标转直角坐标搞定。
+\end{itemize}
+\item \textbf{点到圆的切线点}：
+\begin{itemize}
+\item 设点 $P$ 到圆心 $O$ 的距离为 $d$。在切点构成的直角三角形中，斜边为 $d$，直角边为 $r$。
+\item 圆心角 $\alpha = \arccos(\frac{r}{d})$。求出 $\overrightarrow{OP}$ 的极角 $\theta$，切点极角即为 $\theta \pm \alpha$。
+\end{itemize}
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 圆.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -4944,20 +6019,20 @@ signed main()
 \end{lstlisting}
 \subsection*{数据结构 - 扫描线求矩形面积并}
 \addcontentsline{toc}{subsection}{数据结构 - 扫描线求矩形面积并}
-\noindent\textbf{数据结构 - 扫描线求矩形面积并} \\
-
-
-\noindent\textbf{算法说明} \\
-
-
-* \textbf{用途}：求 $N$ 个相互重叠的矩形在二维平面上覆盖的总面积。 \\
-* \textbf{时间复杂度}：$O(N \log N)$，主要开销在坐标离散化和线段树的区间修改上。 \\
-* \textbf{核心思想}:。将每个矩形拆分为左右两条垂直线段（左边标记为 \texttt{1}，右边标记为 \texttt{-1}）。用一根垂直的扫描线从左向右扫，遇到线段就更新线段树。线段树维护的是\textbf{被截取的有效高度}，每次推进的面积 = \texttt{当前有效高度} $\times$ \texttt{扫描线向右推进的距离}。 \\
-* \textbf{避坑指南}： \\
-1. 线段树维护的是\textbf{线段（区间）}而不是\textbf{点}。如果离散化后 \texttt{Y} 坐标的下标为 $L$ 和 $R$，则在线段树中修改的区间是 $[L, R-1]$。 \\
-2. 叶子节点 \texttt{l == r} 实际代表的是长度为 \texttt{Y[r+1] - Y[l]} 的这一小段线段。 \\
-\noindent\texttt{\scriptsize File: 扫描线.cpp}
-\begin{lstlisting}
+% Source: 计算几何/扫描线_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：求 $N$ 个相互重叠的矩形在二维平面上覆盖的总面积。
+\item \textbf{时间复杂度}：$O(N \log N)$，主要开销在坐标离散化和线段树的区间修改上。
+\item \textbf{核心思想}:。将每个矩形拆分为左右两条垂直线段（左边标记为 \texttt{1}，右边标记为 \texttt{-\allowbreak{}1}）。用一根垂直的扫描线从左向右扫，遇到线段就更新线段树。线段树维护的是\textbf{被截取的有效高度}，每次推进的面积 = \texttt{当\allowbreak{}前\allowbreak{}有\allowbreak{}效\allowbreak{}高\allowbreak{}度} $\times$ \texttt{扫\allowbreak{}描\allowbreak{}线\allowbreak{}向\allowbreak{}右\allowbreak{}推\allowbreak{}进\allowbreak{}的\allowbreak{}距\allowbreak{}离}。
+\item \textbf{避坑指南}：
+\begin{enumerate}[start=1]
+\item 线段树维护的是\textbf{线段（区间）}而不是\textbf{点}。如果离散化后 \texttt{Y} 坐标的下标为 $L$ 和 $R$，则在线段树中修改的区间是 $[L, R-1]$。
+\item 叶子节点 \texttt{l\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}r} 实际代表的是长度为 \texttt{Y\allowbreak{}[\allowbreak{}r\allowbreak{}+\allowbreak{}1\allowbreak{}]\allowbreak{} \allowbreak{}-\allowbreak{} \allowbreak{}Y\allowbreak{}[\allowbreak{}l\allowbreak{}]} 的这一小段线段。
+\end{enumerate}
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 扫描线.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -5044,37 +6119,35 @@ void solve()
 \end{lstlisting}
 \subsection*{计算几何 - 线段与射线交点全家桶 (无重载运算符纯净版)}
 \addcontentsline{toc}{subsection}{计算几何 - 线段与射线交点全家桶 (无重载运算符纯净版)}
-\noindent\textbf{计算几何 - 线段与射线交点全家桶 (无重载运算符纯净版)} \\
-
-
-\noindent\textbf{解决什么实际问题 (实战映射)} \\
-在二维计算几何（坐标系、物理模拟、碰撞检测、地图视线）中，当你需要解决以下场景时，直接掏出这套板子： \\
-1. \textbf{地图视线与障碍物判定 (Raycasting / Sight)}：NPC 从点 $A$ 向某个方向看去，求这条\textbf{射线}是否能刺穿某条\textbf{墙壁线段}，或者求它击中的第一个交点。 \\
-2. \textbf{光线反射与折射 (Laser / Light physics)}：模拟一束激光（射线）击中一面镜子（线段），需要精准求出\textbf{交点坐标}以进行下一次的反射向量计算。 \\
-3. \textbf{多边形相交与切割 (Polygon Clipping)}：用一条直线把一个多边形切成两半，或者判断两个复杂的几何图案是否发生交叉碰撞（求\textbf{线段交点}）。 \\
-4. \textbf{车辆/弹道轨迹预测 (Trajectory Intersect)}：两辆车或两颗子弹在二维平面上做直线运动，已知其起点和速度方向（射线），求它们未来是否会相撞以及相撞的具体坐标。 \\
-
-
-\noindent\textbf{核心结论与数学性质 (实战必背)} \\
-处理线段/射线问题，纯粹用解析几何的 $y = kx+b$ 会面临斜率不存在（垂直线）的巨大灾难。算竞中必须统一使用\textbf{向量积（叉积 Cross Product）}。 \\
-
-
-1. \textbf{叉积的几何意义}：向量 $\vec{A} \times \vec{B} = x_1y_2 - x_2y_1$。 \\
-* 若结果 $> 0$，说明 $\vec{B}$ 在 $\vec{A}$ 的\textbf{逆时针}方向； \\
-* 若结果 $< 0$，说明 $\vec{B}$ 在 $\vec{A}$ 的\textbf{顺时针}方向； \\
-* 若结果 $= 0$，说明 $\vec{A}$ 与 $\vec{B}$ \textbf{共线}。 \\
-2. \textbf{参数方程统一交点公式}： \\
-* 任何直线/射线/线段都可以表示为 $P(t) = S + t \cdot \vec{v}$。 \\
-* \textbf{直线}：$t \in (-\infty, +\infty)$ \\
-* \textbf{射线}：$t \in [0, +\infty)$ \\
-* \textbf{线段}：$t \in [0, 1]$ \\
-* 通过推导，两条线的参数 $t_1, t_2$ 可以直接通过叉积比值求出。求出 $t$ 后，只需判断 $t$ 的范围即可一张板子通杀\textbf{直线、射线、线段}的所有交点组合。 \\
-
-
-
-
-\noindent\texttt{\scriptsize File: 线段射线.cpp}
-\begin{lstlisting}
+% Source: 计算几何/线段射线_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{解决什么实际问题 (实战映射)}\par\nobreak
+在二维计算几何（坐标系、物理模拟、碰撞检测、地图视线）中，当你需要解决以下场景时，直接掏出这套板子：\par
+\begin{enumerate}[start=1]
+\item \textbf{地图视线与障碍物判定 (Raycasting / Sight)}：NPC 从点 $A$ 向某个方向看去，求这条\textbf{射线}是否能刺穿某条\textbf{墙壁线段}，或者求它击中的第一个交点。
+\item \textbf{光线反射与折射 (Laser / Light physics)}：模拟一束激光（射线）击中一面镜子（线段），需要精准求出\textbf{交点坐标}以进行下一次的反射向量计算。
+\item \textbf{多边形相交与切割 (Polygon Clipping)}：用一条直线把一个多边形切成两半，或者判断两个复杂的几何图案是否发生交叉碰撞（求\textbf{线段交点}）。
+\item \textbf{车辆/弹道轨迹预测 (Trajectory Intersect)}：两辆车或两颗子弹在二维平面上做直线运动，已知其起点和速度方向（射线），求它们未来是否会相撞以及相撞的具体坐标。
+\end{enumerate}
+\par\addvspace{0.7ex}\noindent\textbf{核心结论与数学性质 (实战必背)}\par\nobreak
+处理线段/射线问题，纯粹用解析几何的 $y = kx+b$ 会面临斜率不存在（垂直线）的巨大灾难。算竞中必须统一使用\textbf{向量积（叉积 Cross Product）}。\par
+\begin{enumerate}[start=1]
+\item \textbf{叉积的几何意义}：向量 $\vec{A} \times \vec{B} = x_1y_2 - x_2y_1$。
+\begin{itemize}
+\item 若结果 $> 0$，说明 $\vec{B}$ 在 $\vec{A}$ 的\textbf{逆时针}方向；
+\item 若结果 $< 0$，说明 $\vec{B}$ 在 $\vec{A}$ 的\textbf{顺时针}方向；
+\item 若结果 $= 0$，说明 $\vec{A}$ 与 $\vec{B}$ \textbf{共线}。
+\end{itemize}
+\item \textbf{参数方程统一交点公式}：
+\begin{itemize}
+\item 任何直线/射线/线段都可以表示为 $P(t) = S + t \cdot \vec{v}$。
+\item \textbf{直线}：$t \in (-\infty, +\infty)$
+\item \textbf{射线}：$t \in [0, +\infty)$
+\item \textbf{线段}：$t \in [0, 1]$
+\item 通过推导，两条线的参数 $t_1, t_2$ 可以直接通过叉积比值求出。求出 $t$ 后，只需判断 $t$ 的范围即可一张板子通杀\textbf{直线、射线、线段}的所有交点组合。
+\end{itemize}
+\end{enumerate}
+\par\noindent{\scriptsize\texttt{File: 线段射线.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 
@@ -5184,19 +6257,18 @@ signed main()
     while(T--) solve();
     return 0;
 }
-
 \end{lstlisting}
 \subsection*{计算几何 - 简单多边形面积 (Polygon Area)}
 \addcontentsline{toc}{subsection}{计算几何 - 简单多边形面积 (Polygon Area)}
-\noindent\textbf{计算几何 - 简单多边形面积 (Polygon Area)} \\
-
-
-\noindent\textbf{算法说明} \\
-* \textbf{用途}：计算任意给定顶点顺序（顺时针或逆时针）的简单多边形面积。不仅限于凸多边形，凹多边形同样适用。 \\
-* \textbf{时间复杂度}：$O(N)$。 \\
-* \textbf{核心思想}：\textbf{三角剖分与有向面积}。固定多边形的起点 \texttt{ar[0]}，将其与后续所有相邻的边 \texttt{ar[i]-ar[i+1]} 连成三角形。利用叉积求出带有正负号的三角形面积并累加。正负号会自动抵消凹多边形外部的无效面积，最终取绝对值除以 2 即可。 \\
-\noindent\texttt{\scriptsize File: 计算多边形面积.cpp}
-\begin{lstlisting}
+% Source: 计算几何/计算多边形面积_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：计算任意给定顶点顺序（顺时针或逆时针）的简单多边形面积。不仅限于凸多边形，凹多边形同样适用。
+\item \textbf{时间复杂度}：$O(N)$。
+\item \textbf{核心思想}：\textbf{三角剖分与有向面积}。固定多边形的起点 \texttt{a\allowbreak{}r\allowbreak{}[\allowbreak{}0\allowbreak{}]}，将其与后续所有相邻的边 \texttt{a\allowbreak{}r\allowbreak{}[\allowbreak{}i\allowbreak{}]\allowbreak{}-\allowbreak{}a\allowbreak{}r\allowbreak{}[\allowbreak{}i\allowbreak{}+\allowbreak{}1\allowbreak{}]} 连成三角形。利用叉积求出带有正负号的三角形面积并累加。正负号会自动抵消凹多边形外部的无效面积，最终取绝对值除以 2 即可。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 计算多边形面积.cpp}}\par
+\begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
@@ -5227,4 +6299,5 @@ double pore(const vector<po>& ar)
     return abs(x) / 2.0; 
 }
 \end{lstlisting}
-\end{multicols*} \end{document}
+\end{multicols*}
+\end{document}
