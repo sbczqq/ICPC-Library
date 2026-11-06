@@ -101,6 +101,127 @@ signed main()
 \end{lstlisting}
 \section*{图论}
 \addcontentsline{toc}{section}{图论}
+\subsection*{图论 - 2-SAT}
+\addcontentsline{toc}{subsection}{图论 - 2-SAT}
+% Source: 图论/2-SAT_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：给每个变量选 \texttt{0} 或 \texttt{1}。每条条件形如「\texttt{x} 取 \texttt{a} 或 \texttt{y} 取 \texttt{b}」，至少一项成立；要求所有条件都成立，并给出一组取值。
+\item \textbf{建图}：变量 \texttt{x} 取 \texttt{0}、\texttt{1} 分别用编号 \texttt{x}、\texttt{x\allowbreak{}+\allowbreak{}n} 表示。一条条件 $A\lor B$ 表示至少一项成立：如果 $A$ 不成立，就必须满足 $B$；如果 $B$ 不成立，就必须满足 $A$。因此连 $\neg A\to B$ 和 $\neg B\to A$。
+\item \textbf{四种建边}：设 $X$ 表示「\texttt{x\allowbreak{}=\allowbreak{}1}」，$\neg X$ 表示「\texttt{x\allowbreak{}=\allowbreak{}0}」；$Y$ 同理。下面的输入均按 \texttt{x\allowbreak{} \allowbreak{}a\allowbreak{} \allowbreak{}y\allowbreak{} \allowbreak{}b} 排列。
+\begin{enumerate}[start=1]
+\item \texttt{x\allowbreak{} \allowbreak{}1\allowbreak{} \allowbreak{}y\allowbreak{} \allowbreak{}1}（$X\lor Y$）：连 $\neg X\to Y$、$\neg Y\to X$。
+\item \texttt{x\allowbreak{} \allowbreak{}0\allowbreak{} \allowbreak{}y\allowbreak{} \allowbreak{}1}（$\neg X\lor Y$）：连 $X\to Y$、$\neg Y\to\neg X$。
+\item \texttt{x\allowbreak{} \allowbreak{}1\allowbreak{} \allowbreak{}y\allowbreak{} \allowbreak{}0}（$X\lor\neg Y$）：连 $\neg X\to\neg Y$、$Y\to X$。
+\item \texttt{x\allowbreak{} \allowbreak{}0\allowbreak{} \allowbreak{}y\allowbreak{} \allowbreak{}0}（$\neg X\lor\neg Y$）：连 $X\to\neg Y$、$Y\to\neg X$。
+\end{enumerate}
+\item \textbf{例子}：读到 \texttt{1\allowbreak{} \allowbreak{}1\allowbreak{} \allowbreak{}2\allowbreak{} \allowbreak{}0}，对应第3种，要求 \texttt{x\allowbreak{}1\allowbreak{}=\allowbreak{}1} 或 \texttt{x\allowbreak{}2\allowbreak{}=\allowbreak{}0}，因此连 \texttt{x\allowbreak{}1\allowbreak{}=\allowbreak{}0\allowbreak{} \allowbreak{}\ensuremath{\to}\allowbreak{} \allowbreak{}x\allowbreak{}2\allowbreak{}=\allowbreak{}0} 和 \texttt{x\allowbreak{}2\allowbreak{}=\allowbreak{}1\allowbreak{} \allowbreak{}\ensuremath{\to}\allowbreak{} \allowbreak{}x\allowbreak{}1\allowbreak{}=\allowbreak{}1}。
+\item \textbf{判定与取值}：用 Kosaraju 给图分组。若同一个变量的两种取值在同一组，说明它们能互相推出，无解。否则，按本代码的编号选分量编号较大的取值。
+\item \textbf{使用方法}：第一行输入变量数 \texttt{n}、条件数 \texttt{m}，再读 \texttt{m} 行 \texttt{x\allowbreak{} \allowbreak{}a\allowbreak{} \allowbreak{}y\allowbreak{} \allowbreak{}b}。无解输出 \texttt{I\allowbreak{}M\allowbreak{}P\allowbreak{}O\allowbreak{}S\allowbreak{}S\allowbreak{}I\allowbreak{}B\allowbreak{}L\allowbreak{}E}；有解先输出 \texttt{P\allowbreak{}O\allowbreak{}S\allowbreak{}S\allowbreak{}I\allowbreak{}B\allowbreak{}L\allowbreak{}E}，再按变量编号输出一行 \texttt{0\allowbreak{}/\allowbreak{}1}。
+\item \textbf{强制取值}：想让 \texttt{x} 一定取 \texttt{a}，输入 \texttt{x\allowbreak{} \allowbreak{}a\allowbreak{} \allowbreak{}x\allowbreak{} \allowbreak{}a}，也就是把同一个条件重复两次作为一条「或」。
+\item \textbf{复杂度}：时间和空间均为 $O(n+m)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 2-SAT.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<vector<int>>g,rg; // 原图、反图：边u→v表示u成立就必须让v成立
+
+vector<int> scc(int tot)
+{
+    vector<int>id(tot+1),cur(tot+1),order,stk;
+    vector<char>vis(tot+1);
+
+    for(int s=1;s<=tot;s++) // 第一遍：在原图记录每个点搜完的顺序
+    {
+        if(vis[s])continue;
+        vis[s]=1;
+        stk.push_back(s);
+        while(!stk.empty())
+        {
+            int u=stk.back();
+            if(cur[u]==(int)g[u].size()) // 出边全部检查完，才记录u
+            {
+                order.push_back(u);
+                stk.pop_back();
+                continue;
+            }
+
+            int v=g[u][cur[u]++]; // cur[u]记录下一条要检查的出边
+            if(vis[v])continue;
+            vis[v]=1;
+            stk.push_back(v);
+        }
+    }
+
+    reverse(order.begin(),order.end());
+    int cnt=0;
+    for(int s:order) // 第二遍：按反过来的顺序，在反图上一组一组找
+    {
+        if(id[s])continue;
+        id[s]=++cnt;
+        stk.push_back(s);
+        while(!stk.empty())
+        {
+            int u=stk.back();
+            stk.pop_back();
+            for(int v:rg[u])
+            {
+                if(id[v])continue;
+                id[v]=cnt; // 这次找到的点都与s属于同一组
+                stk.push_back(v);
+            }
+        }
+    }
+    return id;
+}
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n,m;
+    cin>>n>>m; // n个变量，每个只能取0或1；m条条件必须全部满足
+    g.resize(2*n+1);
+    rg.resize(2*n+1);
+
+    for(int i=1;i<=m;i++)
+    {
+        int x,a,y,b;
+        cin>>x>>a>>y>>b; // 要求“x取a”或“y取b”，至少满足一项
+
+        int x_yes=x+a*n; // 表示“x取a”的点；变量x的0、1分别用x、x+n表示
+        int x_no=x+(1-a)*n; // 表示“x不取a”的点
+        int y_yes=y+b*n;
+        int y_no=y+(1-b)*n;
+
+        g[x_no].push_back(y_yes); // x不取a，就必须让y取b
+        g[y_no].push_back(x_yes); // y不取b，就必须让x取a
+        rg[y_yes].push_back(x_no); // 同两条边，反向存给第二遍DFS
+        rg[x_yes].push_back(y_no);
+    }
+
+    vector<int>id=scc(2*n);
+    for(int x=1;x<=n;x++)
+    {
+        if(id[x]==id[x+n]) // x取0和取1互相推出，没法只满足其中一个
+        {
+            cout<<"IMPOSSIBLE\n";
+            return 0;
+        }
+    }
+
+    cout<<"POSSIBLE\n";
+    for(int x=1;x<=n;x++)
+    {
+        int ans=id[x+n]>id[x]; // 这版分量从前往后编号，选编号较大的取值
+        cout<<ans<<" \n"[x==n];
+    }
+    return 0;
+}
+\end{lstlisting}
 \subsection*{图论 - Kruskal 重构树 (瓶颈路问题)}
 \addcontentsline{toc}{subsection}{图论 - Kruskal 重构树 (瓶颈路问题)}
 % Source: 图论/Kruskal 重构树_doc.md
@@ -839,107 +960,68 @@ signed main()
 \end{itemize}
 \par\noindent{\scriptsize\texttt{File: 欧拉图和欧拉路径.cpp}}\par
 \begin{lstlisting}[language=C++]
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
 #define int long long
-using PII = pair<int, int>;
-
-const int MAXN = 2e5 + 5;
-vector<int> adj[MAXN];
-int cur[MAXN]; 
-int in_deg[MAXN], out_deg[MAXN];
-vector<int> path;
-
-// Hierholzer 核心 DFS
-void dfs(int u)
-{
-    while(cur[u] < adj[u].size())
-    {
-        int v = adj[u][cur[u]++]; // 边走边删，指针后移
-        dfs(v);
-    }
-    path.push_back(u); // 陷入死胡同，压入答案栈
-}
 
 void solve()
 {
-    int n, m; 
-    cin >> n >> m;
-
-    // 1. 多组数据初始化清空
-    for(int i = 1; i <= n; i++)
+    int n,m;
+    cin>>n>>m;
+    vector<vector<int>>adj(n+1);
+    vector<int>deg(n+1); // 出度减入度
+    for(int i=1;i<=m;i++)
     {
-        adj[i].clear();
-        cur[i] = in_deg[i] = out_deg[i] = 0;
-    }
-    path.clear();
-
-    // 2. 读入有向边建图
-    for(int i = 1; i <= m; i++)
-    {
-        int u, v;
-        cin >> u >> v;
+        int u,v;
+        cin>>u>>v;
         adj[u].push_back(v);
-        out_deg[u]++;
-        in_deg[v]++;
+        deg[u]++;
+        deg[v]--;
     }
 
-    // 3. 字典序最小：对邻接表进行升序排序
-    for(int i = 1; i <= n; i++)
+    int s=0,t=0,first=0; // 路径起点、终点、第一个有出边的点
+    for(int u=1;u<=n;u++)
     {
-        sort(adj[i].begin(), adj[i].end());
-    }
-
-    // 4. 判定奇偶点，寻找起点
-    int start_node = 1, odd_cnt = 0;
-    bool valid = true;
-
-    for(int i = 1; i <= n; i++)
-    {
-        if(in_deg[i] != out_deg[i])
+        if(!first&&!adj[u].empty())first=u;
+        if(deg[u]==0)continue;
+        if(deg[u]==1&&!s)s=u;
+        else if(deg[u]==-1&&!t)t=u;
+        else
         {
-            odd_cnt++;
-            if(out_deg[i] - in_deg[i] == 1) start_node = i; // 路径的唯一合法起点
-            else if(in_deg[i] - out_deg[i] != 1) valid = false; // 度数差大于1，直接无解
+            cout<<"No\n"; // 度差不合法，或起点、终点不唯一
+            return;
+        }
+    }
+    if(!s)s=first?first:1; // 回路从最小的有出边点开始；没有边就输出1
+
+    for(int u=1;u<=n;u++)sort(adj[u].rbegin(),adj[u].rend()); // 倒序排，最小邻点在末尾
+
+    vector<int>stk,path;
+    stk.reserve(m+1);
+    path.reserve(m+1);
+    stk.push_back(s);
+    while(!stk.empty())
+    {
+        int u=stk.back();
+        if(!adj[u].empty())
+        {
+            int v=adj[u].back();
+            adj[u].pop_back(); // 每条有向边只取一次
+            stk.push_back(v);
+        }
+        else
+        {
+            path.push_back(u); // 没有剩余出边，回退时记录
+            stk.pop_back();
         }
     }
 
-    // 异常点只能是 0 个(回路) 或 2 个(路径)
-    if(!valid || (odd_cnt != 0 && odd_cnt != 2))
+    if((int)path.size()!=m+1)
     {
-        cout << "No\n"; 
+        cout<<"No\n"; // 还有边没有走到
         return;
     }
-
-    // 如果是欧拉回路(异常点为0)，没有绝对起点，随便找一个有出度的点作为起点
-    if(odd_cnt == 0)
-    {
-        for(int i = 1; i <= n; i++)
-        {
-            if(out_deg[i] > 0)
-            {
-                start_node = i;
-                break;
-            }
-        }
-    }
-
-    // 5. 跑核心算法
-    dfs(start_node);
-
-    // 6. 连通性判定：如果跑出来的点数不等于边数+1，说明图不连通，有边没走到
-    if(path.size() != m + 1)
-    {
-        cout << "No\n";
-        return;
-    }
-
-    // 7. 逆序输出即为最终的一笔画路径
-    reverse(path.begin(), path.end());
-    for(int i = 0; i < path.size(); i++)
-    {
-        cout << path[i] << " \n"[i == path.size() - 1];
-    }
+    for(int i=m;i>=0;i--)cout<<path[i]<<" \n"[i==0]; // 逆序输出
 }
 \end{lstlisting}
 \subsection*{网络流 - 最小费用流 (SPFA增广)}
@@ -1220,19 +1302,25 @@ void scc(int n) // 用add提前建图，其余状态初始为零
     }
 }
 \end{lstlisting}
-\subsection*{图论 - Tarjan 强连通分量 (SCC) 与缩点}
-\addcontentsline{toc}{subsection}{图论 - Tarjan 强连通分量 (SCC) 与缩点}
-% Source: 图论/连通-tarjan_doc.md
-\par\addvspace{0.7ex}\noindent\textbf{何时使用}\par\nobreak
-有向图中寻找\textbf{死循环圈（强连通分量）}，或者需要消除环，将图转化为\textbf{有向无环图 (DAG)} 以便跑 DP / 最长路 / 拓扑排序时（即缩点）。\par
-\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
-\begin{enumerate}[start=1]
-\item \textbf{\texttt{t\allowbreak{}a\allowbreak{}r\allowbreak{}j\allowbreak{}a\allowbreak{}n\allowbreak{}(\allowbreak{}u\allowbreak{})}}：打时间戳 \texttt{d\allowbreak{}f\allowbreak{}n} 和追溯值 \texttt{l\allowbreak{}o\allowbreak{}w}，点入栈。
-\item \textbf{遍历出边}：若未访问，深搜并用子节点 \texttt{l\allowbreak{}o\allowbreak{}w} 更新自己；若已在栈中（发现后向边成环），用其 \texttt{d\allowbreak{}f\allowbreak{}n} 更新自己 \texttt{l\allowbreak{}o\allowbreak{}w}。
-\item \textbf{出栈成团}：当 \texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{} \allowbreak{}=\allowbreak{}=\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}u\allowbreak{}]}，说明 \texttt{u} 是该环的最高点，不断弹栈直到弹出 \texttt{u}，打包成一个新的超级大点。
-\item \textbf{重建新图}：遍历原图边，若两端点归属不同超级大点，则在新图间连有向边。
-\end{enumerate}
-\par\noindent{\scriptsize\texttt{File: 连通-tarjan.cpp}}\par
+\subsection*{连通 - Tarjan SCC (强连通分量与缩点)}
+\addcontentsline{toc}{subsection}{连通 - Tarjan SCC (强连通分量与缩点)}
+% Source: 图论/连通-tarjanscc_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在有向图中，将能够互相到达的点分为一组，再将每组缩成一个点。
+\item \textbf{关键判断}：\texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}=\allowbreak{}=\allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}u\allowbreak{}]} 时，从栈顶弹到 \texttt{u}，得到一个强连通分量；已访问的邻点只有仍在栈中时才能更新 \texttt{l\allowbreak{}o\allowbreak{}w}。
+\item \textbf{结果}：\texttt{i\allowbreak{}d\allowbreak{}[\allowbreak{}u\allowbreak{}]} 为所属分量，\texttt{c\allowbreak{}n\allowbreak{}t} 为分量数量，\texttt{n\allowbreak{}e} 为缩点后的DAG，平行边不去重。
+\item \textbf{复杂度}：时间、工作空间均为 $O(n+m)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+e[u].push_back(v); // 添加有向边u→v
+scc(n); // 全部边加入后调用，自动处理不连通的图
+bool same=id[u]==id[v]; // 是否属于同一个强连通分量
+\end{lstlisting}
+
+例如 \texttt{1\allowbreak{}\ensuremath{\to}\allowbreak{}2\allowbreak{}、\allowbreak{}2\allowbreak{}\ensuremath{\to}\allowbreak{}1\allowbreak{}、\allowbreak{}2\allowbreak{}\ensuremath{\to}\allowbreak{}3}，分为 \texttt{\{\allowbreak{}1\allowbreak{},\allowbreak{}2\allowbreak{}\}} 和 \texttt{\{\allowbreak{}3\allowbreak{}\}}，缩点后前一组指向后一组。重新计算会清空结果；更换原图时另行清空 \texttt{e}。\par
+\par\noindent{\scriptsize\texttt{File: 连通-tarjanscc.cpp}}\par
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
@@ -1241,116 +1329,297 @@ using namespace std;
 
 const int N=2e5+10;
 vector<int>e[N],ne[N]; // 原有向图、缩点后的有向无环图
-int dfn[N],low[N],tim; // DFS访问顺序、能够追溯到的最早访问顺序、时间戳
-int stk[N],top,id[N],cnt; // 尚未归属分量的点栈、栈顶、所属分量编号、分量数量
-bool st[N]; // st[u]表示u是否仍在栈中
+int dfn[N],low[N],tim; // 访问顺序、最早追溯顺序、时间戳
+int stk[N],top,id[N],cnt; // 尚未归属分量的点栈、栈顶、所属分量、分量数量
+bool st[N]; // 点是否仍在栈中
 
 void tarjan(int u) // 求有向图的强连通分量
 {
-    dfn[u]=low[u]=++tim; // 首次访问u，初始化访问顺序和追溯值
-    stk[++top]=u; // 将u放入栈中，等待确定所属分量
+    dfn[u]=low[u]=++tim;
+    stk[++top]=u;
     st[u]=1;
-    for(auto v:e[u]) // 遍历u的所有出边
+    for(auto v:e[u])
     {
-        if(!dfn[v]) // v尚未访问，沿DFS树继续搜索
+        if(!dfn[v]) // 尚未访问，继续搜索
         {
             tarjan(v);
-            low[u]=min(low[u],low[v]); // 用子节点能够追溯到的位置更新u
+            low[u]=min(low[u],low[v]); // 用子节点的追溯值更新自己
         }
-        else if(st[v]) // v仍在栈中，可以参与当前尚未划分完的分量
-            low[u]=min(low[u],dfn[v]); // 已访问的点用dfn更新，已出栈的点不再考虑
+        else if(st[v])
+            low[u]=min(low[u],dfn[v]); // 只考虑仍在栈中的点，使用它的访问顺序
     }
-    if(dfn[u]==low[u]) // u是一个强连通分量在DFS树中的根
+    if(dfn[u]==low[u]) // 找到一个强连通分量的DFS根
     {
         cnt++;
         int v;
         do
         {
-            v=stk[top--]; // 从栈顶弹出当前分量的点
-            st[v]=0; // 已经确定所属分量，不再留在栈中
-            id[v]=cnt; // 同一次弹出的点属于同一个强连通分量
-        }while(v!=u); // 弹到u时，这个强连通分量恰好全部取出
+            v=stk[top--];
+            st[v]=0;
+            id[v]=cnt; // 弹到u为止，这些点属于同一个分量
+        }while(v!=u);
     }
 }
 
-void scc(int n) // e[1..n]提前建好，其余状态初始为零
+void scc(int n) // 提前建好e[1..n]，求分量并建立缩点图
 {
+    tim=top=cnt=0;
     for(int i=1;i<=n;i++)
-        if(!dfn[i])tarjan(i); // 图可能不连通，每个未访问的点都要搜索
+    {
+        dfn[i]=low[i]=id[i]=0;
+        st[i]=0;
+        ne[i].clear(); // 清空计算状态，保留原图
+    }
+    for(int i=1;i<=n;i++)
+        if(!dfn[i])tarjan(i); // 处理所有未访问的点
     for(int u=1;u<=n;u++)
     {
         for(auto v:e[u])
         {
-            int a=id[u],b=id[v]; // 将原边的两个端点映射为分量编号
-            if(a!=b)ne[a].push_back(b); // 只保留分量之间的边，平行边不去重
+            int a=id[u],b=id[v];
+            if(a!=b)ne[a].push_back(b); // 跨分量的边加入新图，平行边不去重
         }
     }
 }
 \end{lstlisting}
-\subsection*{图论 - 割点与割边 (桥) (Articulation Points \& Bridges)}
-\addcontentsline{toc}{subsection}{图论 - 割点与割边 (桥) (Articulation Points \& Bridges)}
-% Source: 图论/连通-割点桥_doc.md
-\par\addvspace{0.7ex}\noindent\textbf{何时使用}\par\nobreak
-在\textbf{无向图}中寻找“脆弱点/脆弱边”。\par
+\subsection*{连通 - Tarjan割点割边}
+\addcontentsline{toc}{subsection}{连通 - Tarjan割点割边}
+% Source: 图论/连通-tarjan割点割边_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
 \begin{itemize}
-\item \textbf{割点}：如果删除该节点（及其相连的边），图的连通块数量会增加。
-\item \textbf{割边 (桥)}：如果删除该边，图的连通块数量会增加。
+\item \textbf{用途}：在无向图中找割点和割边。删除它们后，连通块数量会增加。
+\item \textbf{割边}：DFS树边 \texttt{u\allowbreak{}\ensuremath{\to}\allowbreak{}v} 满足 \texttt{l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]\allowbreak{}\textgreater{}\allowbreak{}d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]}，则这条边是桥。
+\item \textbf{割点}：非根存在子节点满足 \texttt{l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]\allowbreak{}\textgreater{}\allowbreak{}=\allowbreak{}d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]}；根则必须有至少两个DFS子节点。
+\item \textbf{复杂度}：时间、工作空间均为 $O(n+m)$，支持重边和自环。
 \end{itemize}
-\par\addvspace{0.7ex}\noindent\textbf{核心步骤}\par\nobreak
-\begin{enumerate}[start=1]
-\item \textbf{建图}：每条无向边调用一次 \texttt{a\allowbreak{}d\allowbreak{}d\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{})}，两个方向共用一个边编号。DFS只跳过进入边的编号，保留其他重边；\texttt{c\allowbreak{}u\allowbreak{}t\allowbreak{}[\allowbreak{}u\allowbreak{}]} 标记割点，\texttt{b\allowbreak{}r\allowbreak{}i\allowbreak{}d\allowbreak{}g\allowbreak{}e\allowbreak{}[\allowbreak{}i\allowbreak{}d\allowbreak{}]} 标记第 \texttt{i\allowbreak{}d} 次加入的边是否为桥。
-\item \textbf{\texttt{t\allowbreak{}a\allowbreak{}r\allowbreak{}j\allowbreak{}a\allowbreak{}n\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}f\allowbreak{}r\allowbreak{}o\allowbreak{}m\allowbreak{})}}：记录 \texttt{d\allowbreak{}f\allowbreak{}n}（时间戳）和 \texttt{l\allowbreak{}o\allowbreak{}w}（能回溯到的最早时间）。可调用 \texttt{c\allowbreak{}u\allowbreak{}t\allowbreak{}\_\allowbreak{}b\allowbreak{}r\allowbreak{}i\allowbreak{}d\allowbreak{}g\allowbreak{}e\allowbreak{}(\allowbreak{}n\allowbreak{})} 统一处理所有连通块。
-\item \textbf{判定割边}：若在 DFS 树中发现 \texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{} \allowbreak{}\textless{}\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]}，说明 $v$ 的子树根本无法回到 $u$ 或更早的节点，此时连接它们的边必然是割边。
-\item \textbf{判定割点}：
-\begin{itemize}
-\item \textbf{非根节点}：只要存在一个子节点满足 \texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{} \allowbreak{}\textless{}\allowbreak{}=\allowbreak{} \allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]}，说明子节点离不开 $u$，断开 $u$ 必定断层。
-\item \textbf{根节点}：特判，如果在 DFS 树中有 $\ge 2$ 个分支（子节点），那根节点必是割点。
-\end{itemize}
-\end{enumerate}
-\par\noindent{\scriptsize\texttt{File: 连通-割点桥.cpp}}\par
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+add(u,v,i); // 第i条无向边，只调用一次，i为1..m中的唯一编号
+cutbridge(n,m); // 全部边加入后调用，自动处理各个连通块
+bool a=cut[u]; // 点u是否为割点
+bool b=br[i]; // 第i条边是否为割边
+\end{lstlisting}
+
+例如 \texttt{1\allowbreak{}—\allowbreak{}2\allowbreak{}—\allowbreak{}3}，点2是割点，两条边都是桥。DFS跳过进入边的编号，不能跳过所有通向父节点的边。更换原图时另行清空 \texttt{g}。\par
+\par\noindent{\scriptsize\texttt{File: 连通-tarjan割点割边.cpp}}\par
 \begin{lstlisting}[language=C++]
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
 #define endl '\n'
+using ar2=array<int,2>;
 
 const int N=2e5+10,M=2e5+10;
-vector<pair<int,int>>e[N]; // 每条邻接记录存{终点,无向边编号}
-int dfn[N],low[N],tim,tot; // DFS访问顺序、最早追溯顺序、时间戳、无向边数量
-bool cut[N],bridge[M]; // 点是否为割点、无向边是否为桥
+vector<ar2>g[N]; // 无向图，存{邻点,无向边编号}
+int dfn[N],low[N],tim; // 访问顺序、最早追溯顺序、时间戳
+bool cut[N],br[M]; // 点是否为割点、边是否为割边
 
-void add(int u,int v) // 添加一条无向边，两个方向使用同一个边编号
+void add(int u,int v,int id) // 加入第id条无向边，编号从1开始
 {
-    tot++;
-    e[u].push_back({v,tot});
-    e[v].push_back({u,tot}); // bridge[tot]对应本次加入的无向边
+    g[u].push_back({v,id});
+    g[v].push_back({u,id}); // 两个方向共用编号，重边使用不同编号
 }
 
-void tarjan(int u,int from) // from为进入u的无向边编号，DFS根节点传0
+void tarjan(int u,int f) // f为进入u的边编号，DFS根传0
 {
-    dfn[u]=low[u]=++tim; // 首次访问u，初始化访问顺序和追溯值
-    int cnt=0; // u在DFS树中的子节点数量，用于判断根节点是否为割点
-    for(auto [v,id]:e[u])
+    dfn[u]=low[u]=++tim;
+    int son=0; // DFS树中的子节点数量，用于判断根是否为割点
+    for(auto [v,i]:g[u])
     {
-        if(id==from)continue; // 只跳过进入边，其他通向父节点的重边仍要处理
-        if(!dfn[v]) // v尚未访问，这条边成为DFS树边
+        if(i==f)continue; // 只跳过进入边，其他通向父节点的重边仍要处理
+        if(!dfn[v])
         {
-            cnt++;
-            tarjan(v,id);
-            low[u]=min(low[u],low[v]); // 将v子树能够追溯到的位置合并到u
-            if(low[v]>dfn[u])bridge[id]=1; // v子树无法绕过这条边回到u或u的祖先，说明它是桥
-            if(from&&low[v]>=dfn[u])cut[u]=1; // 非根节点：v子树无法绕过u到达u的祖先
+            son++;
+            tarjan(v,i);
+            low[u]=min(low[u],low[v]);
+            if(low[v]>dfn[u])br[i]=1; // 子树无法绕回u，这条树边是桥
+            if(f&&low[v]>=dfn[u])cut[u]=1; // 非根：子树无法绕过u到达u的祖先
         }
         else
-            low[u]=min(low[u],dfn[v]); // 非树边用邻点的dfn更新，重边和自环均可处理
+            low[u]=min(low[u],dfn[v]); // 非树边用邻点的访问顺序更新
     }
-    if(!from&&cnt>=2)cut[u]=1; // 根节点至少有两个DFS子树时才是割点
+    if(!f&&son>=2)cut[u]=1; // 根至少有两棵DFS子树时才是割点
 }
 
-void cut_bridge(int n) // 用add提前建图，其余状态初始为零
+void cutbridge(int n,int m) // 提前建图，边编号为1..m
 {
+    tim=0;
     for(int i=1;i<=n;i++)
-        if(!dfn[i])tarjan(i,0); // 分别处理每个连通块，根节点没有进入边
+    {
+        dfn[i]=low[i]=0;
+        cut[i]=0;
+    }
+    for(int i=1;i<=m;i++)br[i]=0;
+    for(int i=1;i<=n;i++)
+        if(!dfn[i])tarjan(i,0); // 每个连通块分别寻找DFS根
+}
+\end{lstlisting}
+\subsection*{连通 - 仙人掌图 (两点最短路)}
+\addcontentsline{toc}{subsection}{连通 - 仙人掌图 (两点最短路)}
+% Source: 图论/连通-仙人掌图_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：在带非负边权的无向仙人掌图中，多次查询两点之间的最短距离。仙人掌图的每条边最多属于一个简单环，多个环可以共用一个点。
+\item \textbf{建树}：DFS 遇到一条回到祖先的边时，这条回边和中间的树路组成一个环。用方点表示这个环，挂在环的入口下；没有入环的树边就是桥，直接保留。
+\item \textbf{查询方法}：LCA 是原图点时，直接用到根的距离相减；LCA 是方点时，先找到两侧对应的环点，再比较绕环的两个方向。两个点不连通时返回 \texttt{-\allowbreak{}1}。
+\item \textbf{使用方法}：第一行输入 \texttt{n\allowbreak{} \allowbreak{}m\allowbreak{} \allowbreak{}q}，接着输入 \texttt{m} 条无向边 \texttt{u\allowbreak{} \allowbreak{}v\allowbreak{} \allowbreak{}w}，再输入 \texttt{q} 组查询 \texttt{u\allowbreak{} \allowbreak{}v}。\texttt{b\allowbreak{}u\allowbreak{}i\allowbreak{}l\allowbreak{}d\allowbreak{}(\allowbreak{}n\allowbreak{})} 预处理，\texttt{q\allowbreak{}u\allowbreak{}e\allowbreak{}r\allowbreak{}y\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}v\allowbreak{},\allowbreak{}n\allowbreak{})} 返回最短距离，每次输出一行。点数不超过 $2\times10^5$。
+\item \textbf{例子}：三角形的 \texttt{1\allowbreak{}—\allowbreak{}2}、\texttt{1\allowbreak{}—\allowbreak{}3} 各长 \texttt{5}，\texttt{2\allowbreak{}—\allowbreak{}3} 长 \texttt{1}。查询 \texttt{2} 到 \texttt{3}，比较直接走的 \texttt{1} 和绕经 \texttt{1} 号点的 \texttt{1\allowbreak{}0}，输出 \texttt{1}。
+\item \textbf{复杂度}：预处理 $O(n+m+n\log n)$，单次查询 $O(\log n)$，空间 $O(m+n\log n)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 连通-仙人掌图.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+
+const int N=2e5+10,L=20;
+struct E
+{
+    int v,w,id; // 邻点、边权、无向边编号
+};
+vector<E>g[N];
+vector<pair<int,int>>ne[N*2]; // 圆方树，只存父节点指向子节点的边
+
+int dfn[N],cur[N],pre[N],from[N],tim; // 访问顺序、当前边、DFS父节点、来边编号
+int d[N],pos[N]; // DFS树上到根的距离、在所属父环上的位置
+bool on[N]; // on[u]=1表示u到DFS父节点的边在某个环里
+int len[N*2],tot; // 方点对应的环长、圆方树总点数
+int fa[N*2][L],dep[N*2],bel[N*2],dis[N*2]; // 倍增祖先、深度、所属根、到根最短距离
+
+void make_ring(int a,int b,int w) // 从b回到祖先a的边，与DFS树路组成一个环
+{
+    int c=++tot;
+    len[c]=d[b]-d[a]+w; // 树路a→b的长度，再加上回边的长度
+    ne[a].push_back({c,0}); // a是进入这个环的入口，方点挂在a下面
+
+    for(int u=b;u!=a;u=pre[u])
+    {
+        on[u]=1; // 标记环中的树边，之后不再把它当桥加入
+        pos[u]=d[u]-d[a]; // 从a沿DFS树路走到u的距离
+        ne[c].push_back({u,min(pos[u],len[c]-pos[u])}); // 环上两边取短的一边
+    }
+}
+
+void dfs(int s) // 用显式栈找回边，避免长链上递归过深
+{
+    vector<int>stk={s};
+    dfn[s]=++tim;
+    while(!stk.empty())
+    {
+        int u=stk.back();
+        if(cur[u]==(int)g[u].size())
+        {
+            stk.pop_back();
+            continue;
+        }
+
+        auto [v,w,i]=g[u][cur[u]++];
+        if(i==from[u])continue; // 跳过来时的同一条边，不能直接按父节点跳
+        if(!dfn[v])
+        {
+            dfn[v]=++tim;
+            pre[v]=u;
+            from[v]=i;
+            d[v]=d[u]+w;
+            stk.push_back(v);
+        }
+        else if(dfn[v]<dfn[u])
+            make_ring(v,u,w); // 只在后代看到祖先时建环，每个环只建一次
+    }
+}
+
+void build(int n)
+{
+    tot=n; // 原图点编号1..n，新建方点从n+1开始
+    for(int u=1;u<=n;u++)
+        if(!dfn[u])dfs(u);
+
+    for(int u=1;u<=n;u++)
+        if(pre[u]&&!on[u])
+            ne[pre[u]].push_back({u,d[u]-d[pre[u]]}); // 没有入环的树边就是桥
+
+    vector<int>ord;
+    for(int u=1;u<=n;u++)
+    {
+        if(pre[u])continue;
+        bel[u]=u;
+        ord.push_back(u); // 每个连通块的DFS根都是圆方树的根
+    }
+
+    for(int i=0;i<(int)ord.size();i++)
+    {
+        int u=ord[i];
+        for(auto [v,w]:ne[u])
+        {
+            fa[v][0]=u;
+            dep[v]=dep[u]+1;
+            bel[v]=bel[u];
+            dis[v]=dis[u]+w;
+            ord.push_back(v);
+        }
+    }
+
+    for(int j=1;j<L;j++)
+        for(int u=1;u<=tot;u++)
+            fa[u][j]=fa[fa[u][j-1]][j-1];
+}
+
+int up(int u,int k) // 从u向上走k条圆方树边
+{
+    for(int j=0;j<L;j++)
+        if(k>>j&1)u=fa[u][j];
+    return u;
+}
+
+int lca(int u,int v)
+{
+    if(dep[u]<dep[v])swap(u,v);
+    u=up(u,dep[u]-dep[v]);
+    if(u==v)return u;
+    for(int j=L-1;j>=0;j--)
+    {
+        if(fa[u][j]==fa[v][j])continue;
+        u=fa[u][j];
+        v=fa[v][j];
+    }
+    return fa[u][0];
+}
+
+int query(int u,int v,int n) // 查询两个原图点之间的最短距离
+{
+    if(bel[u]!=bel[v])return -1;
+    int p=lca(u,v);
+    if(p<=n)return dis[u]+dis[v]-2*dis[p]; // LCA是原图点，两边直接在这里汇合
+
+    int a=up(u,dep[u]-dep[p]-1); // u这一侧进入环的点
+    int b=up(v,dep[v]-dep[p]-1); // v这一侧进入环的点
+    int w=abs(pos[a]-pos[b]); // 环上一边长w，另一边长len[p]-w
+    return dis[u]-dis[a]+dis[v]-dis[b]+min(w,len[p]-w);
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n,m,q;
+    cin>>n>>m>>q; // 点数、边数、询问数
+    for(int i=1;i<=m;i++)
+    {
+        int u,v,w;
+        cin>>u>>v>>w; // 无向边，边权非负
+        g[u].push_back({v,w,i});
+        g[v].push_back({u,w,i});
+    }
+
+    build(n);
+    while(q--)
+    {
+        int u,v;
+        cin>>u>>v;
+        cout<<query(u,v,n)<<'\n';
+    }
+    return 0;
 }
 \end{lstlisting}
 \subsection*{连通 - 圆方树 (关闭路口后的连通性)}
@@ -1495,6 +1764,188 @@ signed main()
     cin.tie(0);
     solve();
     return 0;
+}
+\end{lstlisting}
+\subsection*{连通 - 点双连通分量}
+\addcontentsline{toc}{subsection}{连通 - 点双连通分量}
+% Source: 图论/连通-点双连通分量_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：将无向图分为若干块，每块内部没有割点，块与块可以通过割点连接。
+\item \textbf{关键判断}：DFS树边 \texttt{u\allowbreak{}\ensuremath{\to}\allowbreak{}v} 满足 \texttt{l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]\allowbreak{}\textgreater{}\allowbreak{}=\allowbreak{}d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]}，弹栈到 \texttt{v}，再加入 \texttt{u}，得到一个点双；\texttt{u} 留在栈中参与其他分量。
+\item \textbf{结果}：\texttt{c\allowbreak{}n\allowbreak{}t} 为点双数量，\texttt{b\allowbreak{}c\allowbreak{}c\allowbreak{}[\allowbreak{}k\allowbreak{}]} 为第 \texttt{k} 组的点，\texttt{c\allowbreak{}u\allowbreak{}t\allowbreak{}[\allowbreak{}u\allowbreak{}]} 标记割点。割点可属于多组，不能用唯一的 \texttt{i\allowbreak{}d\allowbreak{}[\allowbreak{}u\allowbreak{}]} 表示归属。
+\item \textbf{复杂度}：时间、工作空间均为 $O(n+m)$。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+add(u,v,i); // 第i条无向边只调用一次，编号从1开始，重边编号不同
+vbcc(n); // 全部边加入后调用，自动处理不连通的图
+int size=bcc[k].size(); // 第k个点双的点数
+bool a=cut[u]; // 点u是否为割点
+\end{lstlisting}
+
+例如三角形 \texttt{\{\allowbreak{}1\allowbreak{},\allowbreak{}2\allowbreak{},\allowbreak{}3\allowbreak{}\}} 和 \texttt{\{\allowbreak{}3\allowbreak{},\allowbreak{}4\allowbreak{},\allowbreak{}5\allowbreak{}\}} 共用点3，点双为这两组，割点3同时属于两组。\par
+桥的两个端点组成一个两点分量，孤立点单独一组，自环不另建分量。更换原图时另行清空 \texttt{g}。\par
+\par\noindent{\scriptsize\texttt{File: 连通-点双连通分量.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+using ar2=array<int,2>;
+
+const int N=2e5+10;
+vector<ar2>g[N]; // 无向图，存{邻点,无向边编号}
+vector<int>bcc[N]; // bcc[k]存第k个点双中的所有点，割点可以出现在多组中
+int dfn[N],low[N],tim,stk[N],top,cnt; // 访问顺序、追溯值、时间戳、点栈、栈顶、分量数量
+bool cut[N]; // 点是否为割点
+
+void add(int u,int v,int id) // 第id条无向边，编号从1开始，重边使用不同编号
+{
+    g[u].push_back({v,id});
+    g[v].push_back({u,id});
+}
+
+void tarjan(int u,int f) // f为进入u的边编号，DFS根传0
+{
+    dfn[u]=low[u]=++tim;
+    stk[++top]=u; // 尚未完成划分的点暂存在栈中
+    int son=0;
+    for(auto [v,i]:g[u])
+    {
+        if(i==f)continue; // 只跳过进入边，保留其他通向父节点的重边
+        if(!dfn[v])
+        {
+            son++;
+            tarjan(v,i);
+            low[u]=min(low[u],low[v]);
+            if(low[v]>=dfn[u]) // v子树无法绕过u，在这里划分一个点双
+            {
+                if(f||son>=2)cut[u]=1; // 非根满足条件即为割点，根至少需要两棵子树
+                cnt++;
+                int x;
+                do
+                {
+                    x=stk[top--];
+                    bcc[cnt].push_back(x);
+                }while(x!=v); // 弹到子节点v，取完当前点双的子树部分
+                bcc[cnt].push_back(u); // u也属于这一组，但留在栈中参与其他分量
+            }
+        }
+        else
+            low[u]=min(low[u],dfn[v]);
+    }
+    if(!f&&!son)bcc[++cnt].push_back(u); // 孤立点或只有自环的点，单独作为一组
+}
+
+void vbcc(int n) // 提前建好g[1..n]，求点双和割点
+{
+    for(int i=1;i<=cnt;i++)bcc[i].clear();
+    tim=top=cnt=0;
+    for(int i=1;i<=n;i++)
+    {
+        dfn[i]=low[i]=0;
+        cut[i]=0;
+    }
+    for(int i=1;i<=n;i++)
+    {
+        if(!dfn[i])
+        {
+            tarjan(i,0);
+            top--; // 当前连通块只剩根节点留在栈中，将它移除
+        }
+    }
+}
+\end{lstlisting}
+\subsection*{连通 - 边双连通分量}
+\addcontentsline{toc}{subsection}{连通 - 边双连通分量}
+% Source: 图论/连通-边双连通分量_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：删除无向图中的所有桥，剩余的每个连通块就是一个边双；块内不会因删除一条边而断开。
+\item \textbf{关键判断}：\texttt{d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]\allowbreak{}=\allowbreak{}=\allowbreak{}l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}u\allowbreak{}]} 时弹栈到 \texttt{u}，得到一个边双；DFS树边满足 \texttt{l\allowbreak{}o\allowbreak{}w\allowbreak{}[\allowbreak{}v\allowbreak{}]\allowbreak{}\textgreater{}\allowbreak{}d\allowbreak{}f\allowbreak{}n\allowbreak{}[\allowbreak{}u\allowbreak{}]} 时标记为桥。
+\item \textbf{结果}：\texttt{i\allowbreak{}d\allowbreak{}[\allowbreak{}u\allowbreak{}]} 为点所属分量，\texttt{b\allowbreak{}c\allowbreak{}c\allowbreak{}[\allowbreak{}k\allowbreak{}]} 为各组点集，\texttt{c\allowbreak{}n\allowbreak{}t} 为分量数量，\texttt{b\allowbreak{}r\allowbreak{}[\allowbreak{}i\allowbreak{}]} 为桥标记，\texttt{n\allowbreak{}e} 为桥连接各组形成的森林。
+\item \textbf{复杂度}：时间、工作空间均为 $O(n+m)$，支持重边和自环。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{使用方法}\par\nobreak
+\begin{lstlisting}[language=C++,numbers=none,basicstyle=\footnotesize\ttfamily]
+add(u,v,i); // 第i条无向边只调用一次，i为1..m中的唯一编号
+ebcc(n,m); // 全部边加入后调用，自动处理各个连通块
+bool same=id[u]==id[v]; // 两点是否属于同一个边双
+bool a=br[i]; // 第i条边是否为桥
+\end{lstlisting}
+
+例如两个三角形 \texttt{\{\allowbreak{}1\allowbreak{},\allowbreak{}2\allowbreak{},\allowbreak{}3\allowbreak{}\}}、\texttt{\{\allowbreak{}4\allowbreak{},\allowbreak{}5\allowbreak{},\allowbreak{}6\allowbreak{}\}} 由边 \texttt{3\allowbreak{}—\allowbreak{}4} 连接，得到两个边双，缩点后由这条桥相连。\par
+每个点只属于一个边双，孤立点单独一组；点双中的割点则可能属于多组。更换原图时另行清空 \texttt{g}。\par
+\par\noindent{\scriptsize\texttt{File: 连通-边双连通分量.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define endl '\n'
+using ar2=array<int,2>;
+
+const int N=2e5+10,M=2e5+10;
+vector<ar2>g[N]; // 无向图，存{邻点,无向边编号}
+vector<int>bcc[N],ne[N]; // 每个边双的点集、缩点后由桥连接的森林
+int dfn[N],low[N],tim,stk[N],top,id[N],cnt; // 访问顺序、追溯值、时间戳、点栈、栈顶、所属分量、分量数量
+bool br[M]; // 第i条无向边是否为桥
+
+void add(int u,int v,int id) // 第id条无向边，编号从1开始，重边使用不同编号
+{
+    g[u].push_back({v,id});
+    g[v].push_back({u,id});
+}
+
+void tarjan(int u,int f) // f为进入u的边编号，DFS根传0
+{
+    dfn[u]=low[u]=++tim;
+    stk[++top]=u;
+    for(auto [v,i]:g[u])
+    {
+        if(i==f)continue; // 只跳过进入边，重边仍能更新追溯值
+        if(!dfn[v])
+        {
+            tarjan(v,i);
+            low[u]=min(low[u],low[v]);
+            if(low[v]>dfn[u])br[i]=1; // 子树无法绕回u，这条树边是桥
+        }
+        else
+            low[u]=min(low[u],dfn[v]);
+    }
+    if(dfn[u]==low[u]) // 找到一个边双的根，将这一组点全部弹出
+    {
+        cnt++;
+        int v;
+        do
+        {
+            v=stk[top--];
+            id[v]=cnt;
+            bcc[cnt].push_back(v); // 每个点只属于一个边双
+        }while(v!=u);
+    }
+}
+
+void ebcc(int n,int m) // 提前建图，边编号为1..m
+{
+    for(int i=1;i<=cnt;i++)
+    {
+        bcc[i].clear();
+        ne[i].clear();
+    }
+    tim=top=cnt=0;
+    for(int i=1;i<=n;i++)dfn[i]=low[i]=id[i]=0;
+    for(int i=1;i<=m;i++)br[i]=0;
+    for(int i=1;i<=n;i++)
+        if(!dfn[i])tarjan(i,0); // 处理所有连通块，孤立点也会成为一个边双
+    for(int u=1;u<=n;u++)
+    {
+        for(auto [v,i]:g[u])
+        {
+            int a=id[u],b=id[v];
+            if(a!=b)ne[a].push_back(b); // 跨分量的原边一定是桥，两方向各建一次
+        }
+    }
 }
 \end{lstlisting}
 \section*{字符串}
@@ -4234,6 +4685,447 @@ signed main()
     return 0;
 }
 \end{lstlisting}
+\subsection*{数据结构 - FHQ Treap (区间翻转)}
+\addcontentsline{toc}{subsection}{数据结构 - FHQ Treap (区间翻转)}
+% Source: 数据结构/FHQ-Treap_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：维护一个序列，多次翻转当前位置区间 \texttt{[\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{}]}，最后输出序列。树的中序遍历就是当前序列顺序。
+\item \textbf{拆分与合并}：\texttt{s\allowbreak{}p\allowbreak{}l\allowbreak{}i\allowbreak{}t\allowbreak{}(\allowbreak{}u\allowbreak{},\allowbreak{}k\allowbreak{})} 按子树大小拆出前 \texttt{k} 个元素；\texttt{m\allowbreak{}e\allowbreak{}r\allowbreak{}g\allowbreak{}e\allowbreak{}(\allowbreak{}a\allowbreak{},\allowbreak{}b\allowbreak{})} 把 \texttt{b} 接到 \texttt{a} 后面，按随机优先级选根，不比较元素值。
+\item \textbf{区间翻转}：用两次拆分隔出 \texttt{[\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{}]}，交换中间子树的左右儿子并打上翻转标记，再把三段拼回去。后续拆分、合并或输出时，再把标记传给儿子。
+\item \textbf{使用方法}：第一行输入 \texttt{n\allowbreak{} \allowbreak{}m}，初始序列为 \texttt{1\allowbreak{}.\allowbreak{}.\allowbreak{}n}。接下来 \texttt{m} 行输入 \texttt{l\allowbreak{} \allowbreak{}r}，位置从1开始；全部操作完成后输出最终序列。
+\item \textbf{例子}：\texttt{[\allowbreak{}1\allowbreak{},\allowbreak{}2\allowbreak{},\allowbreak{}3\allowbreak{},\allowbreak{}4\allowbreak{},\allowbreak{}5\allowbreak{}]} 翻转 \texttt{[\allowbreak{}2\allowbreak{},\allowbreak{}4\allowbreak{}]}，先拆成 \texttt{[\allowbreak{}1\allowbreak{}]}、\texttt{[\allowbreak{}2\allowbreak{},\allowbreak{}3\allowbreak{},\allowbreak{}4\allowbreak{}]}、\texttt{[\allowbreak{}5\allowbreak{}]}，再拼成 \texttt{[\allowbreak{}1\allowbreak{},\allowbreak{}4\allowbreak{},\allowbreak{}3\allowbreak{},\allowbreak{}2\allowbreak{},\allowbreak{}5\allowbreak{}]}。
+\item \textbf{复杂度}：当前建树方式期望 $O(n\log n)$，单次翻转期望 $O(\log n)$，输出 $O(n)$，节点数组空间 $O(N)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: FHQ-Treap.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N=2e5+10;
+struct T
+{
+    int l,r,val,sz; // 左右儿子、当前值、子树大小
+    unsigned pri; // 随机优先级
+    bool rev; // 子树还有翻转标记没有下传
+}tr[N];
+int rt,tot;
+mt19937 rng(time(0));
+
+int newnode(int x)
+{
+    int u=++tot;
+    tr[u]={0,0,x,1,(unsigned)rng(),false};
+    return u;
+}
+
+void pushup(int u)
+{
+    tr[u].sz=tr[tr[u].l].sz+tr[tr[u].r].sz+1;
+}
+
+void flip(int u)
+{
+    if(!u)return;
+    swap(tr[u].l,tr[u].r); // 翻转整棵子树，先交换左右两边
+    tr[u].rev^=1; // 两边内部也要翻，先记下来；翻两次正好抵消
+}
+
+void pushdown(int u)
+{
+    if(!tr[u].rev)return;
+    flip(tr[u].l);
+    flip(tr[u].r);
+    tr[u].rev=0; // 自己的左右儿子早已交换，这里只把标记传给儿子
+}
+
+pair<int,int> split(int u,int k) // 按位置拆成前k个和剩下的，返回两棵树的根
+{
+    if(!u)return {0,0};
+    pushdown(u); // 先把翻转传下去，再按当前顺序拆
+    int left=tr[tr[u].l].sz;
+    if(k<=left)
+    {
+        auto [a,b]=split(tr[u].l,k);
+        tr[u].l=b; // 左子树没拆走的部分，仍在u的左边
+        pushup(u);
+        return {a,u};
+    }
+
+    auto [a,b]=split(tr[u].r,k-left-1); // 左子树和u已经占了left+1个
+    tr[u].r=a;
+    pushup(u);
+    return {u,b};
+}
+
+int merge(int a,int b) // 把序列a接在序列b前面，按随机优先级选根
+{
+    if(!a||!b)return a?a:b;
+    if(tr[a].pri<tr[b].pri)
+    {
+        pushdown(a);
+        tr[a].r=merge(tr[a].r,b);
+        pushup(a);
+        return a;
+    }
+
+    pushdown(b);
+    tr[b].l=merge(a,tr[b].l);
+    pushup(b);
+    return b;
+}
+
+void reverse_range(int l,int r)
+{
+    auto [a,bc]=split(rt,l-1); // 拆出[1,l-1]
+    auto [b,c]=split(bc,r-l+1); // 再拆出[l,r]，c是剩余后缀
+    flip(b);
+    rt=merge(merge(a,b),c); // 按原来三段的顺序拼回去
+}
+
+void print(int u) // 中序遍历就是当前序列顺序
+{
+    if(!u)return;
+    pushdown(u);
+    print(tr[u].l);
+    cout<<tr[u].val<<' ';
+    print(tr[u].r);
+}
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n,m;
+    cin>>n>>m; // 初始序列为1..n，接下来m次翻转
+    for(int i=1;i<=n;i++)rt=merge(rt,newnode(i));
+    while(m--)
+    {
+        int l,r;
+        cin>>l>>r; // 当前序列中的位置，从1开始
+        reverse_range(l,r);
+    }
+    print(rt);
+    cout<<'\n';
+    return 0;
+}
+\end{lstlisting}
+\subsection*{数据结构 - KD树 (二维最近点查询)}
+\addcontentsline{toc}{subsection}{数据结构 - KD树 (二维最近点查询)}
+% Source: 数据结构/KD树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{解决的问题}：给定 $n$ 个固定的二维点。每次询问给出一个位置 $(x,y)$，求它到点集中最近点的距离平方。如果询问的位置本来就在点集中，答案为0。
+\item \textbf{核心思想}：建树时轮流按 $x$、$y$ 取中位数，并记录每棵子树所有点的包围矩形。查询时先搜索较近的矩形；如果到另一个矩形的最短距离平方已经不小于当前答案，就可以跳过那棵子树。
+\item \textbf{使用方法}：第一行输入 $n,q$，接着输入 $n$ 个点和 $q$ 个询问位置。调用 \texttt{b\allowbreak{}u\allowbreak{}i\allowbreak{}l\allowbreak{}d\allowbreak{}(\allowbreak{}1\allowbreak{},\allowbreak{}n\allowbreak{})} 建树，再用 \texttt{q\allowbreak{}u\allowbreak{}e\allowbreak{}r\allowbreak{}y\allowbreak{}(\allowbreak{}r\allowbreak{}t\allowbreak{},\allowbreak{}p\allowbreak{})} 查询。每次输出一行距离平方。模板取 $1\le n\le 2\times 10^5$，所有坐标的绝对值不超过 $10^9$。
+\item \textbf{例子}：已有点 \texttt{(\allowbreak{}0\allowbreak{},\allowbreak{}0\allowbreak{})\allowbreak{}、\allowbreak{}(\allowbreak{}4\allowbreak{},\allowbreak{}0\allowbreak{})\allowbreak{}、\allowbreak{}(\allowbreak{}1\allowbreak{},\allowbreak{}3\allowbreak{})}，询问 \texttt{(\allowbreak{}3\allowbreak{},\allowbreak{}1\allowbreak{})}，最近点是 \texttt{(\allowbreak{}4\allowbreak{},\allowbreak{}0\allowbreak{})}，输出 \texttt{2}；询问 \texttt{(\allowbreak{}1\allowbreak{},\allowbreak{}3\allowbreak{})} 则输出 \texttt{0}。
+\item \textbf{复杂度}：建树平均 $O(n\log n)$，单次查询最坏 $O(n)$，工作空间 $O(n)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: KD树.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+
+const int N=2e5+10;
+struct P
+{
+    int x,y;
+}a[N];
+
+struct T
+{
+    int l,r; // 左右儿子，0表示空
+    int lx,rx,ly,ry; // 子树所有点的x、y坐标范围
+}tr[N];
+
+void pull(int u) // 用当前点和两棵子树更新包围矩形
+{
+    auto &t=tr[u];
+    t.lx=t.rx=a[u].x;
+    t.ly=t.ry=a[u].y;
+    for(int v:{t.l,t.r})
+    {
+        if(!v)continue;
+        t.lx=min(t.lx,tr[v].lx);
+        t.rx=max(t.rx,tr[v].rx);
+        t.ly=min(t.ly,tr[v].ly);
+        t.ry=max(t.ry,tr[v].ry);
+    }
+}
+
+int build(int l,int r,int d=0) // d=0按x划分，d=1按y划分
+{
+    if(l>r)return 0;
+    int mid=(l+r)>>1;
+    nth_element(a+l,a+mid,a+r+1,[d](const P &p,const P &q)
+    {
+        return d?p.y<q.y:p.x<q.x;
+    }); // 只找中位数，两边不需要排好序
+
+    tr[mid].l=build(l,mid-1,d^1);
+    tr[mid].r=build(mid+1,r,d^1);
+    pull(mid);
+    return mid; // a[mid]是当前节点存的点
+}
+
+int dis(P a,P b) // 两点距离平方
+{
+    int dx=a.x-b.x,dy=a.y-b.y;
+    return dx*dx+dy*dy;
+}
+
+int box(int u,P p) // p到子树包围矩形的最短距离平方
+{
+    if(!u)return LLONG_MAX;
+    int dx=max({0LL,tr[u].lx-p.x,p.x-tr[u].rx}); // x在范围内时，横向距离为0
+    int dy=max({0LL,tr[u].ly-p.y,p.y-tr[u].ry});
+    return dx*dx+dy*dy;
+}
+
+int query(int u,P p,int best=LLONG_MAX)
+{
+    best=min(best,dis(a[u],p)); // 先拿当前节点的点更新答案
+    int l=tr[u].l,r=tr[u].r;
+    int dl=box(l,p),dr=box(r,p);
+    if(dl>dr)
+    {
+        swap(l,r);
+        swap(dl,dr); // 先搜离查询点更近的矩形
+    }
+
+    if(dl<best)best=query(l,p,best);
+    if(dr<best)best=query(r,p,best); // 用更新后的best判断另一边还需不需要搜
+    return best;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n,q;
+    cin>>n>>q; // n>=1，坐标绝对值不超过1e9
+    for(int i=1;i<=n;i++)cin>>a[i].x>>a[i].y;
+    int rt=build(1,n);
+    while(q--)
+    {
+        P p;
+        cin>>p.x>>p.y;
+        cout<<query(rt,p)<<'\n'; // 输出最近距离的平方
+    }
+    return 0;
+}
+\end{lstlisting}
+\subsection*{数据结构 - Splay (伸展树)}
+\addcontentsline{toc}{subsection}{数据结构 - Splay (伸展树)}
+% Source: 数据结构/Splay_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：维护一个允许重复值的有序集合，支持插入、删除、查排名、第 $k$ 小、前驱和后继。
+\item \textbf{核心思想}：\texttt{s\allowbreak{}p\allowbreak{}l\allowbreak{}a\allowbreak{}y\allowbreak{}(\allowbreak{}u\allowbreak{})} 通过旋转把访问的节点移到根。\texttt{c\allowbreak{}n\allowbreak{}t} 存重复次数，\texttt{s\allowbreak{}z} 存子树的元素总数，查询排名和第 $k$ 小时用 \texttt{s\allowbreak{}z} 跳过整棵子树。
+\item \textbf{修改}：\texttt{i\allowbreak{}n\allowbreak{}s\allowbreak{}e\allowbreak{}r\allowbreak{}t\allowbreak{}(\allowbreak{}x\allowbreak{})} 插入一个 \texttt{x}，\texttt{e\allowbreak{}r\allowbreak{}a\allowbreak{}s\allowbreak{}e\allowbreak{}(\allowbreak{}x\allowbreak{})} 删除一个 \texttt{x}。有多个相同的值时，一次只增减一个。
+\item \textbf{排名和第 $k$ 小}：\texttt{r\allowbreak{}a\allowbreak{}n\allowbreak{}k\allowbreak{}o\allowbreak{}f\allowbreak{}(\allowbreak{}x\allowbreak{})} 返回严格小于 \texttt{x} 的元素数加1；\texttt{k\allowbreak{}t\allowbreak{}h\allowbreak{}(\allowbreak{}k\allowbreak{})} 返回第 $k$ 小，要求 $1\le k\le n$。例如 \texttt{[\allowbreak{}2\allowbreak{},\allowbreak{}5\allowbreak{},\allowbreak{}5\allowbreak{},\allowbreak{}9\allowbreak{}]} 中 \texttt{r\allowbreak{}a\allowbreak{}n\allowbreak{}k\allowbreak{}o\allowbreak{}f\allowbreak{}(\allowbreak{}5\allowbreak{})\allowbreak{}=\allowbreak{}2}，\texttt{k\allowbreak{}t\allowbreak{}h\allowbreak{}(\allowbreak{}3\allowbreak{})\allowbreak{}=\allowbreak{}5}，重复值各占一位。
+\item \textbf{前驱和后继}：\texttt{p\allowbreak{}r\allowbreak{}e\allowbreak{}(\allowbreak{}x\allowbreak{})} 找严格小于 \texttt{x} 的最大值，\texttt{n\allowbreak{}x\allowbreak{}t\allowbreak{}(\allowbreak{}x\allowbreak{})} 找严格大于 \texttt{x} 的最小值。例如 \texttt{[\allowbreak{}2\allowbreak{},\allowbreak{}5\allowbreak{},\allowbreak{}5\allowbreak{},\allowbreak{}9\allowbreak{}]} 中 \texttt{p\allowbreak{}r\allowbreak{}e\allowbreak{}(\allowbreak{}5\allowbreak{})\allowbreak{}=\allowbreak{}2}，\texttt{n\allowbreak{}x\allowbreak{}t\allowbreak{}(\allowbreak{}5\allowbreak{})\allowbreak{}=\allowbreak{}9}。调用时保证对应的值存在。
+\item \textbf{使用方法}：第一行输入操作数，之后每行输入 \texttt{o\allowbreak{}p\allowbreak{} \allowbreak{}x}。操作 1～6 依次对应插入、删除、查排名、查第 $k$ 小、查前驱、查后继；查询各输出一行。
+\item \textbf{复杂度}：单次操作均摊 $O(\log n)$，节点数组空间 $O(N)$，删除后不复用编号。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: Splay.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+
+const int N=2e5+10;
+struct T
+{
+    int ch[2],fa; // 左右儿子、父节点
+    int val,cnt,sz; // 节点值、重复次数、子树元素总数
+}tr[N]; // 0号是空节点，删除后不回收编号
+int rt,tot; // 根节点编号、已分配节点数
+
+void pushup(int u)
+{
+    tr[u].sz=tr[tr[u].ch[0]].sz+tr[tr[u].ch[1]].sz+tr[u].cnt;
+}
+
+int dir(int u)
+{
+    return tr[tr[u].fa].ch[1]==u; // 左儿子返回0，右儿子返回1
+}
+
+void rot(int u) // 把u旋到父节点f的位置
+{
+    int f=tr[u].fa,g=tr[f].fa,d=dir(u),v=tr[u].ch[d^1];
+    if(g)tr[g].ch[dir(f)]=u; // 祖父原来连着f，现在改为连u
+    tr[u].fa=g;
+    tr[f].ch[d]=v; // 中间子树交给f，保持大小顺序
+    if(v)tr[v].fa=f;
+    tr[u].ch[d^1]=f; // f降下来，成为u的儿子
+    tr[f].fa=u;
+    pushup(f); // 先更新降下去的f，再更新u
+    pushup(u);
+}
+
+void splay(int u) // 把u旋到根
+{
+    while(tr[u].fa)
+    {
+        int f=tr[u].fa,g=tr[f].fa;
+        if(g)rot(dir(u)==dir(f)?f:u); // 同向先转父节点，反向先转u
+        rot(u);
+    }
+    rt=u;
+}
+
+void insert(int x) // 插入一个x
+{
+    int u=rt,f=0;
+    while(u&&tr[u].val!=x)
+    {
+        f=u;
+        u=tr[u].ch[x>tr[u].val]; // 小往左，大往右
+    }
+    if(u)tr[u].cnt++; // 找到相同的值，只增加次数
+    else
+    {
+        u=++tot;
+        tr[u]={{0,0},f,x,1,1};
+        if(f)tr[f].ch[x>tr[f].val]=u; // 把新节点挂到父节点下面
+    }
+    pushup(u);
+    splay(u);
+}
+
+void erase(int x) // 删除一个x，不存在时不删
+{
+    int u=rt,f=0;
+    while(u&&tr[u].val!=x)
+    {
+        f=u;
+        u=tr[u].ch[x>tr[u].val];
+    }
+    if(!u)
+    {
+        if(f)splay(f); // 没找到也把最后访问的节点旋到根
+        return;
+    }
+
+    splay(u); // 先把要删的节点旋到根
+    if(tr[u].cnt>1)
+    {
+        tr[u].cnt--; // 还有重复值，保留这个节点
+        pushup(u);
+        return;
+    }
+
+    int l=tr[u].ch[0],r=tr[u].ch[1];
+    if(!l)
+    {
+        rt=r; // 没有左子树，由右子树接管
+        if(r)tr[r].fa=0;
+        return;
+    }
+
+    tr[l].fa=0; // 左子树与待删节点断开
+    while(tr[l].ch[1])l=tr[l].ch[1]; // 找左子树的最大值
+    splay(l); // 把它旋到根，此时根没有右儿子
+    tr[rt].ch[1]=r; // 把原来的右子树接上
+    if(r)tr[r].fa=rt;
+    pushup(rt);
+}
+
+int rankof(int x) // 严格小于x的元素数加1
+{
+    int u=rt,f=0,ans=1;
+    while(u)
+    {
+        f=u;
+        if(x>=tr[u].val)ans+=tr[tr[u].ch[0]].sz; // 左子树里的值都比x小
+        if(x==tr[u].val)break;
+        if(x>tr[u].val)ans+=tr[u].cnt; // 当前值的所有副本也比x小
+        u=tr[u].ch[x>tr[u].val];
+    }
+    if(f)splay(f);
+    return ans;
+}
+
+int kth(int k) // 查第k小，保证k合法
+{
+    int u=rt;
+    while(1)
+    {
+        int l=tr[tr[u].ch[0]].sz;
+        if(k<=l)u=tr[u].ch[0]; // 第k小在左子树
+        else if(k>l+tr[u].cnt)
+        {
+            k-=l+tr[u].cnt; // 跳过左子树和当前值，再去右子树找
+            u=tr[u].ch[1];
+        }
+        else
+        {
+            splay(u);
+            return tr[u].val; // 第k小就是当前值
+        }
+    }
+}
+
+int pre(int x) // 前驱：严格小于x的最大值，保证存在
+{
+    int u=rt,last=0,ans=0;
+    while(u)
+    {
+        last=u;
+        if(tr[u].val<x)
+        {
+            ans=u; // 当前值可以当答案
+            u=tr[u].ch[1]; // 往右找，看有没有更大的合法值
+        }
+        else u=tr[u].ch[0]; // 当前值太大或等于x，往左找
+    }
+    if(last)splay(last);
+    return tr[ans].val;
+}
+
+int nxt(int x) // 后继：严格大于x的最小值，保证存在
+{
+    int u=rt,last=0,ans=0;
+    while(u)
+    {
+        last=u;
+        if(tr[u].val>x)
+        {
+            ans=u; // 当前值可以当答案
+            u=tr[u].ch[0]; // 往左找，看有没有更小的合法值
+        }
+        else u=tr[u].ch[1]; // 当前值太小或等于x，往右找
+    }
+    if(last)splay(last);
+    return tr[ans].val;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n;
+    cin>>n; // 操作数，初始树为空
+    while(n--)
+    {
+        int op,x;
+        cin>>op>>x;
+        if(op==1)insert(x); // 插入x
+        else if(op==2)erase(x); // 删除一个x
+        else if(op==3)cout<<rankof(x)<<'\n'; // 查x的排名
+        else if(op==4)cout<<kth(x)<<'\n'; // 查第x小
+        else if(op==5)cout<<pre(x)<<'\n'; // 查x的前驱
+        else if(op==6)cout<<nxt(x)<<'\n'; // 查x的后继
+    }
+    return 0;
+}
+\end{lstlisting}
 \subsection*{数据结构 - ST表 (RMQ)}
 \addcontentsline{toc}{subsection}{数据结构 - ST表 (RMQ)}
 % Source: 数据结构/st表_doc.md
@@ -4532,6 +5424,223 @@ void mo(int n,int m) // 数组长度n、询问数量m，处理静态数组的离
         while(r>q[i].r)del(r--); // 右端点向左移动，先移除旧位置再移动
         ans[q[i].id]=an; // 当前区间已变为询问区间，按原编号保存答案
     }
+}
+\end{lstlisting}
+\subsection*{数据结构 - 基环树}
+\addcontentsline{toc}{subsection}{数据结构 - 基环树}
+% Source: 数据结构/基环树_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：处理每个点恰有一个下一站的图，或每个连通块恰有一个环的无向图。模板支持首次重复、最短路和最多选点三类问题。
+\item \textbf{核心思想}：反复剥掉度数为1的点，剩下的就是环。用 \texttt{o\allowbreak{}r\allowbreak{}d} 记录剥点顺序，用 \texttt{r\allowbreak{}i\allowbreak{}n\allowbreak{}g\allowbreak{}[\allowbreak{}c\allowbreak{}]} 按顺序存第 \texttt{c} 个环。沿 \texttt{o\allowbreak{}r\allowbreak{}d} 正序可以从树叶向环汇总，逆序可以把环的信息传回树枝。
+\item \textbf{使用方法}：程序首行输入 \texttt{t\allowbreak{}y\allowbreak{}p\allowbreak{}e\allowbreak{} \allowbreak{}n}，按题型号调用对应入口。套到具体题目时直接使用所需的入口，三个入口都有行尾注释和例子。
+\item \textbf{题型 1（首次重复）}：\texttt{s\allowbreak{}o\allowbreak{}l\allowbreak{}v\allowbreak{}e\allowbreak{}\_\allowbreak{}j\allowbreak{}u\allowbreak{}m\allowbreak{}p\allowbreak{}(\allowbreak{}n\allowbreak{})} 读 \texttt{n} 个下一站，按起点顺序输出首次到达已见点的步数，即到环步数加环长。例如 \texttt{1\allowbreak{}\ensuremath{\to}\allowbreak{}2\allowbreak{}\ensuremath{\to}\allowbreak{}3\allowbreak{}\ensuremath{\to}\allowbreak{}2}，从1出发第3步重复。
+\item \textbf{题型 2（最短路）}：\texttt{s\allowbreak{}o\allowbreak{}l\allowbreak{}v\allowbreak{}e\allowbreak{}\_\allowbreak{}d\allowbreak{}i\allowbreak{}s\allowbreak{}t\allowbreak{}(\allowbreak{}n\allowbreak{})} 读 \texttt{n} 条非负权无向边 \texttt{u\allowbreak{} \allowbreak{}v\allowbreak{} \allowbreak{}w}，再读 \texttt{q} 和 \texttt{q} 组 \texttt{u\allowbreak{} \allowbreak{}v}。同一棵树用 LCA 求距离；接在不同环点时，两段树路加较短的环路。不连通输出 \texttt{-\allowbreak{}1}。
+\item \textbf{题型 3（最多选点）}：\texttt{s\allowbreak{}o\allowbreak{}l\allowbreak{}v\allowbreak{}e\allowbreak{}\_\allowbreak{}s\allowbreak{}e\allowbreak{}t\allowbreak{}(\allowbreak{}n\allowbreak{})} 读 \texttt{n} 条无向边 \texttt{u\allowbreak{} \allowbreak{}v}。每条边两端最多选一个，输出最多能选的点数。树枝分别算选或不选，环上分第一个点选或不选两种情况。
+\item \textbf{复杂度}：建树、首次重复统计和最多选点都是 $O(n)$；最短路额外做 $O(n\log n)$ 预处理，每次查询 $O(\log n)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 基环树.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+
+const int N=2e5+10,L=20,INF=1LL<<60;
+struct E
+{
+    int v,w,id; // 邻点、边权、无向边编号
+};
+vector<E>g[N]; // 无向邻接表，每条边存两个方向
+vector<int>ord; // 被剥掉的点，子节点先于父节点
+vector<vector<int>>ring; // ring[c]按顺序存第c个环上的点
+int deg[N],fa[N][L]; // 剩余度数、树枝上的倍增祖先，fa[u][0]是父节点
+int dep[N],root[N]; // 到环的步数、树枝接到的环点
+int id[N],pos[N]; // 环点所属的环、从环起点走到这个点的距离
+int sum[N],dis[N]; // 每个环的周长、每个点到环的带权距离
+int dp[N][2]; // 不选、选当前点时，其树枝上的最多选点数
+
+void add(int u,int v,int w,int i)
+{
+    g[u].push_back({v,w,i});
+    g[v].push_back({u,w,i}); // 同一条边的两个方向共用编号
+}
+
+void build(int n) // 先剥树枝，再找环，最后把环的信息传回树枝
+{
+    ord.clear();
+    ring.clear();
+    ring.push_back({}); // 环编号从1开始
+    for(int u=1;u<=n;u++)
+    {
+        deg[u]=g[u].size();
+        fa[u][0]=dep[u]=root[u]=id[u]=dis[u]=0;
+        if(deg[u]==1)ord.push_back(u); // 度数为1，是可以剥掉的叶子
+    }
+    for(int i=0;i<(int)ord.size();i++)
+    {
+        int u=ord[i];
+        deg[u]=0; // 删掉叶子，剩下的唯一邻点就是它的父节点
+        for(auto [v,w,j]:g[u])
+        {
+            if(!deg[v])continue; // 这个邻点之前已被剥掉
+            fa[u][0]=v; // 没被剥掉的唯一邻点，方向朝向环
+            dis[u]=w; // 先存父边长度，稍后累加到环的距离
+            if(--deg[v]==1)ord.push_back(v); // 去掉一条边后，v也可能成为叶子
+        }
+    }
+
+    for(int i=1;i<=n;i++)
+    {
+        if(!deg[i]||id[i])continue; // 只从还没编号的环点开始
+        int c=ring.size(),u=i,last=0;
+        ring.push_back({});
+        sum[c]=0;
+        do
+        {
+            ring[c].push_back(u); // 按实际走过的顺序存环点
+            id[u]=c;
+            root[u]=u; // 环点已经在环上，入口就是自己
+            pos[u]=sum[c]; // 从环起点顺着走到u的距离
+            for(auto [v,w,j]:g[u])
+            {
+                if(!deg[v]||j==last)continue; // 按边编号跳过来边，支持重边
+                sum[c]+=w;
+                u=v;
+                last=j; // 记边编号，下一步不能沿同一条边折返
+                break;
+            }
+        }while(u!=i);
+    }
+
+    for(int i=(int)ord.size()-1;i>=0;i--)
+    {
+        int u=ord[i],v=fa[u][0];
+        root[u]=root[v]; // 逆序时，父节点已经知道接在哪个环点
+        dep[u]=dep[v]+1; // 到环步数比父节点多1
+        dis[u]+=dis[v]; // 父边长度加上父节点到环的距离
+    }
+}
+
+int jumps(int u) // 第一次走到重复点的步数
+{
+    return dep[u]+(int)ring[id[root[u]]].size(); // 先到环，再绕一圈
+}
+
+void init_lca(int n) // 只在需要查询最短路时调用
+{
+    for(int j=1;j<L;j++)
+        for(int u=1;u<=n;u++)
+            fa[u][j]=fa[fa[u][j-1]][j-1]; // 两次跳2^(j-1)步
+}
+
+int lca(int u,int v) // 只用于接在同一个环点上的两个点
+{
+    if(dep[u]<dep[v])swap(u,v);
+    int d=dep[u]-dep[v];
+    for(int j=L-1;j>=0;j--)
+        if(d>>j&1)u=fa[u][j]; // 先把更深的点提到相同深度
+    if(u==v)return u;
+    for(int j=L-1;j>=0;j--)
+    {
+        if(fa[u][j]==fa[v][j])continue; // 跳完会相遇，说明这步太大
+        u=fa[u][j];
+        v=fa[v][j];
+    }
+    return fa[u][0];
+}
+
+int dist(int u,int v)
+{
+    int a=root[u],b=root[v];
+    if(id[a]!=id[b])return -1; // 不在同一个连通块
+    if(a==b)return dis[u]+dis[v]-2*dis[lca(u,v)]; // 在同一棵树上，直接走树路
+    int d=abs(pos[a]-pos[b]); // 环上两条路线的长度为d和周长减d
+    return dis[u]+dis[v]+min(d,sum[id[a]]-d);
+}
+
+int calc(const vector<int>&a,int take) // take表示环上第一个点选不选
+{
+    int f=take?-INF:dp[a[0]][0],h=take?dp[a[0]][1]:-INF; // f不选、h选当前点，-INF表示不允许
+    for(int i=1;i<(int)a.size();i++)
+    {
+        int u=a[i],nf=max(f,h)+dp[u][0],nh=f+dp[u][1]; // 当前不选时，前一个点可选可不选
+        f=nf;
+        h=nh; // 当前点选了，前一个点就只能不选
+    }
+    return take?f:max(f,h); // 第一个点选了，最后一个点必须不选
+}
+
+int maxset(int n) // 相邻点不能同时选，返回最多能选的点数
+{
+    for(int u=1;u<=n;u++)dp[u][0]=0,dp[u][1]=1; // 先只算自己：不选为0，选为1
+    for(int u:ord) // 顺着剥叶顺序，子节点先把结果交给父节点
+    {
+        int v=fa[u][0];
+        dp[v][0]+=max(dp[u][0],dp[u][1]); // 父节点不选，子节点可选可不选
+        dp[v][1]+=dp[u][0]; // 父节点选了，子节点不能选
+    }
+    int ans=0;
+    for(int c=1;c<(int)ring.size();c++)
+        ans+=max(calc(ring[c],0),calc(ring[c],1)); // 枚举环上第一个点选或不选
+    return ans;
+}
+
+void solve_jump(int n) // 题型1：每点有一个固定下一站，求从各起点出发第几步首次到达已见过的点
+{
+    for(int u=1;u<=n;u++) // 输入 n 个下一站，按点编号排列；出发时就算见过起点
+    {
+        int v;
+        cin>>v; // 如 n=5，下一站是 2 3 2 3 4
+        add(u,v,1,u); // 每次跳转单独存边，用于找环；1→2 和 2→1 是两条边
+    }
+    build(n); // 例：5→4→3→2→3，第4步首次重复，等于到环2步加环长2
+    for(int u=1;u<=n;u++)cout<<jumps(u)<<" \n"[u==n]; // 按起点顺序输出步数，上例为 3 2 2 3 4
+}
+
+void solve_dist(int n) // 题型2：道路双向，给定两个点，求最短路线的总长度
+{
+    for(int i=1;i<=n;i++) // 输入 n 条边 u v w，边权非负，每个连通块恰有一个环
+    {
+        int u,v,w;
+        cin>>u>>v>>w; // 例：环上 1—2、2—3 各长1，1—3 长10
+        add(u,v,w,i); // 再接树枝 3—4、4—5，分别长2和3
+    }
+    build(n);
+    init_lca(n); // 接在同一个环点时，直接用LCA算树路，不必先走到环
+
+    int q;
+    cin>>q; // 读询问次数
+    while(q--)
+    {
+        int u,v;
+        cin>>u>>v; // 每组是起点和终点；例：1→5 要比较环上长2和长10的两条路
+        cout<<dist(u,v)<<'\n'; // 上例 1→5 为 2+2+3=7，4→5 为3；不连通输出-1
+    }
+}
+
+void solve_set(int n) // 题型3：每条边的两个端点最多选一个，求最多能选几个点
+{
+    for(int i=1;i<=n;i++) // 输入 n 条无向边 u v，每个点价值为1
+    {
+        int u,v;
+        cin>>u>>v; // 例：三角形 1—2—3—1，接一条树枝 3—4—5
+        add(u,v,1,i); // 只关心两个点是否相邻，边权填1即可
+    }
+    build(n); // 树枝先做选或不选的DP，再处理环上的首尾相邻
+    cout<<maxset(n)<<'\n'; // 上例三角形最多选1个，4和5最多选1个，选1和4可得到2
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int type,n;
+    cin>>type>>n; // 1：首次重复，2：最短路，3：最多选点
+    if(type==1)solve_jump(n);
+    else if(type==2)solve_dist(n);
+    else if(type==3)solve_set(n);
+    return 0;
 }
 \end{lstlisting}
 \subsection*{数据结构 - 带删除并查集}
@@ -5171,6 +6280,71 @@ int main(int argc,char *argv[])
     return 0;
 }
 \end{lstlisting}
+\subsection*{杂项 - 模拟退火与随机数}
+\addcontentsline{toc}{subsection}{杂项 - 模拟退火与随机数}
+% Source: 杂项/模拟退火_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{模拟退火}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：近似寻找目标函数的最小值。\texttt{c\allowbreak{}a\allowbreak{}l\allowbreak{}c\allowbreak{}(\allowbreak{}x\allowbreak{})} 算代价，\texttt{s\allowbreak{}a\allowbreak{}(\allowbreak{}x\allowbreak{})} 从 \texttt{x} 出发，返回搜索到的最好位置。
+\item \textbf{核心}：在当前位置附近试一个新点。代价不变或变小就接受；变差 \texttt{d} 时以 $e^{-d/t}$ 的概率接受。温度 \texttt{t} 降低后，尝试的范围和接受较差位置的概率都变小。
+\item \textbf{例子}：\texttt{c\allowbreak{}a\allowbreak{}l\allowbreak{}c\allowbreak{}(\allowbreak{}x\allowbreak{})\allowbreak{}=\allowbreak{}(\allowbreak{}x\allowbreak{}-\allowbreak{}3\allowbreak{})\allowbreak{}\textasciicircum{}\allowbreak{}2}，调用 \texttt{s\allowbreak{}a\allowbreak{}(\allowbreak{}0\allowbreak{})}，结果通常接近 \texttt{3}。套用时换成题目的代价函数，并按数据范围调整起始温度。
+\end{itemize}
+\par\addvspace{0.7ex}\noindent\textbf{随机数常用写法}\par\nobreak
+| 写法 | 作用 | |---|---| | \texttt{m\allowbreak{}t\allowbreak{}1\allowbreak{}9\allowbreak{}9\allowbreak{}3\allowbreak{}7\allowbreak{} \allowbreak{}r\allowbreak{}n\allowbreak{}g\allowbreak{}(\allowbreak{}t\allowbreak{}i\allowbreak{}m\allowbreak{}e\allowbreak{}(\allowbreak{}0\allowbreak{})\allowbreak{})\allowbreak{};} | 初始化随机数引擎，整个程序用同一个 \texttt{r\allowbreak{}n\allowbreak{}g} | | \texttt{r\allowbreak{}a\allowbreak{}n\allowbreak{}d\allowbreak{}i\allowbreak{}n\allowbreak{}t\allowbreak{}(\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{})} | 取 \texttt{[\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{}]} 内的随机整数，能取到 \texttt{r} | | \texttt{r\allowbreak{}a\allowbreak{}n\allowbreak{}d\allowbreak{}r\allowbreak{}e\allowbreak{}a\allowbreak{}l\allowbreak{}(\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{})} | 取 \texttt{[\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{})} 内的随机小数 | | \texttt{s\allowbreak{}h\allowbreak{}u\allowbreak{}f\allowbreak{}f\allowbreak{}l\allowbreak{}e\allowbreak{}(\allowbreak{}a\allowbreak{}.\allowbreak{}b\allowbreak{}e\allowbreak{}g\allowbreak{}i\allowbreak{}n\allowbreak{}(\allowbreak{})\allowbreak{},\allowbreak{}a\allowbreak{}.\allowbreak{}e\allowbreak{}n\allowbreak{}d\allowbreak{}(\allowbreak{})\allowbreak{},\allowbreak{}r\allowbreak{}n\allowbreak{}g\allowbreak{})} | 直接打乱数组 \texttt{a} 的顺序 | | \texttt{a\allowbreak{}[\allowbreak{}r\allowbreak{}a\allowbreak{}n\allowbreak{}d\allowbreak{}i\allowbreak{}n\allowbreak{}t\allowbreak{}(\allowbreak{}0\allowbreak{},\allowbreak{}(\allowbreak{}i\allowbreak{}n\allowbreak{}t\allowbreak{})\allowbreak{}a\allowbreak{}.\allowbreak{}s\allowbreak{}i\allowbreak{}z\allowbreak{}e\allowbreak{}(\allowbreak{})\allowbreak{}-\allowbreak{}1\allowbreak{})\allowbreak{}]} | 从非空数组中随机选一个元素 | | \texttt{r\allowbreak{}a\allowbreak{}n\allowbreak{}d\allowbreak{}r\allowbreak{}e\allowbreak{}a\allowbreak{}l\allowbreak{}(\allowbreak{}0\allowbreak{},\allowbreak{}1\allowbreak{})\allowbreak{}\textless{}\allowbreak{}0\allowbreak{}.\allowbreak{}3} | 约有 30\% 的概率成立 |\par
+CPP 无需输入即可运行，最后一行是模拟退火找到的位置。\par
+\par\noindent{\scriptsize\texttt{File: 模拟退火.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+
+mt19937 rng(time(0)); // 用当前时间作为种子，初始化一次
+
+int randint(int l,int r) // 随机取一个整数，范围 [l,r]
+{
+    return uniform_int_distribution<int>(l,r)(rng);
+}
+
+double randreal(double l,double r) // 随机取一个小数，范围 [l,r)
+{
+    return uniform_real_distribution<double>(l,r)(rng);
+}
+
+double calc(double x)
+{
+    return (x-3)*(x-3); // 要最小化的函数，最小值在 x=3 处
+}
+
+double sa(double x) // 从 x 出发，返回找到的最好位置
+{
+    double best=x;
+    for(double t=100;t>1e-6;t*=0.99)
+    {
+        double y=x+randreal(-t,t); // 在 x 附近试一个新位置
+        double d=calc(y)-calc(x); // d>0 表示新位置更差
+        if(d<=0||randreal(0,1)<exp(-d/t))x=y; // 不变差就接受，变差时按概率接受
+        if(calc(x)<calc(best))best=x;
+    }
+    return best;
+}
+
+int main()
+{
+    vector<int>a={1,2,3,4,5};
+    shuffle(a.begin(),a.end(),rng); // 原地打乱 a
+    for(int v:a)cout<<v<<" ";
+    cout<<'\n';
+
+    cout<<randint(1,10)<<'\n'; // 随机取 1 到 10 的整数，能取到 10
+    cout<<randreal(0,1)<<'\n'; // 随机取 [0,1) 内的小数
+    cout<<a[randint(0,(int)a.size()-1)]<<'\n'; // 随机选一个下标，取出元素
+
+    bool ok=randreal(0,1)<0.3; // 约 30% 的概率为 true
+    cout<<boolalpha<<ok<<'\n';
+
+    cout<<fixed<<setprecision(6)<<sa(0)<<'\n'; // 从 0 开始找，结果应接近 3
+    return 0;
+}
+\end{lstlisting}
 \subsection*{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}
 \addcontentsline{toc}{subsection}{数据结构 - 珂朵莉树 (ODT / Old Driver Tree)}
 % Source: 杂项/珂朵莉树_doc.md
@@ -5310,6 +6484,105 @@ int ts_i(int l, int r)
         else r=m; // 下降期或平缓期，极值在 m 或 m 的左边
     }
     return l; // 返回极大值对应的 x 坐标
+}
+\end{lstlisting}
+\subsection*{算法基础 - 整体二分 (静态区间第 k 小)}
+\addcontentsline{toc}{subsection}{算法基础 - 整体二分 (静态区间第 k 小)}
+% Source: 算法基础/整体二分_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：给定一个不修改的数组，多次查询区间 \texttt{[\allowbreak{}l\allowbreak{},\allowbreak{}r\allowbreak{}]} 的第 \texttt{k} 小。重复值分别计数。
+\item \textbf{核心思想}：先按值排序，并记住每个元素的原下标。每轮给值较小的一半打标记，所有询问共用这些标记，通过树状数组统计各自区间里有多少个。
+\item \textbf{如何分组}：设区间里有 \texttt{c\allowbreak{}n\allowbreak{}t} 个被标记的元素。\texttt{k\allowbreak{}\textless{}\allowbreak{}=\allowbreak{}c\allowbreak{}n\allowbreak{}t} 时去较小的一半继续找，否则跳过这 \texttt{c\allowbreak{}n\allowbreak{}t} 个元素，到另一半找第 \texttt{k\allowbreak{}-\allowbreak{}c\allowbreak{}n\allowbreak{}t} 小。分好组后撤销标记，再递归。
+\item \textbf{使用方法}：第一行输入 \texttt{n\allowbreak{} \allowbreak{}m}，接着输入 \texttt{n} 个元素和 \texttt{m} 组 \texttt{l\allowbreak{} \allowbreak{}r\allowbreak{} \allowbreak{}k}，要求 \texttt{1\allowbreak{}\textless{}\allowbreak{}=\allowbreak{}k\allowbreak{}\textless{}\allowbreak{}=\allowbreak{}r\allowbreak{}-\allowbreak{}l\allowbreak{}+\allowbreak{}1}。按原询问顺序输出答案。
+\item \textbf{例子}：数组为 \texttt{[\allowbreak{}5\allowbreak{},\allowbreak{}1\allowbreak{},\allowbreak{}4\allowbreak{},\allowbreak{}2\allowbreak{},\allowbreak{}3\allowbreak{}]}，询问 \texttt{[\allowbreak{}2\allowbreak{},\allowbreak{}5\allowbreak{}]} 的第 \texttt{4} 小。标记较小的一半 \texttt{\{\allowbreak{}1\allowbreak{},\allowbreak{}2\allowbreak{},\allowbreak{}3\allowbreak{}\}} 后，区间里有 \texttt{3} 个标记，于是去另一半找第 \texttt{1} 小，答案为 \texttt{4}。
+\item \textbf{复杂度}：时间 $O((n+m)\log^2 n)$，工作空间 $O(n+m)$。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 整体二分.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+
+const int N=2e5+10;
+struct P
+{
+    int val,pos; // 元素值、在原数组中的下标
+}a[N];
+
+struct Q
+{
+    int l,r,k,id; // 查询区间、第k小、原询问编号
+}que[N],tmp[N];
+
+int n,tr[N],ans[N];
+
+void add(int x,int v) // 在原数组的下标x处加标记
+{
+    for(;x<=n;x+=x&-x)tr[x]+=v;
+}
+
+int sum(int x)
+{
+    int res=0;
+    for(;x;x-=x&-x)res+=tr[x];
+    return res;
+}
+
+void solve(int vl,int vr,int ql,int qr) // a[vl..vr]是候选元素，que[ql..qr]是这一组询问
+{
+    if(ql>qr)return;
+    if(vl==vr)
+    {
+        for(int i=ql;i<=qr;i++)ans[que[i].id]=a[vl].val;
+        return;
+    }
+
+    int mid=(vl+vr)>>1;
+    for(int i=vl;i<=mid;i++)add(a[i].pos,1); // 标记值较小的一半，位置仍用原下标
+
+    int p=ql,t=qr;
+    for(int i=ql;i<=qr;i++)
+    {
+        Q q=que[i];
+        int cnt=sum(q.r)-sum(q.l-1); // 查询区间内有多少个被标记的元素
+        if(q.k<=cnt)tmp[p++]=q; // 左半边的元素够多，第k小就在左边
+        else
+        {
+            q.k-=cnt; // 跳过左半边的cnt个元素，在右半边找第k-cnt小
+            tmp[t--]=q;
+        }
+    }
+
+    for(int i=vl;i<=mid;i++)add(a[i].pos,-1); // 清掉本层标记，下一层重新标
+    for(int i=ql;i<=qr;i++)que[i]=tmp[i];
+    solve(vl,mid,ql,p-1);
+    solve(mid+1,vr,p,qr); // 右组顺序可以反过来，答案按id输出
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int m;
+    cin>>n>>m; // 数组长度、询问数
+    for(int i=1;i<=n;i++)
+    {
+        cin>>a[i].val;
+        a[i].pos=i;
+    }
+    sort(a+1,a+n+1,[](P x,P y){return x.val<y.val;}); // 相同值也各占一个位置
+
+    for(int i=1;i<=m;i++)
+    {
+        cin>>que[i].l>>que[i].r>>que[i].k;
+        que[i].id=i;
+    }
+
+    solve(1,n,1,m);
+    for(int i=1;i<=m;i++)cout<<ans[i]<<'\n';
+    return 0;
 }
 \end{lstlisting}
 \subsection*{算法基础 - 点差分}
@@ -6115,6 +7388,104 @@ void solve()
         ans+=tr[1]*(line[i+1].x-line[i].x);
     }
     cout<<ans<<endl;
+}
+\end{lstlisting}
+\subsection*{计算几何 - 旋转卡壳 (平面最远点对)}
+\addcontentsline{toc}{subsection}{计算几何 - 旋转卡壳 (平面最远点对)}
+% Source: 计算几何/旋转卡壳_doc.md
+\par\addvspace{0.7ex}\noindent\textbf{算法说明}\par\nobreak
+\begin{itemize}
+\item \textbf{用途}：给定一组二维点，求最远两点的距离平方，即凸包直径的平方。
+\item \textbf{核心思想}：先用 Andrew 求逆时针凸包。枚举每条凸包边，用叉积比较对面的点离这条边有多远。边向前移动时，对面的指针也只向前移动；距离并列时，两个对面点都参与比较。
+\item \textbf{使用方法}：第一行输入点数 \texttt{n}，再输入 \texttt{n} 组整数坐标 \texttt{x\allowbreak{} \allowbreak{}y}，坐标绝对值不超过 $10^9$。\texttt{h\allowbreak{}u\allowbreak{}l\allowbreak{}l\allowbreak{}(\allowbreak{}p\allowbreak{})} 排序、去重并构建凸包，\texttt{d\allowbreak{}i\allowbreak{}a\allowbreak{}m\allowbreak{}e\allowbreak{}t\allowbreak{}e\allowbreak{}r\allowbreak{}(\allowbreak{}h\allowbreak{})} 返回距离平方。只有一个不同的点时返回 \texttt{0}，全部共线时比较两个端点。
+\item \textbf{例子}：输入点 \texttt{(\allowbreak{}0\allowbreak{},\allowbreak{}0\allowbreak{})}、\texttt{(\allowbreak{}3\allowbreak{},\allowbreak{}0\allowbreak{})}、\texttt{(\allowbreak{}0\allowbreak{},\allowbreak{}4\allowbreak{})}，最远点对是 \texttt{(\allowbreak{}3\allowbreak{},\allowbreak{}0\allowbreak{})} 和 \texttt{(\allowbreak{}0\allowbreak{},\allowbreak{}4\allowbreak{})}，输出 \texttt{2\allowbreak{}5}。
+\item \textbf{复杂度}：求凸包 $O(n\log n)$，旋转卡壳 $O(h)$，空间 $O(n)$；$h$ 为凸包点数。
+\end{itemize}
+\par\noindent{\scriptsize\texttt{File: 旋转卡壳.cpp}}\par
+\begin{lstlisting}[language=C++]
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+
+struct po
+{
+    int x,y;
+};
+
+int cro(po a,po b,po c) // AB叉乘AC，是三角形ABC的两倍有向面积
+{
+    return (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+}
+
+int dis(po a,po b) // 两点距离平方
+{
+    int dx=a.x-b.x,dy=a.y-b.y;
+    return dx*dx+dy*dy;
+}
+
+vector<po> hull(vector<po>&p) // Andrew求逆时针凸包，不保留边上多余的共线点
+{
+    sort(p.begin(),p.end(),[](po a,po b)
+    {
+        if(a.x!=b.x)return a.x<b.x;
+        return a.y<b.y;
+    });
+    p.erase(unique(p.begin(),p.end(),[](po a,po b)
+    {
+        return a.x==b.x&&a.y==b.y;
+    }),p.end()); // 去掉重复点
+
+    if(p.empty())return {};
+    if(p.size()==1)return {p[0]};
+    vector<po>h;
+    for(po v:p) // 从左往右建下半边
+    {
+        while(h.size()>=2&&cro(h[h.size()-2],h.back(),v)<=0)h.pop_back();
+        h.push_back(v);
+    }
+
+    int len=h.size();
+    for(int i=(int)p.size()-2;i>=0;i--) // 从右往左建上半边
+    {
+        while((int)h.size()>len&&cro(h[h.size()-2],h.back(),p[i])<=0)h.pop_back();
+        h.push_back(p[i]);
+    }
+    h.pop_back(); // 起点在末尾重复了一次
+    return h;
+}
+
+int diameter(const vector<po>&h) // 旋转卡壳，求凸包上最远点对的距离平方
+{
+    int n=h.size();
+    if(n<=1)return 0;
+    if(n==2)return dis(h[0],h[1]); // 全部共线时，凸包只剩两个端点
+
+    int ans=0,k=1;
+    for(int i=0;i<n;i++)
+    {
+        int j=(i+1)%n; // 当前凸包边为i→j
+        while(cro(h[i],h[j],h[(k+1)%n])>cro(h[i],h[j],h[k]))
+            k=(k+1)%n; // 底边固定，面积越大说明离这条边越远
+
+        ans=max({ans,dis(h[i],h[k]),dis(h[j],h[k])}); // 对面的点和两个边端点都试一次
+        int t=(k+1)%n;
+        if(cro(h[i],h[j],h[t])==cro(h[i],h[j],h[k]))
+            ans=max({ans,dis(h[i],h[t]),dis(h[j],h[t])}); // 对边平行时，两个对面点都要试
+    }
+    return ans;
+}
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+
+    int n;
+    cin>>n; // 坐标绝对值不超过1e9
+    vector<po>p(n);
+    for(auto &v:p)cin>>v.x>>v.y;
+    cout<<diameter(hull(p))<<'\n';
+    return 0;
 }
 \end{lstlisting}
 \subsection*{计算几何 - 线段与射线交点全家桶 (无重载运算符纯净版)}
